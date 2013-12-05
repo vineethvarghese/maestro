@@ -9,6 +9,7 @@ maestro: a distinguished conductor
 overview
 --------
 
+```
                         ad-hoc analytics
 
                               ^^
@@ -31,6 +32,8 @@ overview
                                                 vv
                                               scoring
 
+
+```
 
 Phases
 ------
