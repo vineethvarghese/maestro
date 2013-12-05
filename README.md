@@ -5,9 +5,9 @@ maestro
 maestro: a distinguished conductor
 ```
 
+
 overview
 --------
-
 
                         ad-hoc analytics
 
@@ -32,7 +32,6 @@ overview
                                               scoring
 
 
-
 Phases
 ------
 
@@ -46,6 +45,9 @@ Phases
 Implementation Plan + Validation
 --------------------------------
 
+ - simplifying assumptions
+  - sql via cascading will drop into place at some point in the future
+  - text formats for first pass
  - representitive data shapes
   - entity attributes (e.g. name, age, etc..)
   - entity * time data (e.g. transactions)
@@ -57,7 +59,8 @@ Implementation Plan + Validation
   - [*] _must_ be able to do impala/hive queries against derived views
  - transformations into feature store view
   - scalding based
-  - dsl based feature geneation
+  - dsl based feature generation
+  - incremental transformations (delta appended to t - 1, gives t)
   - joins across different data shapes
   - [*] _must_ be able to do impala/hive queries across feature store along instance dimension
   - [*] _must_ be able to do impala/hive queries across feature store along feature dimension
@@ -69,10 +72,14 @@ Implementation Plan + Validation
  - join feature extract with ad-hoc table / query
  - extract for score
 
+
 Scaling implementation
 ----------------------
 
+ - alternative storage formats
  - complete extraction api
  - complete feature generation dsl
  - complete standard load forms
  - incorporate work from cascading around running hive-ql
+ - incorporate meta-data / lineage work
+ - incorporate quality / stats work
