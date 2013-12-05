@@ -81,23 +81,23 @@ Implementation Plan + Validation
      - standard transformation types
      - some custom flows
      - `[*]` _must_ be able to do impala/hive queries against derived views
- - _transformations into feature store view_
+ - __transformations into feature store view__
      - scalding based
      - dsl based feature generation
      - incremental transformations (delta appended to t - 1, gives t)
      - joins across different data shapes
      - `[*]` _must_ be able to do impala/hive queries across feature store along instance dimension
      - `[*]` _must_ be able to do impala/hive queries across feature store along feature dimension
- - _generation and usage of feature dictionary_
+ - __generation and usage of feature dictionary__
      - `[*]` _must_ be able to do impala/hive queries across feature dictionary
      - `[*]` _must_ be able to use feature dictionary in data-science process (feeds into stats, normalization)
      - `[*]` _must_ be able to use hcatalog or similar to manage user metadata and associate with dictionary info
- - _instance generation / feature extraction_
+ - __instance generation / feature extraction__
      - standard extraction queries for sampling, partioning, joining etc....
      - custom extraction functions
- - _join feature extract with ad-hoc table / query_
+ - __join feature extract with ad-hoc table / query__
      - `[*]` _must_ be able to effectively hive tables with productionised features
- - _extract for score_
+ - __extract for score__
      - `[*]` _must_ be able to perform score with efficient scan
 
 
