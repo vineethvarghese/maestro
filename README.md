@@ -151,6 +151,3 @@ Types and shapes of data landing on system.
 
 Data Sets
 ---------
-
-
-   <base>/load/
