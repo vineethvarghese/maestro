@@ -10,6 +10,8 @@ overview
 --------
 
 ```
+
+
                         ad-hoc analytics
 
                               ^^
@@ -119,17 +121,36 @@ Data Dimensions
 Types and shapes of data landing on system.
 
  - Load type
-     - delta
+     - delta (new records)
+     - delta (changed records)
      - complete
+ - Rate of change
+     - static, e.g. slowly changing dimension, account codes
+     - frequent, e.g. account balance
  - Cardinality
      - 1-1, direct attribute data, e.g. name, age, ...
      - 1-*, entity & time  keyed data, e.g. transactional data
  - Sparsity
      - Dense, i.e. all attributes have values
      - Sparse, i.e. optional attributes
+ - Schema changes
  - Relationship
      - Direct, entity id as part of composite key
      - In-direct, secondary ids used, i.e. account id, other representations of customers identity
  - Orientation
-     - Column oriented
      - Row oriented
+     - Column oriented
+ - Structure
+     - delimited, with * delimiters
+     - documents? not yet but maybe
+     - header / trailer
+     - control files
+     - unstructured columns, i.e. web logs that may have composite data in a column
+ - Landing
+     -
+
+Data Sets
+---------
+
+
+   <base>/load/
