@@ -5,34 +5,33 @@ maestro
 maestro: a distinguished conductor
 ```
 
-
 overview
 --------
 
 ```
 
 
-                        ad-hoc analytics
+                                ad-hoc analytics
 
-                              ^^
-                              ||
-   +---------------------------------------------------------+
-   |                  --------------   +-- feature store --+ |
-   |  ------------  / | derived q1 |   |                   | |
-   |  |attributes| <  --------------   |[ inst | features ]| |
-   |  ------------  \ --------------   |[ inst | features ]|----> feature extraction /
-   |                  | derived q2 |   |[ inst | features ]|----> instance generation
-   |  ------------    --------------   |[ inst | features ]| |
-   |  |    tx    |                     |                   | |
-   |  ------------                     +-------------------+ |
-   |                                            ||     |     |
-   |  ------------                              ||     ---------> experimentation &
-   |  |dictionary|                              ||           |--> ad-hoc train + score
-   |  ------------                              ||           |
-   +--------------------------------------------||-----------+
-                                                ||
-                                                vv
-                                              scoring
+                                      ^^
+                                      ||
+           +---------------------------------------------------------+
+           |                  --------------   +-- feature store --+ |
+           |  ------------  / | derived q1 |   |                   | |
+           |  |attributes| <  --------------   |[ inst | features ]| |
+           |  ------------  \ --------------   |[ inst | features ]|----> feature extraction / ---->  modelling pipeline
+           |                  | derived q2 |   |[ inst | features ]|----> instance generation  ----> (normalization etc..)
+load --->  |  ------------    --------------   |[ inst | features ]| |
+           |  |    tx    |                     |                   | |
+           |  ------------                     +-------------------+ |
+           |                                            ||     |     |
+           |  ------------                              ||     ---------> experimentation &
+           |  |dictionary|                              ||           |--> ad-hoc train + score
+           |  ------------                              ||           |
+           +--------------------------------------------||-----------+
+                                                    ||
+                                                    vv
+                                                  scoring
 
 
 ```
@@ -67,6 +66,9 @@ Components
 Implementation Plan + Validation
 --------------------------------
 
+This is the intial short-term plan for producing libraries and jobs for
+view preparation and usage.
+
 `[*] indicates validation step`
 
  - __simplifying assumptions__
@@ -97,6 +99,7 @@ Implementation Plan + Validation
  - __instance generation / feature extraction__
      - standard extraction queries for sampling, partioning, joining etc....
      - custom extraction functions
+     - `[*]` _must_ be able to run feature extraction with in reasonable (< 4-6 hour timeframe, optimal is closer to 2 hours)
  - __join feature extract with ad-hoc table / query__
      - `[*]` _must_ be able to effectively hive tables with productionised features
  - __extract for score__
@@ -107,12 +110,18 @@ Scaling implementation
 ----------------------
 
  - alternative storage formats
- - complete extraction api
- - complete feature generation dsl
+     - parquet experiments
+ - extraction api
+     - specialization for scoring
+     - specialization for standard instance generation requests
+ - feature engineering dsl
  - complete standard load forms
  - incorporate work from cascading around running hive-ql
  - incorporate meta-data / lineage work
  - incorporate quality / stats work
+ - feature dictionary
+ - export / sync feature dictionary with hcatalog
+ - query feature dictionary
 
 
 Data Dimensions
@@ -134,6 +143,8 @@ Types and shapes of data landing on system.
      - Dense, i.e. all attributes have values
      - Sparse, i.e. optional attributes
  - Schema changes
+     - Rate of change
+     - Types of change
  - Relationship
      - Direct, entity id as part of composite key
      - In-direct, secondary ids used, i.e. account id, other representations of customers identity
@@ -147,7 +158,75 @@ Types and shapes of data landing on system.
      - control files
      - unstructured columns, i.e. web logs that may have composite data in a column
  - Landing
-     -
+     - push
+     - pull
 
 Data Sets
 ---------
+
+Test data set <http://www.tpc.org/tpcds/spec/tpcds_1.1.0.pdf>
+
+ - store_sales
+ - customer_demographics
+ - date_dim
+ - time_dim
+ - item
+ - store
+ - customer
+ - promotion
+ - household_demographics
+ - customer_address
+
+
+Workflow
+--------
+
+First cut at representive tasks:
+
+ 1. transform + bin `store_sales`
+ 1. transform + bin `customer_demographics`
+ 1. transform + bin `date_dim`
+ 1. transform + bin `time_dim`
+ 1. transform + bin `item`
+ 1. transform + bin `store`
+ 1. transform + bin `customer`
+ 1. transform + bin `promotion`
+ 1. transform + bin `household_demographics`
+ 1. transform + bin `customer_address`
+ 1. derive view `customer_address at point in time`
+ 1. engineer features based on store_sales
+ 1. engineer features based upon customer demographics
+ 1. engineer features based upon customer
+ 1. extract for instance generation
+ 1. extract for score
+ 1. join extract with results of ad-hoc queries
+
+
+First cut of real data-sets
+---------------------------
+
+TBC
+
+
+Onboarding
+----------
+
+Really jobs will exists in two realms:
+ - Experimentation
+ - Production
+
+Experimentation jobs have no real restrictions, they will have all of the
+production tooling available to them, plus additional tooling around r,
+python / julia, etc... that may not necessarily be available to production
+jobs.
+
+Production jobs are those run via "maestro" with the slightly restricted
+toolset that we are able to ensure can be scored and managed operationally.
+The "restricted" toolchain may include some things from the experimention
+super-set such as certain r functionalities or raw queries that are potentially
+not sustainable, but will be made available for short periods with the
+understanding that they will have to migrated at some point in the future.
+
+All work contributing to final training of models and scoring shall be
+done via production jobs, providing certain minimal levels of automation,
+and data quality.
