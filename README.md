@@ -29,9 +29,9 @@ load --->  |  ------------    --------------   |[ inst | features ]| |
            |  |dictionary|                              ||           |--> ad-hoc train + score
            |  ------------                              ||           |
            +--------------------------------------------||-----------+
-                                                    ||
-                                                    vv
-                                                  scoring
+                                                        ||
+                                                        vv
+                                                      scoring
 
 
 ```
@@ -124,7 +124,7 @@ Scaling implementation
  - query feature dictionary
 
 
-Data Dimensions
+Data dimensions
 ---------------
 
 Types and shapes of data landing on system.
@@ -160,6 +160,7 @@ Types and shapes of data landing on system.
  - Landing
      - push
      - pull
+
 
 Data Sets
 ---------
@@ -225,7 +226,7 @@ toolset that we are able to ensure can be scored and managed operationally.
 The "restricted" toolchain may include some things from the experimention
 super-set such as certain r functionalities or raw queries that are potentially
 not sustainable, but will be made available for short periods with the
-understanding that they will have to migrated at some point in the future.
+understanding that they will have to be migrated at some point in the future.
 
 All work contributing to final training of models and scoring shall be
 done via production jobs, providing certain minimal levels of automation,
