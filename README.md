@@ -5,229 +5,202 @@ maestro
 maestro: a distinguished conductor
 ```
 
-overview
---------
+The `maestro` library is responsible for providing convenient APIs for marshalling and
+orchestrating data around for etl type work.
+
+The primary goal of `maestro` is to provide the ability to make it _easy_ to manage
+data sets with out sacrificing safety or robustness. This is achieved by sticking
+with strongly-typed schemas describing the fixed structure of data, and working on
+APIs for manipulating those structures in a sensible way that it can scale to data-sets
+with 100s of columns.
+
+
+starting point
+--------------
+
+`maestro` is designed to work with highly structured data. It is
+expected that all data-sets manipulated by `maestro` at some level
+(maybe input, output or intermediate representations) have a well
+defined wide row schema and fixed set of columns.
+
+At this point, `maestro` supports `thrift` for schema definitions.
+
+`maestro` uses the thrift schema definition to derive as much meta-data and
+implementation of custom processing (such as printing and parsing) as it
+can. It hen provides APIs that use these "data type" specific tools to
+provide generic "tasks" like generating analytics views.
+
+
+5 minute quick-start
+--------------------
+
+### Defining a thrift schema.
+
+This is not the place for a full thrift tutorial, so I will skip a lot
+of the details, but if you don't understand thrift or would like more
+complete documentation then <http://diwakergupta.github.io/thrift-missing-guide/>
+is a really good reference.
+
+So if a dataset was going to land on the system, we would define a
+schema accurately defining the columns and types:
 
 ```
 
+#@namespace scala com.cba.omnia.etl.customer.thrift
 
-                                ad-hoc analytics
-
-                                      ^^
-                                      ||
-           +---------------------------------------------------------+
-           |                  --------------   +-- feature store --+ |
-           |  ------------  / | derived q1 |   |                   | |
-           |  |attributes| <  --------------   |[ inst | features ]| |
-           |  ------------  \ --------------   |[ inst | features ]|----> feature extraction / ---->  modelling pipeline
-           |                  | derived q2 |   |[ inst | features ]|----> instance generation  ----> (normalization etc..)
-load --->  |  ------------    --------------   |[ inst | features ]| |
-           |  |    tx    |                     |                   | |
-           |  ------------                     +-------------------+ |
-           |                                            ||     |     |
-           |  ------------                              ||     ---------> experimentation &
-           |  |dictionary|                              ||           |--> ad-hoc train + score
-           |  ------------                              ||           |
-           +--------------------------------------------||-----------+
-                                                        ||
-                                                        vv
-                                                      scoring
-
+struct Customer {
+  1  : string CUSTOMER_ID
+  2  : string CUSTOMER_NAME
+  3  : string CUSTOMER_ACCT
+  4  : string CUSTOMER_CAT
+  5  : string CUSTOMER_SUB_CAT
+  6  : i32 CUSTOMER_BALANCE
+  7  : string EFFECTIVE_DATE
+ }
 
 ```
 
-Phases
-------
-
- - data loads
- - view generation
- - experimentation
- - production training
- - scoring
+This is a simplified example, a real data set may have 100s of
+columns, but it should be enough to demonstrate. The important points
+here are that _order_ is important, the struct should be defined to
+have fields in the same order as input data, and _types_ are
+important, they should accurately descript the data (and will be used
+to infer how the data should be parsed and validated).
 
 
-Components
-----------
+### Building a pipeline from the built in tools
 
- - analytics platform:  Encompasses views, feature store, formats, and apis for getting
-                        data in and out
- - tables / views:      Flat files stored on hdfs, with attached metadata, schema, lineage
- - feature store:       Just a set of tables / views which have been specifically designed
-                        to be appropriate for use as a part of instance generation and
-                        scoring
- - ad-hoc analytics:    Placeholder for search and reporting capacities over the analytics
-                        platform.
- - daily orchestration: Coarse grained flow control, i.e. load, generate, score
- - job orchestration:   Scalding / cascading flow that combines jobs of (potentially) different
-                        types into a coarse grained step. Jobs are split via domain and implementation,
-                        i.e. commscore via sas, transactions via hive, logs via scalding....
+A pipeline is defined in terms of a `cascade` this terminology comes
+from the underlying technology used, but it is easier to think of it
+as a set of jobs (with an implied partial-ordering, based on data
+dependencies).
 
+A cascade can be made up of scalding jobs, hive queries (future),
+shell commands, or `maestro` tasks. The hope is that most pipelines
+can be implemented with _just_ `maestro`, and the corner cases can
+be easily handled by hive or raw scalding jobs.
 
-Implementation Plan + Validation
---------------------------------
+A pipeline built only from `maestro` tasks.
 
-This is the intial short-term plan for producing libraries and jobs for
-view preparation and usage.
+```scala
 
-`[*] indicates validation step`
+import com.twitter.scalding._
+import com.cba.omnia.maestro._
+import com.cba.omnia.etl.customer.thrift._
 
- - __simplifying assumptions__
-     - sql via cascading will drop into place at some point in the future
-     - text formats for first pass
- - __identify representitive data dimensions and obtain test data__
-     - entity attributes (e.g. name, age, etc..)
-     - entity * time data (e.g. transactions)
-     - snapshot + delta of attributes
-     - `[*]` _must_ be able to do impala/hive queries against time based dense data sets
-     - `[*]` check viability of writing queries against sparse / delta feeds
- - __view derivation__
-     - e.g. deltas into dense, querable, records
-     - standard transformation types
-     - some custom flows
-     - `[*]` _must_ be able to do impala/hive queries against derived views
- - __transformations into feature store view__
-     - scalding based
-     - dsl based feature generation
-     - incremental transformations (delta appended to t - 1, gives t)
-     - joins across different data shapes
-     - `[*]` _must_ be able to do impala/hive queries across feature store along instance dimension
-     - `[*]` _must_ be able to do impala/hive queries across feature store along feature dimension
- - __generation and usage of feature dictionary__
-     - `[*]` _must_ be able to do impala/hive queries across feature dictionary
-     - `[*]` _must_ be able to use feature dictionary in data-science process (feeds into stats, normalization)
-     - `[*]` _must_ be able to use hcatalog or similar to manage user metadata and associate with dictionary info
- - __instance generation / feature extraction__
-     - standard extraction queries for sampling, partioning, joining etc....
-     - custom extraction functions
-     - `[*]` _must_ be able to run feature extraction with in reasonable (< 4-6 hour timeframe, optimal is closer to 2 hours)
- - __join feature extract with ad-hoc table / query__
-     - `[*]` _must_ be able to effectively hive tables with productionised features
- - __extract for score__
-     - `[*]` _must_ be able to perform score with efficient scan
+class CustomerCuscade(args: Args) extends CascadeJob(args) with MaestroSupport[Customer] {
+  val maestro = Maestro(args)
 
+  val delimiter = "|$|"
+  val env           = args("env")
+  val domain        = "CUSTOMER"
+  val input         = s"${env}/source/${domain}"
+  val clean         = s"${env}/processing/${domain}"
+  val outbound      = s"${env}/outbound/${domain}"
+  val dateView      = s"${env}/view/warehouse/${domain}/by-date"
+  val catView       = s"${env}/view/warehouse/${domain}/by-category"
+  val features      = s"${env}/view/features/ivory"
+  val errors        = s"${env}/errors/${domain}"
+  val now           = yyyyMMdd.format(new java.util.Date)
+  val byDate        = Partition.byDate(Fields.EFFECITVE_DATE)
+  val byCategory    = Partition.byFields(Field.CUSTOMER_CAT, Fields.CUSTOMER_SUB_CAT)
+  val filters       = Filter.exclude(Fields.EFFECTIVE_DATE)
 
-Scaling implementation
-----------------------
+  def jobs = List(
+    maestro.load[Customer](delimiter, input, clean, errors, now),
+    maestro.view(byDate, clean, dateView),
+    maestro.view(byCategory, clean, catView),
+    maestro.ivory(clean, features),
+    maestro.sqoop(clean, output, filters)
+  )
+}
 
- - alternative storage formats
-     - parquet experiments
- - extraction api
-     - specialization for scoring
-     - specialization for standard instance generation requests
- - feature engineering dsl
- - complete standard load forms
- - incorporate work from cascading around running hive-ql
- - incorporate meta-data / lineage work
- - incorporate quality / stats work
- - feature dictionary
- - export / sync feature dictionary with hcatalog
- - query feature dictionary
+```
 
+### Concepts
 
-Data dimensions
----------------
+#### MaestroSupport
 
-Types and shapes of data landing on system.
+`MaestroSupport` uses the metadata available from the thrift definition
+to generate out significant supporting infrastructure customized for
+_your_ specific record type. This gives us the ability to refer to fields
+for partitioning, filtering and validation in a way that can be easily
+be checked and validated up front (by the compiler in most circumstances,
+and on start-up before things run in the worst case) and that those field
+references can have large amounts of interesting metadata which allows
+us to automatically parse, print, validate, filter, partition the data
+in a way that we _know_ will work before we run the code (for a valid
+schema).
 
- - Load type
-     - delta (new records)
-     - delta (changed records)
-     - complete
- - Rate of change
-     - static, e.g. slowly changing dimension, account codes
-     - frequent, e.g. account balance
- - Cardinality
-     - 1-1, direct attribute data, e.g. name, age, ...
-     - 1-*, entity & time  keyed data, e.g. transactional data
- - Sparsity
-     - Dense, i.e. all attributes have values
-     - Sparse, i.e. optional attributes
- - Schema changes
-     - Rate of change
-     - Types of change
- - Relationship
-     - Direct, entity id as part of composite key
-     - In-direct, secondary ids used, i.e. account id, other representations of customers identity
- - Orientation
-     - Row oriented
-     - Column oriented
- - Structure
-     - delimited, with * delimiters
-     - documents? not yet but maybe
-     - header / trailer
-     - control files
-     - unstructured columns, i.e. web logs that may have composite data in a column
- - Landing
-     - push
-     - pull
+#### Tasks
+
+Tasks are not a concrete concept, it is just a name used to indicate that a
+function returns a scalding job for integration into a cascade. Tasks differ
+from raw Jobs in that they rely on the metadata generated by `MaestroSupport`
+and can generally only by executed via their scala api and are not intended to
+be standalone jobs that would be run by themselves.
+
+#### Partitioners
+
+Partitioners are really simple. Partitioners are just a list of fields to
+partition a data set by.
+
+The primary api is the list of fields you want to partition on:
+
+```scala
+Partiton.byFields(fields.CUSTOMER_CAT, fields.CUSTOMER_SUB_CAT)
+```
+
+The api also has special support for dates of the `yyyy-MM-dd` form:
+
+```scala
+Partiton.byDate(fields.EFFECTIVE_DATE)
+```
+
+This will use that field, but split the partitioning into 3 parts of
+yyyy, MM and dd.
 
 
-Data Sets
----------
+#### Filters
 
-Test data set <http://www.tpc.org/tpcds/spec/tpcds_1.1.0.pdf>
+Filters gain are really simple (hopefully). By default filters
+allow everything. A filter can then be refined via either
+blacklists (i.e. exclude these columns) or whitelists (i.e.
+only include these columns).
 
- - store_sales
- - customer_demographics
- - date_dim
- - time_dim
- - item
- - store
- - customer
- - promotion
- - household_demographics
- - customer_address
+Examples:
+```scala
+ // everything except effective date
+Filter.exclude(fields.EFFECTIVE_DATE)
 
+ // _only_ effective date and customer id
+Filter.include(fields.EFFECTIVE_DATE, fields.CUSTOMER_ID)
+```
 
-Workflow
---------
+#### Validators
 
-First cut at representive tasks:
+Validators start to get a bit more advanced, but hopefully not too bad.
+A Validator can be thought of something that is a function from the record
+type to either an error message or an "ok" tick of approval. In a lot of
+cases this understanding can be simplified to saying it is a combination
+of a `Field` to validate and a `Check` to apply. There are a few builtin
+checks provided, if you want to do custom checking you can fail back to
+defining a custom function.
 
- 1. transform + bin `store_sales`
- 1. transform + bin `customer_demographics`
- 1. transform + bin `date_dim`
- 1. transform + bin `time_dim`
- 1. transform + bin `item`
- 1. transform + bin `store`
- 1. transform + bin `customer`
- 1. transform + bin `promotion`
- 1. transform + bin `household_demographics`
- 1. transform + bin `customer_address`
- 1. derive view `customer_address at point in time`
- 1. engineer features based on store_sales
- 1. engineer features based upon customer demographics
- 1. engineer features based upon customer
- 1. extract for instance generation
- 1. extract for score
- 1. join extract with results of ad-hoc queries
+```scala
+Validator.all(
+  Validator.of(fields.EFFECTIVE_DATE, Check.isDate),
+  Validator.of(fields.CUSTOMER_CAT, Check.oneOf("BANK", "INSURE")),
+  Validator.of(fields.CUSTOMER_NAME, Check.nonempty),
+  Validator.of(fields.CUSTOMER_ID, Check.matches("\d+")),
+  Validator.by[Customer](_.customerAcct.length == 9, "Customer accounts should always be a length of 9")
+)
+```
 
+### Advanced tips & tricks
 
-First cut of real data-sets
----------------------------
-
-TBC
-
-
-Onboarding
-----------
-
-Really jobs will exists in two realms:
- - Experimentation
- - Production
-
-Experimentation jobs have no real restrictions, they will have all of the
-production tooling available to them, plus additional tooling around r,
-python / julia, etc... that may not necessarily be available to production
-jobs.
-
-Production jobs are those run via "maestro" with the slightly restricted
-toolset that we are able to ensure can be scored and managed operationally.
-The "restricted" toolchain may include some things from the experimention
-super-set such as certain r functionalities or raw queries that are potentially
-not sustainable, but will be made available for short periods with the
-understanding that they will have to be migrated at some point in the future.
-
-All work contributing to final training of models and scoring shall be
-done via production jobs, providing certain minimal levels of automation,
-and data quality.
+The best tip for advanced pipelines is to look carefully at how
+the maestro tasks are implemented. You have the same set of tools
+available to you and can jump down to the same lower-level of
+abstraction by just implementing a scalding job, and extending the
+MaestroSupport trait.
