@@ -15,10 +15,16 @@ object build extends Build {
         "-deprecation"
       , "-unchecked"
       , "-optimise"
-      , "-Ywarn-all"
-      , "-Xlint"
-// can't do this because of a work around for yet another scalding bug
-//      , "-Xfatal-warnings"
+// can't use -Ywarn-all, -Xlint because need to discard  -Ywarn-nullary-unit to work around scalding issue, resinstate once it is fixed.
+//      , "-Ywarn-all"
+//      , "-Xlint"
+      , "-Ywarn-adapted-args"
+      , "-Ywarn-dead-code"
+      , "-Ywarn-inaccessible"
+      , "-Ywarn-nullary-override"
+      , "-Ywarn-numeric-widen"
+      , "-Ywarn-value-discard"
+      , "-Xfatal-warnings"
       , "-feature"
       , "-language:_"
       )
@@ -33,7 +39,7 @@ object build extends Build {
     , publishArtifact := false
     )
   , aggregate = Seq(core, macros, api, example, benchmark)
-  )
+  ).dependsOn(api)
 
   lazy val api = Project(
     id = "api"

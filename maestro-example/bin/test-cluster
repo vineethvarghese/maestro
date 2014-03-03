@@ -1,8 +1,6 @@
 #!/bin/sh -eu
 
 JOB="com.cba.omnia.maestro.example.CustomerCascade --hdfs"
-#JOB="com.cba.omnia.maestro.example.TestJob --hdfs"
-
 
 PROJECT=$(dirname $0)/..
 JAR=${PROJECT}/target/scala-2.10/maestro-example-assembly-0.1.1.jar

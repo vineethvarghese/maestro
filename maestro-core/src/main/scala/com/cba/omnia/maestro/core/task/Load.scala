@@ -18,7 +18,8 @@ object Load {
     new LoadJob(args, delimiter, sources, output, errors, now)
 }
 
-class LoadJob[A <: ThriftStruct : Decode : Manifest](args: Args, delimiter: String, sources: List[String], output: String, errors: String, now: String) extends Job(args) {
+class LoadJob[A <: ThriftStruct : Decode : Manifest](args: Args, delimiter: String, sources: List[String], output: String, errors: String, now: String) extends UniqueJob(args) {
+
   Errors.safely(errors) {
 
     sources.map(p => TextLine(p).read).reduceLeft(RichPipe(_) ++ RichPipe(_))

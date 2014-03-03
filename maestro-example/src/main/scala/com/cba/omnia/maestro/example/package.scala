@@ -5,8 +5,6 @@ import com.cba.omnia.maestro.core.codec._
 import com.cba.omnia.maestro.core.hdfs._
 import com.cba.omnia.maestro.example.thrift._
 
-
-
 package object example {
   lazy val yyyyMMdd = {
     val f = new java.text.SimpleDateFormat("yyyy-MM-dd")
@@ -22,5 +20,4 @@ package object example {
 
   val Fields =
     Macros.mkFields[Customer]
-
 }
