@@ -13,4 +13,10 @@ case class Maestro(args: Args) {
 
   def load[A <: ThriftStruct : Decode : Manifest](delimiter: String, sources: List[String], output: String, errors: String, now: String) =
     Load.create(args, delimiter, sources, output, errors, now)
+
+  def now(format: String = "yyyy-MM-dd") = {
+    val f = new java.text.SimpleDateFormat(format)
+    f.setTimeZone(java.util.TimeZone.getTimeZone("UTC"))
+    f.format(new java.util.Date)
+  }
 }

@@ -6,7 +6,7 @@ import com.cba.omnia.maestro.macros._
 import com.cba.omnia.maestro.example.thrift._
 import scalaz._, Scalaz._
 
-object CustomerSpec extends test.Spec { def is = s2"""
+object CustomerSpec extends test.Spec with MacroSupport[Customer] { def is = s2"""
 
 Customer properties
 =================

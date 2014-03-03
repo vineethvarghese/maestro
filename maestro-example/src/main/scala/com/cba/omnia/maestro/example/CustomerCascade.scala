@@ -1,6 +1,7 @@
 package com.cba.omnia.maestro.example
 
 import com.cba.omnia.maestro.api._
+import com.cba.omnia.maestro.core.codec._
 import com.cba.omnia.maestro.example.thrift._
 import com.twitter.scalding._
 
@@ -16,12 +17,11 @@ class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport[Cust
   val dateView      = s"${env}/view/warehouse/${domain}/by-date"
   val catView       = s"${env}/view/warehouse/${domain}/by-cat"
   val errors        = s"${env}/errors/${domain}"
-  val now           = yyyyMMdd.format(new java.util.Date)
 
   def jobs = Guard.toProcess(input) { paths => List(
-    maestro.load[Customer]("|", paths, clean, errors, now)
+    maestro.load[Customer]("|", paths, clean, errors, maestro.now())
   , maestro.view(Partition.byDate(Fields.EffectiveDate), clean, dateView)
-//  , maestro.view(Partition.byFields2(Fields.CustomerCat, Fields.CustomerSubCat), clean, catView)
+  , maestro.view(Partition.byFields2(Fields.CustomerCat, Fields.CustomerSubCat), clean, catView)
   ) }
 
   override def validate { /* workaround for scalding bug, yep, yet another one, no nothing works */ }
