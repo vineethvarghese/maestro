@@ -1,4 +1,4 @@
-#!/bin/sh -eu
+#!/bin/sh -eux
 
 JOB="com.cba.omnia.maestro.example.CustomerCascade --hdfs"
 PROJECT=$(dirname $0)/..

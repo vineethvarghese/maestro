@@ -6,7 +6,7 @@ import com.twitter.scrooge._
 import scala.reflect.macros.Context
 
 object DecodeMacro {
-  val ChunkSize = 22
+  val ChunkSize = 15
 
 
   /*
