@@ -29,7 +29,8 @@ object build extends Build {
       , "-language:_"
       )
     , resolvers += Resolver.sonatypeRepo("releases")
-    )
+    , resolvers += "commbank-releases" at "http://commbank.artifactoryonline.com/commbank/ext-releases-local"
+    ) ++ UniqueVersion.uniqueVersionSettings
 
   lazy val all = Project(
     id = "all"
