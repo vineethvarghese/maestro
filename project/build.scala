@@ -59,12 +59,13 @@ object build extends Build {
   , settings = standardSettings ++ Seq[Sett](
       name := "maestro-core"
     , libraryDependencies ++= Seq(
-        "com.google.guava"  %  "guava"       % "16.0.1"
+        "com.cba.omnia"     %% "ebenezer"    % "0.0.1-20140305013200-f43c6ab"
       , "com.chuusai"       %% "shapeless"   % "2.0.0-M1" cross CrossVersion.full
+      , "com.google.guava"  %  "guava"       % "16.0.1"
       , "org.scalaz"        %% "scalaz-core" % "7.0.4"
       ) ++ tests ++ hadoop
     )
-  ).dependsOn(file("../ebenezer"))
+  )
 
   lazy val macros = Project(
     id = "macros"
