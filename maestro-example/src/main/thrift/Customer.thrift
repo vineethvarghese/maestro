@@ -1,4 +1,4 @@
-#@namespace scala com.cba.omnia.maestro.example.thrift
+#@namespace scala au.com.cba.omnia.maestro.example.thrift
 
 struct Customer {
   1  : string CUSTOMER_ID

@@ -46,7 +46,7 @@ schema accurately defining the columns and types:
 
 ```
 
-#@namespace scala com.cba.omnia.etl.customer.thrift
+#@namespace scala au.com.cba.omnia.etl.customer.thrift
 
 struct Customer {
   1  : string CUSTOMER_ID
@@ -85,8 +85,8 @@ A pipeline built only from `maestro` tasks.
 ```scala
 
 import com.twitter.scalding._
-import com.cba.omnia.maestro._
-import com.cba.omnia.etl.customer.thrift._
+import au.com.cba.omnia.maestro._
+import au.com.cba.omnia.etl.customer.thrift._
 
 class CustomerCuscade(args: Args) extends CascadeJob(args) with MaestroSupport[Customer] {
   val maestro = Maestro(args)

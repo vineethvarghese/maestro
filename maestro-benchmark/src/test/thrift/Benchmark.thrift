@@ -1,5 +1,5 @@
 
-#@namespace scala com.cba.omnia.maestro.benchmark.thrift
+#@namespace scala au.com.cba.omnia.maestro.benchmark.thrift
 
 struct Basic {
   1  : string isString
