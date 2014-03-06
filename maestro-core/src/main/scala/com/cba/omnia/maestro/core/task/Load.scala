@@ -2,7 +2,7 @@ package com.cba.omnia.maestro.core
 package task
 
 
-import com.cba.omnia.ebenezer.scrooge._
+import au.com.cba.omnia.ebenezer.scrooge._
 import com.cba.omnia.maestro.core.scalding._
 import com.cba.omnia.maestro.core.codec._
 import com.google.common.base.Splitter
@@ -45,4 +45,5 @@ class LoadJob[A <: ThriftStruct : Decode : Manifest](args: Args, delimiter: Stri
        })
 
   }.write(ParquetScroogeSource[A](output))
+
 }
