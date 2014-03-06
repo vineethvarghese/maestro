@@ -13,20 +13,6 @@ object FieldsMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context) = {
     import c.universe._
 
-/*
-
-     def selFieldImpl = {
-      val field = c.macroApplication.symbol
-      val bodyAnn = field.annotations.filter(_.tpe <:< typeOf[body]).head
-      bodyAnn.scalaArgs.head
-    }
-
-    def mkObjectImpl(xs: c.Tree*) = {
-      val kvps = xs.toList map { case q"${_}(${Literal(Constant(name: String))}).->[${_}]($value)" => name -> value }
-      val fields = kvps map { case (k, v) => q"@body($v) def ${TermName(k)} = macro Macros.selFieldImpl" }
-    }
-*/
-
     val entries = Inspect.fields[A](c)
     val fields = entries.map({
       case (method, field) =>
