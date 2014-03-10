@@ -46,7 +46,7 @@ object build extends Build {
       libraryDependencies ++= Seq(
         "com.chuusai"       %% "shapeless"   % "2.0.0-M1" cross CrossVersion.full
       , "com.google.guava"  %  "guava"       % "16.0.1"
-      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140306050305-42aed3a") ++ depend.scalding() ++ depend.hadoop()
+      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140306050305-42aed3a") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
 

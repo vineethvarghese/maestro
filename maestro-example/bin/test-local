@@ -1,6 +1,6 @@
 #!/bin/sh -eux
 
-JOB="com.cba.omnia.maestro.example.CustomerCascade --hdfs"
+JOB="com.cba.omnia.maestro.example.CustomerCascade --local"
 PROJECT=$(dirname $0)/..
 TARGET=${PROJECT}/target/test-local
 JAR_NAME=maestro-example-assembly-0.1.1.jar
