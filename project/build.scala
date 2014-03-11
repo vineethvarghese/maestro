@@ -21,7 +21,7 @@ object build extends Build {
   , settings = standardSettings ++ uniform.project("maestro-all", "au.com.cba.omnia.maestro") ++ Seq[Sett](
       publishArtifact := false
     )
-  , aggregate = Seq(core, macros, api, example, benchmark)
+  , aggregate = Seq(core, macros, api, example)
   )
 
   lazy val api = Project(
