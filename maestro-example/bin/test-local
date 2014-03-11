@@ -1,10 +1,10 @@
 #!/bin/sh -eux
 
-JOB="com.cba.omnia.maestro.example.CustomerCascade --local"
+JOB="au.com.cba.omnia.maestro.example.CustomerCascade --hdfs"
 PROJECT=$(dirname $0)/..
 TARGET=${PROJECT}/target/test-local
-JAR_NAME=maestro-example-assembly-0.1.1.jar
-JAR=${PROJECT}/target/scala-2.10/${JAR_NAME}
+JAR=${PROJECT}/target/scala-2.10/maestro-example-assembly-*.jar
+JAR_NAME=$(basename ${JAR})
 
 [ ! -d "${PROJECT}/target/test-local" ] || rm -rf ${PROJECT}/target/test-local
 mkdir -p ${TARGET}

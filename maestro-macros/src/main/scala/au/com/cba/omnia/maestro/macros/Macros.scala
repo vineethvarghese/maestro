@@ -22,7 +22,11 @@ trait MacroSupport[A <: ThriftStruct] {
   implicit def DerivedEncode: Encode[A] =
     macro EncodeMacro.impl[A]
 
+  implicit def DerivedTag: Tag[A] =
+    macro TagMacro.impl[A]
+
   /* NOTE: This isn't really any, it is a structural type containing all the fields. */
   def Fields: Any =
     macro FieldsMacro.impl[A]
+
 }

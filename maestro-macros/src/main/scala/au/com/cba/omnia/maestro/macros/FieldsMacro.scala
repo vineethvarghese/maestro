@@ -25,7 +25,12 @@ object FieldsMacro {
         val n = newTermName(field)
         q"""def ${n} = $value"""
     })
-    val r =q"class FieldsWrapper { ..$fields }; new FieldsWrapper {}"
+    val refs = entries.map({
+      case (method, field) =>
+        val n = newTermName(field)
+        q"$n"
+    })
+    val r =q"class FieldsWrapper { ..$fields; def AllFields = List(..$refs) }; new FieldsWrapper {}"
     c.Expr(r)
   }
 }

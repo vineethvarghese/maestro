@@ -1,35 +1,38 @@
 package au.com.cba.omnia.maestro.core
 package task
 
-
 import au.com.cba.omnia.ebenezer.scrooge._
 import au.com.cba.omnia.maestro.core.scalding._
 import au.com.cba.omnia.maestro.core.codec._
+import au.com.cba.omnia.maestro.core.clean._
+import au.com.cba.omnia.maestro.core.validate._
+
 import com.google.common.base.Splitter
 import com.twitter.scalding._, TDsl._
 import com.twitter.scrooge._
 
 import scala.collection.JavaConverters._
-import scalaz._, Scalaz._
-
+import scalaz.{Tag => _, _}, Scalaz._
 
 object Load {
-  def create[A <: ThriftStruct : Decode : Manifest](args: Args, delimiter: String, sources: List[String], output: String, errors: String, now: String) =
-    new LoadJob(args, delimiter, sources, output, errors, now)
+  def create[A <: ThriftStruct : Decode : Tag : Manifest](args: Args, delimiter: String, sources: List[String], output: String, errors: String, now: String, clean: Clean, validator: Validator[A]) =
+    new LoadJob(args, delimiter, sources, output, errors, now, clean, validator)
 }
 
-class LoadJob[A <: ThriftStruct : Decode : Manifest](args: Args, delimiter: String, sources: List[String], output: String, errors: String, now: String) extends UniqueJob(args) {
+class LoadJob[A <: ThriftStruct : Decode: Tag : Manifest](args: Args, delimiter: String, sources: List[String], output: String, errors: String, now: String, clean: Clean, validator: Validator[A]) extends UniqueJob(args) {
 
   Errors.safely(errors) {
 
     sources.map(p => TextLine(p).read).reduceLeft(RichPipe(_) ++ RichPipe(_))
       .toTypedPipe[String]('line)
       .map(line => Splitter.on(delimiter).split(line).asScala.toList)
-      .map(record => record.map(_.trim))
+      .map(record => Tag.tag[A](record).map({
+        case (column, field) => clean.run(field, column)
+       }))
       .map(record => Decode.decode[A](UnknownDecodeSource(record ++ List(now))))
       .map({
         case DecodeOk(value) =>
-          value.right
+          validator.run(value).disjunction.leftMap(errors => s"""The following errors occured: ${errors.toList.mkString(",")}""")
         // FIX this
         case e @ DecodeError(remainder, counter, reason) =>
           reason match {
