@@ -10,11 +10,11 @@ import com.twitter.scalding._, TDsl._
 import com.twitter.scrooge._
 
 object View {
-  def create[A <: ThriftStruct : Decode : Manifest, B: Manifest: TupleSetter](args: Args, partition: Partition[A, B], source: String, output: String) =
+  def create[A <: ThriftStruct : Manifest, B: Manifest: TupleSetter](args: Args, partition: Partition[A, B], source: String, output: String) =
     new ViewJob(args, partition, source, output)
 }
 
-class ViewJob[A <: ThriftStruct : Decode : Manifest, B: Manifest: TupleSetter](args: Args, partition: Partition[A, B], source: String, output: String) extends UniqueJob(args) {
+class ViewJob[A <: ThriftStruct : Manifest, B: Manifest: TupleSetter](args: Args, partition: Partition[A, B], source: String, output: String) extends UniqueJob(args) {
 
    ParquetScroogeSource[A](source)
      .map(v => partition.extract(v) -> v)

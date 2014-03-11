@@ -25,9 +25,10 @@ class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport[Cust
     Validator.of(Fields.CustomerSubCat, Check.oneOf("M", "F")),
     Validator.by[Customer](_.customerAcct.length == 4, "Customer accounts should always be a length of 4")
   )
+  val filter        = RowFilter.keep
 
   def jobs = Guard.toProcess(input) { paths => List(
-    maestro.load[Customer]("|", paths, clean, errors, maestro.now(), cleaners, validators)
+    maestro.load[Customer]("|", paths, clean, errors, maestro.now(), cleaners, validators, filter)
   , maestro.view(Partition.byDate(Fields.EffectiveDate), clean, dateView)
   , maestro.view(Partition.byFields2(Fields.CustomerCat, Fields.CustomerSubCat), clean, catView)
   ) }

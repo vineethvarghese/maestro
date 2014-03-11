@@ -148,13 +148,13 @@ partition a data set by.
 The primary api is the list of fields you want to partition on:
 
 ```scala
-Partiton.byFields(fields.CUSTOMER_CAT, fields.CUSTOMER_SUB_CAT)
+Partiton.byFields(Fields.CUSTOMER_CAT, Fields.CUSTOMER_SUB_CAT)
 ```
 
 The api also has special support for dates of the `yyyy-MM-dd` form:
 
 ```scala
-Partiton.byDate(fields.EFFECTIVE_DATE)
+Partiton.byDate(Fields.EFFECTIVE_DATE)
 ```
 
 This will use that field, but split the partitioning into 3 parts of
@@ -171,10 +171,10 @@ only include these columns).
 Examples:
 ```scala
  // everything except effective date
-Filter.exclude(fields.EFFECTIVE_DATE)
+Filter.exclude(Fields.EFFECTIVE_DATE)
 
  // _only_ effective date and customer id
-Filter.include(fields.EFFECTIVE_DATE, fields.CUSTOMER_ID)
+Filter.include(Fields.EFFECTIVE_DATE, Fields.CUSTOMER_ID)
 ```
 
 #### Validators
@@ -193,7 +193,7 @@ Validator.all(
   Validator.of(fields.CUSTOMER_CAT, Check.oneOf("BANK", "INSURE")),
   Validator.of(fields.CUSTOMER_NAME, Check.nonempty),
   Validator.of(fields.CUSTOMER_ID, Check.matches("\d+")),
-  Validator.by[Customer](_.customerAcct.length == 9, "Customer accounts should always be a length of 9")
+  Validator.by[Customer](_.customerAcct.length == 4, "Customer accounts should always be a length of 4")
 )
 ```
 
