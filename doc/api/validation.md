@@ -53,7 +53,7 @@ case class Customer(id: String, classifier: String, name: String)
 val validator =
   Validator.by[Customer](customer => customer.id.startsWith(customer.classifier), "classification")
 
-// to run this (normally down internally to other maestro calls) we would call run
+// to run this (normally done internally to other maestro calls) we would call run
 
 // a success example would be
 validator.run(Customer("X0001", "X", "Fred")) == Success(Customer("X0001", "X", "Fred"))
