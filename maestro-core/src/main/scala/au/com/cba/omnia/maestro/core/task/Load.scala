@@ -27,7 +27,7 @@ class LoadJob[A <: ThriftStruct : Decode: Tag : Manifest](args: Args, delimiter:
     sources.map(p => TextLine(p).read).reduceLeft(RichPipe(_) ++ RichPipe(_))
       .toTypedPipe[String]('line)
       .map(line => Splitter.on(delimiter).split(line).asScala.toList)
-      .filter(filter.run)
+      .flatMap(filter.run(_).toList)
       .map(record => Tag.tag[A](record).map({
         case (column, field) => clean.run(field, column)
        }))

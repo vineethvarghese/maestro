@@ -1,12 +1,12 @@
 package au.com.cba.omnia.maestro.core
 package filter
 
-case class RowFilter(run: List[String] => Boolean)
+case class RowFilter(run: List[String] => Option[List[String]])
 
 object RowFilter {
   def keep: RowFilter =
-    RowFilter(_ => true)
+    RowFilter(Some.apply)
 
   def byRowLeader(include: String): RowFilter =
-    RowFilter(_.headOption.exists(_ == include))
+    RowFilter(row => if (row.headOption.exists(_ == include)) Some(row.tail) else None)
 }
