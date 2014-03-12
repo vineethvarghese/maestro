@@ -105,9 +105,15 @@ class CustomerCuscade(args: Args) extends CascadeJob(args) with MaestroSupport[C
   val byDate        = Partition.byDate(Fields.EFFECITVE_DATE)
   val byCategory    = Partition.byFields(Field.CUSTOMER_CAT, Fields.CUSTOMER_SUB_CAT)
   val filters       = Filter.exclude(Fields.EFFECTIVE_DATE)
+  val cleaners      = Clean.all(
+    Clean.trim
+  )
+  val validators    = Validator.all(
+  )
+  val filter        = RowFilter.keep
 
   def jobs = List(
-    maestro.load[Customer](delimiter, input, clean, errors, now),
+    maestro.load[Customer](delimiter, input, clean, errors, now, cleaners, validators, filter),
     maestro.view(byDate, clean, dateView),
     maestro.view(byCategory, clean, catView),
     maestro.ivory(clean, features),
