@@ -15,6 +15,7 @@ object build extends Build {
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++ Seq[Sett](
       version in ThisBuild := "0.1.1"
+     ,scalaVersion := "2.10.3" 
     ) ++ uniqueVersionSettings ++ uniformDependencySettings
 
   lazy val all = Project(
