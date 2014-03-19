@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 
+import sbtassembly.Plugin.AssemblyKeys._
+
 import au.com.cba.omnia.uniform.core.standard.StandardProjectPlugin._
 import au.com.cba.omnia.uniform.core.version.UniqueVersionPlugin._
 import au.com.cba.omnia.uniform.dependency.UniformDependencyPlugin._
@@ -12,10 +14,32 @@ import sbtassembly.Plugin._, AssemblyKeys._
 object build extends Build {
   type Sett = Project.Setting[_]
 
+  val IncludeInLib = Configurations.config("include-lib").extend(Compile)
+
+  def addSpecifiedDependenciesToLibInAssembly = inConfig(IncludeInLib)(Defaults.configSettings) ++ Seq(
+    (libraryDependencies in IncludeInLib) := Nil, // needed otherwise scala library gets included.
+    (assembledMappings in assembly) <<= (managedClasspath in IncludeInLib, assembledMappings in assembly) map ((managed, mappings) => {
+      {
+        val managedMappings = managed.map(_.data).map(f => f -> ("lib/" + f.getName))
+        managedMappings.foreach({ case (file, path) => println("Adding managed (include in lib) dependency at " + path)})
+ managedMappings ++ mappings
+      }
+    })
+  )
+
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++ Seq[Sett](
       version in ThisBuild := "0.1.1"
-     ,scalaVersion := "2.10.3" 
+     ,scalaVersion := "2.10.3"
+     ,scalacOptions := Seq(                                                                                                                                                                                                                                                       
+      "-deprecation"                                                                                                                                                                                                                                                             
+     ,"-unchecked"
+     , "-Ywarn-all"
+     , "-Xlint"
+     , "-feature"
+     , "-language:_"
+     , "-target:jvm-1.6"
+     )
     ) ++ uniqueVersionSettings ++ uniformDependencySettings
 
   lazy val all = Project(
@@ -34,7 +58,7 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro", "au.com.cba.omnia.maestro.api")
     ++ Seq[Sett](
-      libraryDependencies ++= depend.hadoop() ++ depend.testing()
+      libraryDependencies ++= depend.hadoop() ++ depend.testing() 
     )
   ).dependsOn(core)
    .dependsOn(macros)
@@ -47,8 +71,9 @@ object build extends Build {
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
       libraryDependencies ++= Seq(
-        "com.chuusai"       %% "shapeless"   % "2.0.0-M1" cross CrossVersion.full
-      , "com.google.guava"  %  "guava"       % "16.0.1"
+        "com.chuusai"       %% "shapeless"       % "2.0.0-M1" cross CrossVersion.full
+      , "com.google.guava"  %  "guava"           % "16.0.1"
+      , "cascading"         %  "cascading-hive"  % "1.0.0-wip-dev"
       ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140317103613-682d854") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
@@ -80,6 +105,8 @@ object build extends Build {
     Seq[Sett](
      libraryDependencies ++= depend.hadoop() ++ depend.testing()
     , mergeStrategy in assembly <<= (mergeStrategy in assembly)(fixLicenses)
+    , addSpecifiedDependenciesToLibInAssembly
+    , (libraryDependencies in IncludeInLib) := Seq("org.apache.hive" % "hive-builtins" % "0.10.0.jar" intransitive())
     )
   ).dependsOn(core)
    .dependsOn(macros)
