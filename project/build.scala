@@ -1,7 +1,6 @@
 import sbt._
 import Keys._
 
-import sbtassembly.Plugin.AssemblyKeys._
 
 import au.com.cba.omnia.uniform.core.standard.StandardProjectPlugin._
 import au.com.cba.omnia.uniform.core.version.UniqueVersionPlugin._
@@ -13,19 +12,6 @@ import sbtassembly.Plugin._, AssemblyKeys._
 
 object build extends Build {
   type Sett = Project.Setting[_]
-
-  val IncludeInLib = Configurations.config("include-lib").extend(Compile)
-
-  def addSpecifiedDependenciesToLibInAssembly = inConfig(IncludeInLib)(Defaults.configSettings) ++ Seq(
-    (libraryDependencies in IncludeInLib) := Nil, // needed otherwise scala library gets included.
-    (assembledMappings in assembly) <<= (managedClasspath in IncludeInLib, assembledMappings in assembly) map ((managed, mappings) => {
-      {
-        val managedMappings = managed.map(_.data).map(f => f -> ("lib/" + f.getName))
-        managedMappings.foreach({ case (file, path) => println("Adding managed (include in lib) dependency at " + path)})
- managedMappings ++ mappings
-      }
-    })
-  )
 
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++ Seq[Sett](
@@ -71,10 +57,13 @@ object build extends Build {
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
       libraryDependencies ++= Seq(
-        "com.chuusai"       %% "shapeless"       % "2.0.0-M1" cross CrossVersion.full
-      , "com.google.guava"  %  "guava"           % "16.0.1"
-      , "cascading"         %  "cascading-hive"  % "1.0.0-wip-dev"
-      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140317103613-682d854") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
+        "com.chuusai"              %% "shapeless"       % "2.0.0-M1" cross CrossVersion.full
+      , "com.google.guava"         %  "guava"           % "16.0.1"
+      , "com.google.code.findbugs" % "jsr305"           % "2.0.3" //http://stackoverflow.com/questions/10007994/why-do-i-need-jsr305-to-use-guava-in-scala
+      , "org.apache.hive"          %  "hive-exec"       % "0.10-cba"
+      , ("cascading"                %  "cascading-hive"  % "1.0.0-wip-dev")
+          .exclude("org.apache.hive","hive-exec")
+      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140320005904-eae21ea") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
 
@@ -105,9 +94,8 @@ object build extends Build {
     Seq[Sett](
      libraryDependencies ++= depend.hadoop() ++ depend.testing()
     , mergeStrategy in assembly <<= (mergeStrategy in assembly)(fixLicenses)
-    , addSpecifiedDependenciesToLibInAssembly
-    , (libraryDependencies in IncludeInLib) := Seq("org.apache.hive" % "hive-builtins" % "0.10.0.jar" intransitive())
-    )
+    , dependencyOverrides += "org.apache.hive" % "hive-exec" % "0.10-cba"
+    ) 
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)

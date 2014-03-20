@@ -15,10 +15,16 @@ class OpsCascade(args: Args) extends Cascade(args){
 
   DistributedCacheFile("/usr/local/lib/parquet-hive-bundle.jar")
 
+  val s = this.getClass().getProtectionDomain().getCodeSource()
+    .getLocation().toString()
+  println(s)
+
   val storageFormat = "ROW FORMAT SERDE 'parquet.hive.serde.ParquetHiveSerDe'" +
     "STORED AS" + 
     "INPUTFORMAT 'parquet.hive.DeprecatedParquetInputFormat'"+
     "OUTPUTFORMAT 'parquet.hive.DeprecatedParquetOutputFormat';"
+
+
 
   def jobs = List(
     maestro.hql(s"create DATABASE IF NOT EXISTS ${db}")
@@ -35,7 +41,7 @@ class OpsCascade(args: Args) extends Cascade(args){
 
 class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport[Customer] {
   val maestro = Maestro(args)
-
+ 
   val env           = args("env")
   val domain        = "customer"
   val input         = s"${env}/source/${domain}/*"
@@ -57,6 +63,7 @@ class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport[Cust
   )
   val filter        = RowFilter.keep
   
+  DistributedCacheFile("/usr/local/lib/parquet-hive-bundle.jar")
 
   def jobs = Guard.toProcess(input) { paths => List(
     maestro.load[Customer]("|", paths, clean, errors, maestro.now(), cleaners, validators, filter)
