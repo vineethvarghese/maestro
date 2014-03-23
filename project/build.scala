@@ -6,9 +6,8 @@ import au.com.cba.omnia.uniform.core.standard.StandardProjectPlugin._
 import au.com.cba.omnia.uniform.core.version.UniqueVersionPlugin._
 import au.com.cba.omnia.uniform.dependency.UniformDependencyPlugin._
 import au.com.cba.omnia.uniform.thrift.UniformThriftPlugin._
-import au.com.cba.omnia.uniform.assembly.UniformAssemblyPlugin._
 
-import sbtassembly.Plugin._, AssemblyKeys._
+import au.com.cba.omnia.abjectjar.Plugin._
 
 object build extends Build {
   type Sett = Project.Setting[_]
@@ -60,9 +59,7 @@ object build extends Build {
         "com.chuusai"              %% "shapeless"       % "2.0.0-M1" cross CrossVersion.full
       , "com.google.guava"         %  "guava"           % "16.0.1"
       , "com.google.code.findbugs" % "jsr305"           % "2.0.3" //http://stackoverflow.com/questions/10007994/why-do-i-need-jsr305-to-use-guava-in-scala
-      , "org.apache.hive"          %  "hive-exec"       % "0.10-cba"
-      , ("cascading"                %  "cascading-hive"  % "1.0.0-wip-dev")
-          .exclude("org.apache.hive","hive-exec")
+      ,"cascading"                %  "cascading-hive"  % "1.0.1-wip-dev"
       ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140320005904-eae21ea") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
@@ -89,12 +86,10 @@ object build extends Build {
   , settings =
     standardSettings ++
     uniform.project("maestro-example", "au.com.cba.omnia.maestro.example") ++
-    (uniformAssemblySettings: Seq[Sett]) ++
+    abjectJarSettings ++
     (uniformThriftSettings: Seq[Sett]) ++
     Seq[Sett](
      libraryDependencies ++= depend.hadoop() ++ depend.testing()
-    , mergeStrategy in assembly <<= (mergeStrategy in assembly)(fixLicenses)
-    , dependencyOverrides += "org.apache.hive" % "hive-exec" % "0.10-cba"
     ) 
   ).dependsOn(core)
    .dependsOn(macros)
@@ -119,7 +114,7 @@ object build extends Build {
    .dependsOn(macros)
    .dependsOn(api)
 
-  def fixLicenses(old: String => MergeStrategy) =  (path: String) => path match {
+  /*def fixLicenses(old: String => MergeStrategy) =  (path: String) => path match {
     case f if f.toLowerCase.startsWith("meta-inf/license") => MergeStrategy.rename
     case "META-INF/NOTICE.txt" => MergeStrategy.rename
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
@@ -127,5 +122,5 @@ object build extends Build {
     case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".rsa") => MergeStrategy.discard
     case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".sf") => MergeStrategy.discard
     case _ => MergeStrategy.first
-  }
+  } */
 }

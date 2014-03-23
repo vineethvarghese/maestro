@@ -10,11 +10,14 @@ import au.com.cba.omnia.maestro.core.filter._
 import au.com.cba.omnia.maestro.core.hive._
 import com.twitter.scalding._, TDsl._
 import com.twitter.scrooge._
+import org.apache.hadoop.hive.conf.HiveConf
 
 
 case class Maestro(args: Args) {
-  def view[A <: ThriftStruct : Manifest, B: Manifest: TupleSetter](partition: Partition[A, B], source: String, output: String) =
-    View.create(args, partition, source, output)
+
+  //TODO: have the view create the meta data.
+  def view[A <: ThriftStruct : Manifest, B: Manifest: TupleSetter](partition: Partition[A, B], source: String, databaseName:String, output: String) =
+    View.create(args, partition, source, databaseName, output)
 
   def load[A <: ThriftStruct : Decode : Tag : Manifest](delimiter: String, sources: List[String], output: String, errors: String, now: String, clean: Clean, validator: Validator[A], filter: RowFilter) =
     Load.create(args, delimiter, sources, output, errors, now, clean, validator, filter)
@@ -25,17 +28,29 @@ case class Maestro(args: Args) {
     f.format(new java.util.Date)
   }
 
-  //TODO: update the properties to be Map[org.apache.hadoop.hive.conf.HiveConf.ConfVars, String]
-  //TODO: take these configs all the way through to the job, use the overloaded constructor
-  def hql(name :  String, query: String, properties: Map[String, String] = Map.empty[String,String]) = {
-    Hive.create(args,name,query, properties)
+
+  //Create the Tap,create the flow, pass it to the job, return the new job
+  def hql[I <: ThriftStruct : Manifest,O <: ThriftStruct : Manifest](name: String, database: String, query: String, properties: Map[HiveConf.ConfVars, String] = Map.empty[HiveConf.ConfVars,String]) = {
+    //TODO: how do I derive the partition information at this level?
+    val inputTaps = List(Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[I](database, ???), Hive.createScheme[I]))
+    val outputTap = Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[O](database, ???), Hive.createScheme[O])
+    Hive.create(args, name, query, inputTaps, outputTap)
   }
 
-  def hql(query: String) = {
-    Hive.create(args,query.substring(0,20) + "...", query, Map.empty[String,String])
+
+  def hql[I1 <: ThriftStruct : Manifest,I2 <: ThriftStruct : Manifest,O <: ThriftStruct : Manifest](name: String, database: String, query: String, properties: Map[HiveConf.ConfVars, String] = Map.empty[HiveConf.ConfVars,String]) = {
+    val inputTaps = List(Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[I1](database, ???), Hive.createScheme[I1]),
+                         Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[I2](database, ???), Hive.createScheme[I2]))
+    val outputTap = Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[O](database, ???), Hive.createScheme[O])
+    Hive.create(args, name, query, inputTaps, outputTap)
+
   }
 
-  def hql(query: String, properties: Map[String, String]) = {                                                                                                                                                                                          
-    Hive.create(args,query.substring(0,20) + "...", query, properties)                                                                                                                                                                                                            
-  } 
+  def hql[I1 <: ThriftStruct : Manifest,I2 <: ThriftStruct : Manifest, I3 <: ThriftStruct : Manifest,O <: ThriftStruct : Manifest](name: String, database: String, query: String, properties: Map[HiveConf.ConfVars, String] = Map.empty[HiveConf.ConfVars,String]) = {
+    val inputTaps = List(Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[I1](database, ???), Hive.createScheme[I1]),
+                         Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[I2](database, ???), Hive.createScheme[I2]),
+                         Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[I3](database, ???), Hive.createScheme[I3]))
+    val outputTap = Hive.createHiveTap(Hive.createConf(properties), Hive.createDescriptor[O](database, ???), Hive.createScheme[O])
+    Hive.create(args, name, query, inputTaps, outputTap)
+  }
 }
