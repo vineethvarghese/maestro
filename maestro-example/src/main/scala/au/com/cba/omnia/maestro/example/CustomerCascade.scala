@@ -4,8 +4,6 @@ import au.com.cba.omnia.maestro.api._
 import au.com.cba.omnia.maestro.example.thrift._
 import com.twitter.scalding._
 import au.com.cba.omnia.maestro.core.hive.TableDescriptor
-import com.twitter.scalding.filecache.DistributedCacheFile
-import org.apache.hadoop.hive.conf.HiveConf
 
 class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport2[Customer, CustomerEnriched]{
   val maestro = Maestro(args)
@@ -16,12 +14,10 @@ class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport2[Cus
   val clean         = s"/${env}/processing/${domain}"
   val errors        = s"/${env}/errors/${domain}"
 
+  //TODO: Clear up the naming around the Fields implicit using macro annotations, e.g: https://gist.github.com/quintona/9772837
   val byDate        = TableDescriptor(env, Partition.byDate(Fields1.EffectiveDate))
   val byCategory    = TableDescriptor(env, Partition.byDate(Fields1.CustomerSubCat))
   val enriched      = TableDescriptor(env, Partition.byDate(Fields2.EffectiveDate))
-
-  val bundle = DistributedCacheFile("/usr/local/lib/parquet-hive-bundle.jar")
-  bundle.path
 
   val cleaners      = Clean.all(
     Clean.trim,
@@ -38,7 +34,6 @@ class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport2[Cus
   , maestro.view(byDate, clean)
   , maestro.view(byCategory, clean)
   , maestro.hqlQuery("Convert Customer", List(byDate), enriched,
-      s"INSERT OVERWRITE TABLE ${enriched.qualifiedName} select CustomerID,EffectiveDate from ${byDate.qualifiedName}",
-      Map(HiveConf.ConfVars.HIVEAUXJARS -> bundle.path))
+      s"INSERT OVERWRITE TABLE ${enriched.qualifiedName} select CustomerID,EffectiveDate from ${byDate.qualifiedName}")
   ) }
 }

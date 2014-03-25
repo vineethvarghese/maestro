@@ -38,7 +38,7 @@ Table Descriptor properties
     descriptor.getPartitionKeys must_== Array("EffectiveDate")
   }
 
-  def path = td.tablePath must_== "/hive/warehouse/test/TestCustomer"
+  def path = td.tablePath must_== "/user/hive/warehouse/test/TestCustomer"
 
   def tableName = td.name must_== "TestCustomer"
 

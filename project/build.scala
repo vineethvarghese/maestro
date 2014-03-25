@@ -56,10 +56,11 @@ object build extends Build {
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
       libraryDependencies ++= Seq(
-        "com.chuusai"              %% "shapeless"       % "2.0.0-M1" cross CrossVersion.full
-      , "com.google.guava"         %  "guava"           % "16.0.1"
-      , "com.google.code.findbugs" % "jsr305"           % "2.0.3" //http://stackoverflow.com/questions/10007994/why-do-i-need-jsr305-to-use-guava-in-scala
-      ,"cascading"                %  "cascading-hive"  % "1.0.1-wip-dev"
+        "com.chuusai"              %% "shapeless"           % "2.0.0-M1" cross CrossVersion.full
+      , "com.google.guava"         %  "guava"               % "16.0.1"
+      , "com.google.code.findbugs" % "jsr305"               % "2.0.3" //http://stackoverflow.com/questions/10007994/why-do-i-need-jsr305-to-use-guava-in-scala
+      , "cascading"                %  "cascading-hive"      % "1.0.1-wip-dev"
+      , "com.twitter"              % "parquet-hive-bundle"  % "1.3.2" //when using abject-jar, this makes parquet available to hive (SerDe)
       ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140320005904-eae21ea") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
@@ -90,9 +91,7 @@ object build extends Build {
     abjectJarSettings ++
     (uniformThriftSettings: Seq[Sett]) ++
     Seq[Sett](
-     libraryDependencies ++= Seq(
-       "com.twitter" % "parquet-hive-bundle" % "1.3.2"
-     ) ++ depend.hadoop() ++ depend.testing()
+     libraryDependencies ++=  depend.hadoop() ++ depend.testing()
     ) 
   ).dependsOn(core)
    .dependsOn(macros)
