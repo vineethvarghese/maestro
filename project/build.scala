@@ -68,9 +68,10 @@ object build extends Build {
     id = "macros"
   , base = file("maestro-macros")
   , settings =
-       standardSettings
-    ++ uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros")
-    ++ Seq[Sett](
+       standardSettings ++
+    uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros") ++
+    (uniformThriftSettings: Seq[Sett]) ++
+    Seq[Sett](
       libraryDependencies <++= scalaVersion.apply(sv => Seq(
         "org.scala-lang" % "scala-compiler" % sv
       , "org.scala-lang" % "scala-reflect" % sv
@@ -89,7 +90,9 @@ object build extends Build {
     abjectJarSettings ++
     (uniformThriftSettings: Seq[Sett]) ++
     Seq[Sett](
-     libraryDependencies ++= depend.hadoop() ++ depend.testing()
+     libraryDependencies ++= Seq(
+       "com.twitter" % "parquet-hive-bundle" % "1.3.2"
+     ) ++ depend.hadoop() ++ depend.testing()
     ) 
   ).dependsOn(core)
    .dependsOn(macros)
