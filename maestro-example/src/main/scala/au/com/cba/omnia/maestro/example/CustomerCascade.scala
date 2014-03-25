@@ -1,42 +1,37 @@
 package au.com.cba.omnia.maestro.example
 
 import au.com.cba.omnia.maestro.api._
-import au.com.cba.omnia.maestro.core.codec._
 import au.com.cba.omnia.maestro.example.thrift._
 import com.twitter.scalding._
-import com.twitter.scalding.filecache.DistributedCacheFile
+import au.com.cba.omnia.maestro.core.hive.TableDescriptor
 
-class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport[Customer] {
+class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport2[Customer, CustomerEnriched]{
   val maestro = Maestro(args)
  
   val env           = args("env")
   val domain        = "customer"
-  val input         = s"${env}/source/${domain}/*"
-  val clean         = s"${env}/processing/${domain}"
-  val outbound      = s"${env}/outbound/${domain}"
-  val analytics     = s"${env}/view/warehouse/${domain}"
-  val errors        = s"${env}/errors/${domain}"
-  val database      = OmniaUri(env, s"${domain}")
-  val byDate        = database.table("by-date")
-  val byCategory    = database.table("by-cat")
-  val summary       = database.table("summary")
+  val input         = s"/${env}/source/${domain}/*"
+  val clean         = s"/${env}/processing/${domain}"
+  val errors        = s"/${env}/errors/${domain}"
+
+  val byDate        = TableDescriptor(env, Partition.byDate(Fields1.EffectiveDate))
+  val byCategory    = TableDescriptor(env, Partition.byDate(Fields1.CustomerSubCat))
+  val enriched      = TableDescriptor(env, Partition.byDate(Fields2.EffectiveDate))
+
   val cleaners      = Clean.all(
     Clean.trim,
     Clean.removeNonPrintables
   )
   val validators    = Validator.all(
-    Validator.of(Fields.CustomerSubCat, Check.oneOf("M", "F")),
+    Validator.of(Fields1.CustomerSubCat, Check.oneOf("M", "F")),
     Validator.by[Customer](_.customerAcct.length == 4, "Customer accounts should always be a length of 4")
   )
   val filter        = RowFilter.keep
-  
-  DistributedCacheFile("/usr/local/lib/parquet-hive-bundle.jar")
 
-  //Question: Move database name to the Maestro level? Trade off, what happens when you have mutliple DB cases, there will be many...
-  def jobs = Guard.toProcess(input) { paths => List(
+  def jobs = Guard.onlyProcessIfExists(input) { paths => List(
     maestro.load[Customer]("|", paths, clean, errors, maestro.now(), cleaners, validators, filter)
-  , maestro.view(Partition.byDate(Fields.EffectiveDate), clean, database.databaseName, byDate)
-  , maestro.view(Partition.byFields2(Fields.CustomerCat, Fields.CustomerSubCat), clean,database.databaseName, byCategory)
-  , maestro.hql[Customer,Summary]("Create Summary", database.databaseName,s"insert into ${summary} select count(*) from ${byDate}")
+  , maestro.view(byDate, clean)
+  , maestro.view(byCategory, clean)
+  , maestro.hqlQuery("Create Summary", List(byDate), enriched, s"insert into ${enriched.name} select CUSTOMER_ID,EFFECTIVE_DATE,ADDED_VALUE from ${byDate.name}")
   ) }
 }

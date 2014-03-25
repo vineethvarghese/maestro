@@ -6,7 +6,8 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import com.twitter.scalding._
 
 object Guard {
-  def toProcess(path: String)(run: List[String] => List[Job]): List[Job] = {
+  def onlyProcessIfExists(path: String)(run: List[String] => List[Job]): List[Job] = {
+    println("Processing path: " + path)
     val conf = new Configuration
     val fs = FileSystem.get(conf)
     run(fs.globStatus(new Path(path))

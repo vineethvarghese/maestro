@@ -25,8 +25,40 @@ trait MacroSupport[A <: ThriftStruct] {
   implicit def DerivedTag: Tag[A] =
     macro TagMacro.impl[A]
 
+  implicit def DeriviedDescribe: Describe[A] =
+    macro DescribeMacro.impl[A]
+
   /* NOTE: This isn't really any, it is a structural type containing all the fields. */
   def Fields: Any =
     macro FieldsMacro.impl[A]
+
+}
+
+trait MacroSupport2[A <: ThriftStruct, B <: ThriftStruct] {
+  implicit def DerivedDecode1: Decode[A] =
+  macro DecodeMacro.impl[A]
+  implicit def DerivedDecode2: Decode[B] =
+  macro DecodeMacro.impl[B]
+
+  implicit def DerivedEncode1: Encode[A] =
+  macro EncodeMacro.impl[A]
+  implicit def DerivedEncode2: Encode[B] =
+  macro EncodeMacro.impl[B]
+
+  implicit def DerivedTag1: Tag[A] =
+  macro TagMacro.impl[A]
+  implicit def DerivedTag2: Tag[B] =
+  macro TagMacro.impl[B]
+
+  implicit def DeriviedDescribe1: Describe[A] =
+  macro DescribeMacro.impl[A]
+  implicit def DeriviedDescribe2: Describe[B] =
+  macro DescribeMacro.impl[B]
+
+  /* NOTE: This isn't really any, it is a structural type containing all the fields. */
+  def Fields1: Any =
+  macro FieldsMacro.impl[A]
+  def Fields2: Any =
+  macro FieldsMacro.impl[B]
 
 }

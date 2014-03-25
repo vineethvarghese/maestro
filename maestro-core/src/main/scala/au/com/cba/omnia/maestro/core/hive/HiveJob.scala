@@ -3,41 +3,41 @@ package au.com.cba.omnia.maestro.core.hive
 import com.twitter.scalding._
 import au.com.cba.omnia.maestro.core.scalding._
 import org.apache.hadoop.hive.conf.HiveConf
-import au.com.cba.omnia.maestro.core.partition.Partition
-import com.twitter.scrooge.ThriftStruct
 import cascading.scheme.Scheme
-import au.com.cba.omnia.ebenezer.scrooge.ParquetScroogeScheme
 import cascading.flow.hive.HiveFlow
-import cascading.tap.hive.{HiveTap, HiveTableDescriptor, ParquetTableDescriptor}
-import cascading.tap.SinkMode
+import cascading.tap.hive.{HiveTap, HiveTableDescriptor}
+import cascading.tap.{Tap, SinkMode}
+import au.com.cba.omnia.ebenezer.scrooge.ParquetScroogeScheme
+import org.apache.hadoop.mapred.{OutputCollector, RecordReader, JobConf}
 
 object Hive {
-  def create(args: Args, name : String, query: String, inputTaps: List[HiveTap], outputTap: HiveTap) = new HiveJob(args,name,query, inputTaps, outputTap)
-
-  def createConf(properties: Map[HiveConf.ConfVars, String]) = {
-    val conf = new HiveConf()
-    for((key,value) <- properties)conf.setVar(key,value)
-    conf
+  def create(args: Args, name: String, query: String, inputDescriptors: List[TableDescriptor[_,_]], outputDescriptor: TableDescriptor[_,_], hiveConf: HiveConf) = {
+    val inputTaps = inputDescriptors.map(d => CastHfsTap(createHiveTap(hiveConf, d.createHiveDescriptor(), d.createScheme())))
+    val outputTap = CastHfsTap(createHiveTap(hiveConf, outputDescriptor.createHiveDescriptor(), outputDescriptor.createScheme()))
+    new HiveJob(args,name,query, inputTaps, outputTap)
   }
 
-  def createScheme[A <: ThriftStruct]() = new ParquetScroogeScheme[A]
-
-  def createDescriptor[A <: ThriftStruct : Manifest](db: String, partition: Partition[A, B]):HiveTableDescriptor = {
-    //TODO: extract the table name from the struct
-    //TODO: extract the field names and types from the struct, map them onto hive types
-    //TODO: extract the partition field names
-    new ParquetTableDescriptor(db, "name", Array(""), Array(""), Array(""))
+  // Scala is pickier than Java about type parameters, and Cascading's Scheme
+  // declaration leaves some type parameters underspecified.  Fill in the type
+  // parameters with wildcards so the Scala compiler doesn't complain.
+  // Leaves a bad taste in the mouth
+  object HadoopSchemeFromParquetScheme {
+    def apply(scheme: ParquetScroogeScheme[_]) =
+      scheme.asInstanceOf[Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], _, _]]
   }
 
-  def createHiveTap(conf : HiveConf, descriptor : HiveTableDescriptor, scheme: Scheme) = {
-    new HiveTap(conf, descriptor, scheme, SinkMode.REPLACE, true)
+
+  def createHiveTap(conf : HiveConf, descriptor : HiveTableDescriptor, scheme: ParquetScroogeScheme[_]) = {
+    new HiveTap(conf, descriptor, HadoopSchemeFromParquetScheme(scheme), SinkMode.REPLACE, true)
   }
 }
 
-class HiveJob(args: Args, name : String, query: String, inputTaps: List[HiveTap], outputTap: HiveTap) extends UniqueJob(args){
-  
+class HiveJob(args: Args, name : String, query: String, inputTaps: List[Tap[_, _, _]], outputTap: Tap[_, _, _]) extends UniqueJob(args){
+
+  import collection.JavaConversions._
+
   override def buildFlow = {
-    new HiveFlow(name, query, inputTaps, outputTap)
+    new HiveFlow(name, query, inputTaps.to, outputTap)
   }
 
 }

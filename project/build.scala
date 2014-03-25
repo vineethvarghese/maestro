@@ -113,14 +113,4 @@ object build extends Build {
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)
-
-  /*def fixLicenses(old: String => MergeStrategy) =  (path: String) => path match {
-    case f if f.toLowerCase.startsWith("meta-inf/license") => MergeStrategy.rename
-    case "META-INF/NOTICE.txt" => MergeStrategy.rename
-    case "META-INF/MANIFEST.MF" => MergeStrategy.discard
-    case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".dsa") => MergeStrategy.discard
-    case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".rsa") => MergeStrategy.discard
-    case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".sf") => MergeStrategy.discard
-    case _ => MergeStrategy.first
-  } */
 }
