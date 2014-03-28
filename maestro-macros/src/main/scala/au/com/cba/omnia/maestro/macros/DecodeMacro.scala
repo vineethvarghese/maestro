@@ -77,6 +77,11 @@ object DecodeMacro {
     })
     val yield_ = Apply(Select(Ident(companion), newTermName("apply")), args)
     val result = bind(yield_, members.grouped(ChunkSize).toList.zipWithIndex.reverse, "map")
-    c.Expr[Decode[A]](result)
+
+    val test = reify {
+      import au.com.cba.omnia.maestro.core.codec.Decode
+      c.Expr[Decode[A]](result).splice
+    }
+    test
   }
 }

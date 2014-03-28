@@ -1,13 +1,13 @@
 import sbt._
 import Keys._
 
+
 import au.com.cba.omnia.uniform.core.standard.StandardProjectPlugin._
 import au.com.cba.omnia.uniform.core.version.UniqueVersionPlugin._
 import au.com.cba.omnia.uniform.dependency.UniformDependencyPlugin._
 import au.com.cba.omnia.uniform.thrift.UniformThriftPlugin._
-import au.com.cba.omnia.uniform.assembly.UniformAssemblyPlugin._
 
-import sbtassembly.Plugin._, AssemblyKeys._
+import au.com.cba.omnia.abjectjar.Plugin._
 
 object build extends Build {
   type Sett = Project.Setting[_]
@@ -15,6 +15,16 @@ object build extends Build {
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++ Seq[Sett](
       version in ThisBuild := "0.1.1"
+     ,scalaVersion := "2.10.3"
+     ,scalacOptions := Seq(                                                                                                                                                                                                                                                       
+      "-deprecation"                                                                                                                                                                                                                                                             
+     ,"-unchecked"
+     , "-Ywarn-all"
+     , "-Xlint"
+     , "-feature"
+     , "-language:_"
+     , "-target:jvm-1.6"
+     )
     ) ++ uniqueVersionSettings ++ uniformDependencySettings
 
   lazy val all = Project(
@@ -33,7 +43,7 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro", "au.com.cba.omnia.maestro.api")
     ++ Seq[Sett](
-      libraryDependencies ++= depend.hadoop() ++ depend.testing()
+      libraryDependencies ++= depend.hadoop() ++ depend.testing() 
     )
   ).dependsOn(core)
    .dependsOn(macros)
@@ -46,9 +56,12 @@ object build extends Build {
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
       libraryDependencies ++= Seq(
-        "com.chuusai"       %% "shapeless"   % "2.0.0-M1" cross CrossVersion.full
-      , "com.google.guava"  %  "guava"       % "16.0.1"
-      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140317103613-682d854") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
+        "com.chuusai"              %% "shapeless"           % "2.0.0-M1" cross CrossVersion.full
+      , "com.google.guava"         %  "guava"               % "16.0.1"
+      , "com.google.code.findbugs" % "jsr305"               % "2.0.3" //http://stackoverflow.com/questions/10007994/why-do-i-need-jsr305-to-use-guava-in-scala
+      , "cascading"                %  "cascading-hive"      % "1.0.1-wip-dev"
+      , "com.twitter"              % "parquet-hive-bundle"  % "1.3.2" //when using abject-jar, this makes parquet available to hive (SerDe)
+      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140320005904-eae21ea") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
 
@@ -56,9 +69,10 @@ object build extends Build {
     id = "macros"
   , base = file("maestro-macros")
   , settings =
-       standardSettings
-    ++ uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros")
-    ++ Seq[Sett](
+       standardSettings ++
+    uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros") ++
+    (uniformThriftSettings: Seq[Sett]) ++
+    Seq[Sett](
       libraryDependencies <++= scalaVersion.apply(sv => Seq(
         "org.scala-lang" % "scala-compiler" % sv
       , "org.scala-lang" % "scala-reflect" % sv
@@ -74,12 +88,11 @@ object build extends Build {
   , settings =
     standardSettings ++
     uniform.project("maestro-example", "au.com.cba.omnia.maestro.example") ++
-    (uniformAssemblySettings: Seq[Sett]) ++
+    abjectJarSettings ++
     (uniformThriftSettings: Seq[Sett]) ++
     Seq[Sett](
-     libraryDependencies ++= depend.hadoop() ++ depend.testing()
-    , mergeStrategy in assembly <<= (mergeStrategy in assembly)(fixLicenses)
-    )
+     libraryDependencies ++=  depend.hadoop() ++ depend.testing()
+    ) 
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)
@@ -102,14 +115,4 @@ object build extends Build {
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)
-
-  def fixLicenses(old: String => MergeStrategy) =  (path: String) => path match {
-    case f if f.toLowerCase.startsWith("meta-inf/license") => MergeStrategy.rename
-    case "META-INF/NOTICE.txt" => MergeStrategy.rename
-    case "META-INF/MANIFEST.MF" => MergeStrategy.discard
-    case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".dsa") => MergeStrategy.discard
-    case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".rsa") => MergeStrategy.discard
-    case PathList("META-INF", xs) if xs.toLowerCase.endsWith(".sf") => MergeStrategy.discard
-    case _ => MergeStrategy.first
-  }
 }
