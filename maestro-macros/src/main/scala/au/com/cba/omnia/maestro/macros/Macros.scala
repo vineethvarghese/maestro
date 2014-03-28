@@ -38,7 +38,6 @@ trait MacroSupport[A <: ThriftStruct] {
 /**
  * Note, at the moment I have manually created this arity2, this should be improved with macro annotation later
  */
-**/
 trait MacroSupport2[A <: ThriftStruct, B <: ThriftStruct] {
   implicit def DerivedDecode1: Decode[A] =
   macro DecodeMacro.impl[A]

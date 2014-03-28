@@ -33,7 +33,7 @@ case class Maestro(args: Args) {
   }
 
   //TODO: seperate out a query and view or just have a single call?
-  def hqlQuery(name: String, inputDescriptors:List[TableDescriptor[_,_]], outputDescriptor: TableDescriptor[_,_], query: String, properties: Map[HiveConf.ConfVars, String] = Map.empty[HiveConf.ConfVars,String]) = {
+  def hqlQuery(name: String, inputDescriptors: List[TableDescriptor[_,_]], outputDescriptor: TableDescriptor[_,_], query: String, properties: Map[HiveConf.ConfVars, String] = Map.empty[HiveConf.ConfVars,String]) = {
     Hive.create(args, name, query, inputDescriptors, outputDescriptor, createConf(properties))
   }
 }
