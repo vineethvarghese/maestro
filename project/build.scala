@@ -16,8 +16,8 @@ object build extends Build {
     Defaults.defaultSettings ++ Seq[Sett](
       version in ThisBuild := "0.1.1"
      ,scalaVersion := "2.10.3"
-     ,scalacOptions := Seq(                                                                                                                                                                                                                                                       
-      "-deprecation"                                                                                                                                                                                                                                                             
+     ,scalacOptions := Seq(
+      "-deprecation"
      ,"-unchecked"
      , "-Ywarn-all"
      , "-Xlint"
