@@ -2,4 +2,4 @@
 
 PROJECT=$(dirname $0)/..
 
-${PROJECT}/../sbt ";project example;clean;assembly"
+${PROJECT}/../sbt ";project example;clean;abject-jar"

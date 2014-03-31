@@ -19,7 +19,7 @@ object View {
 
 class ViewJob[A <: ThriftStruct : Manifest, B: Manifest: TupleSetter](args: Args, descriptor: TableDescriptor[A,B], source: String) extends UniqueJob(args) {
 
-  //TODO: wrap this in IO or not? Context isn't clear in this case
+  // TODO: wrap this in IO or not? Context isn't clear in this case
   // How to error out the job?
   implicitly[Mode] match {
     case Hdfs(_, configuration:JobConf) => {

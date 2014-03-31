@@ -10,11 +10,11 @@ class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport2[Cus
  
   val env           = args("env")
   val domain        = "customer"
-  val input         = s"/${env}/source/${domain}/*"
-  val clean         = s"/${env}/processing/${domain}"
-  val errors        = s"/${env}/errors/${domain}"
+  val input         = s"${env}/source/${domain}/*"
+  val clean         = s"${env}/processing/${domain}"
+  val errors        = s"${env}/errors/${domain}"
 
-  //TODO: Clear up the naming around the Fields implicit using macro annotations, e.g: https://gist.github.com/quintona/9772837
+  // TODO: Clear up the naming around the Fields implicit using macro annotations, e.g: https://gist.github.com/quintona/9772837
   val byDate        = TableDescriptor(env, Partition.byDate(Fields1.EffectiveDate))
   val byCategory    = TableDescriptor(env, Partition.byDate(Fields1.CustomerSubCat))
   val enriched      = TableDescriptor(env, Partition.byDate(Fields2.EffectiveDate))

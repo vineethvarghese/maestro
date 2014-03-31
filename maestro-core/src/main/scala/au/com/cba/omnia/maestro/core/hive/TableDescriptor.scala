@@ -51,7 +51,7 @@ case class TableDescriptor[A <: ThriftStruct : Manifest : Describe, B: Manifest:
     val hiveConf = new HiveConf
     val path = hiveConf.get(HiveConf.ConfVars.METASTOREWAREHOUSE.varname)
     val n = name
-    s"/${path}/${database}/${n}"
+    s"${path}/${database}/${n}"
   }
 
   def name = {Describe.of[A].name}
