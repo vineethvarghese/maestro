@@ -14,6 +14,9 @@ Customer properties
   encode / decode       $codec
 
 """
+
+  //TODO: add in a more complete testing example here, using what though??? Thermometer? How do you embed Hive?
+  //Fun, fun fun...
   def codec = prop((c: Customer) =>
     Decode.decode[Customer](ValDecodeSource(Encode.encode(c))) must_== DecodeOk(c))
 }

@@ -17,6 +17,7 @@ object TagMacro {
         val extract = Function(List(ValDef(Modifiers(Flag.PARAM), newTermName("x"), TypeTree(), EmptyTree)), Select(Ident(newTermName("x")), method.name))
         q"""au.com.cba.omnia.maestro.core.data.Field[${typ}, ${method.returnType}]($name, ${extract})"""
     })
-    c.Expr[Tag[A]](q"Tag(row => row.zip(List(..$fields)))")
+
+    c.Expr[Tag[A]](q"au.com.cba.omnia.maestro.core.codec.Tag(row => row.zip(List(..$fields)))")
   }
 }
