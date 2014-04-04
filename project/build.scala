@@ -77,7 +77,7 @@ object build extends Build {
         "org.scala-lang"  %  "scala-compiler" % sv
       , "org.scala-lang"  %  "scala-reflect" % sv
       , "org.scalamacros" %% "quasiquotes" % "2.0.0-M3" cross CrossVersion.full
-      ) ++ depend.testing())
+      ) ++ depend.hadoop() ++ depend.testing())
     , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full)
     )
   ).dependsOn(core)
@@ -91,8 +91,8 @@ object build extends Build {
     abjectJarSettings ++
     (uniformThriftSettings: Seq[Sett]) ++
     Seq[Sett](
-     libraryDependencies ++=  depend.hadoop() ++ depend.testing()
-    ) 
+     libraryDependencies ++= depend.hadoop() ++ depend.testing()
+    )
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)

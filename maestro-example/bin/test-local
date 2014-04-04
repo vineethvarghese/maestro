@@ -14,14 +14,15 @@ cp -r ${PROJECT}/sample ${TARGET}/.
 (
     cd ${TARGET}
 
-    hadoop fs -mkdir example || true
-    hadoop fs -mkdir example/source || true
-    hadoop fs -mkdir example/source/customer || true
+    hadoop fs -mkdir -p /example
+    hadoop fs -mkdir -p /example/source
+    hadoop fs -mkdir -p /example/source/customer
+    hadoop fs -rm -r /example/source/customer
 
     for x in sample/customer/*; do
-        hadoop fs -mkdir example/source/customer/$(basename $x) || true
+        hadoop fs -mkdir /example/source/customer/$(basename $x)
         for y in ${x}/*; do
-            hadoop fs -put ${y} example/source/customer/$(basename $x)/. || true
+            hadoop fs -put ${y} /example/source/customer/$(basename $x)/.
         done
     done
 

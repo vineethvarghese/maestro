@@ -11,10 +11,16 @@ import au.com.cba.omnia.ebenezer.scrooge.ParquetScroogeScheme
 import org.apache.hadoop.mapred.{OutputCollector, RecordReader, JobConf}
 
 object Hive {
-  def create(args: Args, name: String, query: String, inputDescriptors: List[TableDescriptor[_,_]], outputDescriptor: TableDescriptor[_,_], hiveConf: HiveConf) = {
-    val inputTaps = inputDescriptors.map(d => CastHfsTap(createHiveTap(hiveConf, d.createHiveDescriptor(), d.createScheme())))
-    val outputTap = CastHfsTap(createHiveTap(hiveConf, outputDescriptor.createHiveDescriptor(), outputDescriptor.createScheme()))
-    new HiveJob(args,name,query, inputTaps, outputTap)
+  def create(args: Args, env: String, name: String, hiveConf: HiveConf, query: String, inputDescriptors: List[TableDescriptor[_,_]], outputDescriptor: TableDescriptor[_,_]) = {
+    val inputTaps = inputDescriptors.map(d => CastHfsTap(createHiveTap(
+      hiveConf,
+      d.createHiveDescriptor(),
+      d.createScheme())))
+    val outputTap = CastHfsTap(createHiveTap(
+      hiveConf,
+      outputDescriptor.createHiveDescriptor(),
+      outputDescriptor.createScheme()))
+    new HiveJob(args, name, query, inputTaps, outputTap)
   }
 
   // Scala is pickier than Java about type parameters, and Cascading's Scheme
@@ -27,8 +33,8 @@ object Hive {
   }
 
 
-  def createHiveTap(conf : HiveConf, descriptor : HiveTableDescriptor, scheme: ParquetScroogeScheme[_]) = {
-    new HiveTap(conf, descriptor, HadoopSchemeFromParquetScheme(scheme), SinkMode.REPLACE, true)
+  def createHiveTap(hiveConf: HiveConf, descriptor: HiveTableDescriptor, scheme: ParquetScroogeScheme[_]) = {
+    new HiveTap(hiveConf, descriptor, HadoopSchemeFromParquetScheme(scheme), SinkMode.REPLACE, true)
   }
 }
 

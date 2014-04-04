@@ -4,6 +4,7 @@ package hive
 import au.com.cba.omnia.maestro.macros.MacroSupport
 import au.com.cba.omnia.maestro.core.partition.Partition
 import au.com.cba.omnia.maestro.example.thrift._
+import org.apache.hadoop.hive.conf.HiveConf
 
 import org.specs2._
 
@@ -29,6 +30,8 @@ Table Descriptor properties
  }
    * */
 
+  lazy val hiveConf = new HiveConf()
+
   def td = TableDescriptor("test", Partition.byDate(Fields.EffectiveDate))
 
   def descriptor = {
@@ -38,7 +41,7 @@ Table Descriptor properties
     descriptor.getPartitionKeys must_== Array("EffectiveDate")
   }
 
-  def path = td.tablePath must_== "/user/hive/warehouse/test/TestCustomer"
+  def path = td.tablePath(hiveConf) must_== "/user/hive/warehouse/test/TestCustomer"
 
   def tableName = td.name must_== "TestCustomer"
 
