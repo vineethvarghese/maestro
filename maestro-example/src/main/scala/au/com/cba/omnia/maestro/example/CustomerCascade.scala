@@ -40,7 +40,7 @@ class CustomerCascade(args: Args) extends Maestro[Customer](args) {
 
   val validators    = Validator.all(
     Validator.of(Fields.CustomerSubCat, Check.oneOf("M", "F")),
-    Validator.by[Customer](_.customerAcct.length == 4, "Customer accounts should always be a length of 4")
+    Validator.by[Customer](_.customerAcct.length == 3, "Customer accounts should always be a length of 3")
   )
 
   val filter        = RowFilter.keep
