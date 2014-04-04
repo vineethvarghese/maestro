@@ -6,7 +6,7 @@ import au.com.cba.omnia.maestro.core.data._
 case class Partition[A, B](extract: A => B, pattern: String)
 
 object Partition {
-  def byFields1[A, B](a: Field[A, B]): Partition[A, B] =
+  def byField[A, B](a: Field[A, B]): Partition[A, B] =
     Partition(a.get, "%s")
 
   def byFields2[A, B, C](a: Field[A, B], b: Field[A, C]): Partition[A, (B, C)] =
@@ -22,7 +22,7 @@ object Partition {
 }
 
 object HivePartition {
-  def byFields1[A, B](a: Field[A, B]): Partition[A, B] =
+  def byField[A, B](a: Field[A, B]): Partition[A, B] =
     Partition(a.get, s"${a.value}=%s")
 
   def byFields2[A, B, C](a: Field[A, B], b: Field[A, C]): Partition[A, (B, C)] =
