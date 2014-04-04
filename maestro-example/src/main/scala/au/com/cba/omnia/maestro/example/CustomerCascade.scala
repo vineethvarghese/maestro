@@ -13,7 +13,7 @@ class CustomerCascade(args: Args) extends Cascade(args) with MaestroSupport2[Cus
 
   // TODO: Clear up the naming around the Fields implicit using macro annotations, e.g: https://gist.github.com/quintona/9772837
   val byDate        = TableDescriptor(env, Partition.byDate(Fields1.EffectiveDate))
-  val byCategory    = TableDescriptor(env, Partition.byDate(Fields1.CustomerSubCat))
+  val byCategory    = TableDescriptor(env, Partition.byFields1(Fields1.CustomerSubCat))
   val enriched      = TableDescriptor(env, Partition.byDate(Fields2.EffectiveDate))
 
   val cleaners      = Clean.all(
