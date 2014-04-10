@@ -9,6 +9,9 @@ import scalaz.scalacheck.ScalazArbitrary._
 import scalaz.scalacheck.ScalaCheckBinding._
 import org.scalacheck._, Arbitrary._
 
+import org.apache.thrift.protocol.TField
+import org.apache.thrift.protocol.TType
+
 
 object Arbitraries {
   implicit def ReasonArbitrary: Arbitrary[Reason] =
@@ -34,6 +37,26 @@ object Arbitraries {
       , arbitrary[Double] map DoubleVal
       , arbitrary[String] map StringVal
       ))
+
+  implicit def TTypeGen: Gen[Byte] =
+    Gen.oneOf(
+      TType.BOOL,
+      TType.BYTE,
+      TType.DOUBLE,
+      TType.ENUM,
+      TType.I16,
+      TType.I32,
+      TType.I64,
+      TType.LIST,
+      TType.MAP,
+      TType.SET,
+      TType.STOP,
+      TType.STRING,
+      TType.STRUCT,
+      TType.VOID)
+
+  implicit def TFieldArbitrary: Arbitrary[TField] =
+    Arbitrary((arbitrary[String] |@| arbitrary[Byte] |@| arbitrary[Short])((s, b, c) => new TField(s, b, c)))
 
   implicit def EncodeIntArbitrary: Arbitrary[Encode[Int]] =
     Arbitrary(Gen.oneOf(Encode.IntEncode :: Nil))

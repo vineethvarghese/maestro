@@ -16,7 +16,8 @@ object FieldsMacro {
     val entries = Inspect.fields[A](c)
     val fields = entries.map({
       case (method, field) =>
-        val name = Literal(Constant(method.name.toString))
+        //TODO: use the other field to get the name, must match the thrift structure
+        val name = Literal(Constant(field))
         val typ = c.universe.weakTypeOf[A]
         val extract = Function(List(ValDef(Modifiers(Flag.PARAM), newTermName("x"), TypeTree(), EmptyTree)), Select(Ident(newTermName("x")), method.name))
         (method, field, q"""au.com.cba.omnia.maestro.core.data.Field[${typ}, ${method.returnType}]($name, ${extract})""")

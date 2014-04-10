@@ -3,10 +3,10 @@
 JOB="au.com.cba.omnia.maestro.example.CustomerCascade --hdfs"
 PROJECT=$(dirname $0)/..
 TARGET=${PROJECT}/target/test-local
-JAR=${PROJECT}/target/scala-2.10/maestro-example-assembly-*.jar
+JAR=${PROJECT}/target/scala-2.10/maestro-example_2.10-*.jar
 JAR_NAME=$(basename ${JAR})
 
-[ ! -d "${PROJECT}/target/test-local" ] || rm -rf ${PROJECT}/target/test-local
+[ ! -d "${TARGET}" ] || rm -rf ${TARGET}
 mkdir -p ${TARGET}
 cp ${JAR} ${TARGET}/.
 cp -r ${PROJECT}/sample ${TARGET}/.
@@ -14,14 +14,15 @@ cp -r ${PROJECT}/sample ${TARGET}/.
 (
     cd ${TARGET}
 
-    hadoop fs -mkdir example || true
-    hadoop fs -mkdir example/source || true
-    hadoop fs -mkdir example/source/customer || true
+    hadoop fs -mkdir -p /example
+    hadoop fs -mkdir -p /example/source
+    hadoop fs -mkdir -p /example/source/customer
+    hadoop fs -rm -r /example/source/customer
 
     for x in sample/customer/*; do
-        hadoop fs -mkdir example/source/customer/$(basename $x) || true
+        hadoop fs -mkdir /example/source/customer/$(basename $x)
         for y in ${x}/*; do
-            hadoop fs -put ${y} example/source/customer/$(basename $x)/. || true
+            hadoop fs -put ${y} /example/source/customer/$(basename $x)/.
         done
     done
 
