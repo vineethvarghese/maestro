@@ -5,8 +5,9 @@ import au.com.cba.omnia.maestro.core.partition.Partition
 import org.apache.thrift.protocol.{TType, TField}
 import com.twitter.scrooge.ThriftStruct
 import au.com.cba.omnia.maestro.core.codec.Describe
-import cascading.tap.hive.{ParquetTableDescriptor, HiveTableDescriptor}
+import cascading.tap.hive.HiveTableDescriptor
 import com.twitter.scalding.TupleSetter
+import au.com.cba.omnia.beehaus.ParquetTableDescriptor
 import au.com.cba.omnia.ebenezer.scrooge.ParquetScroogeScheme
 import org.apache.hadoop.hive.conf.HiveConf
 import org.apache.hadoop.hive.conf
