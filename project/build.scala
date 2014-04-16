@@ -46,9 +46,10 @@ object build extends Build {
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
       libraryDependencies ++= Seq(
-        "com.chuusai"       %% "shapeless"   % "2.0.0-M1" cross CrossVersion.full
-      , "com.google.guava"  %  "guava"       % "16.0.1"
-      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140317103613-682d854") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
+        "com.chuusai"             %% "shapeless" % "2.0.0-M1" cross CrossVersion.full
+      , "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
+      , "com.google.guava"         %  "guava"    % "16.0.1"
+      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140416020829-008715a") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
 
