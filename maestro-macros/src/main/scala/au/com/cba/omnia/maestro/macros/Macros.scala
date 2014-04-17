@@ -1,7 +1,8 @@
 package au.com.cba.omnia.maestro.macros
 
-import au.com.cba.omnia.maestro.core.codec._
 import com.twitter.scrooge._
+
+import au.com.cba.omnia.maestro.core.codec._
 
 object Macros {
   def mkDecode[A <: ThriftStruct]: Decode[A] =
@@ -11,6 +12,12 @@ object Macros {
     macro EncodeMacro.impl[A]
 
   def mkFields[A <: ThriftStruct]: Any =
+    macro FieldsMacro.impl[A]
+
+  def mkTag[A <: ThriftStruct]: Tag[A] =
+    macro TagMacro.impl[A]
+
+  def getFields[A <: ThriftStruct]: Any =
     macro FieldsMacro.impl[A]
 }
 
@@ -28,5 +35,4 @@ trait MacroSupport[A <: ThriftStruct] {
   /* NOTE: This isn't really any, it is a structural type containing all the fields. */
   def Fields: Any =
     macro FieldsMacro.impl[A]
-
 }
