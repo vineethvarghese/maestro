@@ -1,6 +1,10 @@
 maestro
 =======
 
+[![Build Status](https://magnum.travis-ci.com/CommBank/maestro.svg?token=A3xq7fpHLyey1yCrNASy&branch=master)](https://magnum.travis-ci.com/CommBank/maestro)
+[![Gitter chat](https://badges.gitter.im/CommBank/maestro.png)](https://gitter.im/CommBank/maestro)
+
+
 ```
 maestro: a distinguished conductor
 ```
