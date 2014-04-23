@@ -49,7 +49,7 @@ object build extends Build {
         "com.chuusai"             %% "shapeless" % "2.0.0-M1" cross CrossVersion.full
       , "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
       , "com.google.guava"         %  "guava"    % "16.0.1"
-      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.0.1-20140416020829-008715a") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
+      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.1.0-20140423054509-94353d8") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
     )
   )
 
