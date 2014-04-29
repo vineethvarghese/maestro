@@ -58,7 +58,7 @@ object DecodeMacro {
             List(AppliedTypeTree(Ident(newTypeName(s"Tuple${as.length}")),
               as.map(a => q"${a.returnType}"))))))
       case _  =>
-        sys.error("can't handle something with more than 15 elemdets")
+        sys.error("can't handle something with more than 15 elements")
     }
 
     @annotation.tailrec
