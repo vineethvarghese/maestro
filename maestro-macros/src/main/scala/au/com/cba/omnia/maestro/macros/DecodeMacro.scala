@@ -21,7 +21,6 @@ object DecodeMacro {
         if (vs.length < $size) {
           DecodeError(ValDecodeSource(vs), position, NotEnoughInput($size, $typeName))
         } else {
-          var index = 0
           val fields = vs.take($size).toArray
           val result = ${build(decodeVals(xs))}
           DecodeOk((ValDecodeSource(vs.drop($size)), position + $size, result))
@@ -54,19 +53,16 @@ object DecodeMacro {
 
     def build(args: List[Tree]) = Apply(Select(Ident(companion), newTermName("apply")), args)
 
-    def decodeVals(xs: List[(MethodSymbol, Int)]): List[Match] = xs.map { 
+    def decodeVals(xs: List[(MethodSymbol, Int)]): List[Tree] = xs.map { 
       case (x, i) => {
-        val typeVal = newTermName(x.returnType + "Val")
+        val typeVal = newTypeName(x.returnType + "Val")
         val name    = x.returnType.toString
+        val index   = i - 1
         q"""
-          fields(${i - 1}) match {
-            case $typeVal(s) => {
-              index +=1
-              s
-            }
-            case x        =>
-              return DecodeError(ValDecodeSource(vs.drop(index - position)), position + index, ValTypeMismatch(x, $name))
-          }
+          if (fields($index).isInstanceOf[$typeVal])
+            fields($index).asInstanceOf[$typeVal].v
+          else
+            return DecodeError(ValDecodeSource(vs.drop($index - position)), position + $index, ValTypeMismatch(fields($index), $name))
         """
       }
     }
