@@ -50,8 +50,6 @@ object DecodeMacro {
     val (members, indexes) = Inspect.indexed[A](c).unzip
 
     def codecTupleOf(xs: List[MethodSymbol]): Tree = xs match {
-      case a :: Nil =>
-        q"implicitly[Decode[${a.returnType}]]"
       case as if as.length <= ChunkSize =>
         TypeApply(Ident(newTermName("implicitly")),
           List(AppliedTypeTree(Ident(newTypeName("Decode")),
