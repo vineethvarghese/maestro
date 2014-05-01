@@ -140,3 +140,48 @@ object Decode extends TypeClassCompanion[Decode] {
         DecodeError(source, n, NotEnoughInput(1, tag))
     })
 }
+
+case class DecodeException(reason: Reason, position: Int) extends Exception
+
+object DecodeUtil {
+  def asBooleanVal(v: Val, position: Int): Boolean = v match {
+    case BooleanVal(s) => s
+    case x             => throw new DecodeException(ValTypeMismatch(x, "Boolean"), position)
+  }
+
+  def asIntVal(v: Val, position: Int): Int = v match {
+    case IntVal(s) => s
+    case x         => throw new DecodeException(ValTypeMismatch(x, "Int"), position)
+  }
+
+  def asLongVal(v: Val, position: Int): Long = v match {
+    case LongVal(s) => s
+    case x          => throw new DecodeException(ValTypeMismatch(x, "Long"), position)
+  }
+
+  def asDoubleVal(v: Val, position: Int): Double = v match {
+    case DoubleVal(s) => s
+    case x            => throw new DecodeException(ValTypeMismatch(x, "Double"), position)
+  }
+
+  def asStringVal(v: Val, position: Int): String = v match {
+    case StringVal(s) => s
+    case x            => throw new DecodeException(ValTypeMismatch(x, "String"), position)
+  }
+
+  def asBooleanUnknown(v: String, position: Int): Boolean =
+    try v.toBoolean
+    catch { case NonFatal(e) => throw new DecodeException(ParseError(v, "Boolean", That(e)), position) }
+
+  def asIntUnknown(v: String, position: Int): Int =
+    try v.toInt
+    catch { case NonFatal(e) => throw new DecodeException(ParseError(v, "Int", That(e)), position) }
+
+  def asLongUnknown(v: String, position: Int): Long =
+    try v.toLong
+    catch { case NonFatal(e) => throw new DecodeException(ParseError(v, "Long", That(e)), position) }
+
+  def asDoubleUnknown(v: String, position: Int): Double =
+    try v.toDouble
+    catch { case NonFatal(e) => throw new DecodeException(ParseError(v, "Double", That(e)), position) }
+}

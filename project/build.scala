@@ -60,14 +60,15 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros")
     ++ Seq[Sett](
-      libraryDependencies <++= scalaVersion.apply(sv => Seq(
-        "org.scala-lang" % "scala-compiler" % sv
-      , "org.scala-lang" % "scala-reflect" % sv
-      , "org.scalamacros" %% "quasiquotes" % "2.0.0-M3" cross CrossVersion.full
+       libraryDependencies <++= scalaVersion.apply(sv => Seq(
+        "org.scala-lang"   % "scala-compiler" % sv
+      , "org.scala-lang"   % "scala-reflect"  % sv
+      , "org.scalamacros" %% "quasiquotes"    % "2.0.0-M3" cross CrossVersion.full
       ) ++ depend.testing())
     , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full)
     )
   ).dependsOn(core)
+   .dependsOn(test % "test")
 
   lazy val example = Project(
     id = "example"
