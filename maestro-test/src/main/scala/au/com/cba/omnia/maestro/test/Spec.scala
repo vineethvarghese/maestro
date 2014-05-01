@@ -1,5 +1,4 @@
-package au.com.cba.omnia.maestro.example
-package test
+package au.com.cba.omnia.maestro.test
 
 import org.specs2._
 

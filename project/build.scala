@@ -78,12 +78,13 @@ object build extends Build {
     (uniformAssemblySettings: Seq[Sett]) ++
     (uniformThriftSettings: Seq[Sett]) ++
     Seq[Sett](
-     libraryDependencies ++= depend.hadoop() ++ depend.testing()
+     libraryDependencies ++= depend.hadoop()
     , mergeStrategy in assembly <<= (mergeStrategy in assembly)(fixLicenses)
     )
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)
+   .dependsOn(test % "test")
 
   lazy val benchmark = Project(
     id = "benchmark"
@@ -103,6 +104,22 @@ object build extends Build {
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)
+
+  lazy val test = Project(
+    id = "test"
+  , base = file("maestro-test")
+  , settings =
+       standardSettings
+    ++ uniform.project("maestro-test", "au.com.cba.omnia.maestro.test")
+    ++ uniformThriftSettings
+    ++ Seq[Sett](
+         libraryDependencies ++= Seq (
+           "org.specs2"               %% "specs2"                        % depend.versions.specs,
+           "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck,
+           "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
+         )
+       )
+  )
 
   def fixLicenses(old: String => MergeStrategy) =  (path: String) => path match {
     case f if f.toLowerCase.startsWith("meta-inf/license") => MergeStrategy.rename
