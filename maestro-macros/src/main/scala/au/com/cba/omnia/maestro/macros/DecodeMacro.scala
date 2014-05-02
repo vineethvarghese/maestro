@@ -5,6 +5,84 @@ import com.twitter.scrooge._
 
 import scala.reflect.macros.Context
 
+
+/**
+  * Creates a custom Decode for the given thrift struct.
+  * 
+  * The Decode will look like this:
+  * {{{
+  * Decode[Customer]((source, position) => {
+  *   source match {
+  *     case ValDecodeSource(vs)     => decodeVals(vs, position)
+  *     case UnknownDecodeSource(vs) => decodeUnknowns(vs, position)
+  *   }
+  * 
+  *   def decodeVals(vs: List[Val], position: Int): DecodeResult[(DecodeSource, Int, Customer)] = {
+  *     if (vs.length < 5) {
+  *       DecodeError(ValDecodeSource(vs), position, NotEnoughInput(5, "CUSTOMER"))
+  *     } else {
+  *       val fields = vs.take(5).toArray
+  *       val result = Customer.apply(
+  *         if (fields(0).isInstanceOf[StringVal])
+  *           fields(0).asInstanceOf[StringVal].v
+  *         else
+  *           return DecodeError(ValDecodeSource(vs.drop(0 - position)), position + 0, ValTypeMismatch(fields(0), "String")),
+  *         if (fields(1).isInstanceOf[StringVal])
+  *           fields(1).asInstanceOf[StringVal].v
+  *         else
+  *           return DecodeError(ValDecodeSource(vs.drop(1 - position)), position + 1, ValTypeMismatch(fields(1), "String")),
+  *         if (fields(2).isInstanceOf[StringVal])
+  *           fields(2).asInstanceOf[StringVal].v
+  *         else
+  *           return DecodeError(ValDecodeSource(vs.drop(2 - position)), position + 2, ValTypeMismatch(fields(2), "String")),
+  *         if (fields(3).isInstanceOf[StringVal])
+  *           fields(3).asInstanceOf[StringVal].v
+  *         else
+  *           return DecodeError(ValDecodeSource(vs.drop(3 - position)), position + 3, ValTypeMismatch(fields(3), "String")),
+  *         if (fields(4).isInstanceOf[StringVal])
+  *           fields(4).asInstanceOf[StringVal].v
+  *         else
+  *           return DecodeError(ValDecodeSource(vs.drop(4 - position)), position + 4, ValTypeMismatch(fields(4), "String")),
+  *         if (fields(5).isInstanceOf[IntVal])
+  *           fields(5).asInstanceOf[IntVal].v
+  *         else
+  *           return DecodeError(ValDecodeSource(vs.drop(5 - position)), position + 5, ValTypeMismatch(fields(5), "Int")),
+  *         if (fields(6).isInstanceOf[StringVal])
+  *           fields(6).asInstanceOf[StringVal].v
+  *         else
+  *           return DecodeError(ValDecodeSource(vs.drop(6 - position)), position + 6, ValTypeMismatch(fields(6), "String")));
+  *       DecodeOk(Tuple3(ValDecodeSource(vs.drop(7)), position + 7, result))
+  *     }
+  *   }
+  * 
+  *   def decodeUnknowns(vs: List[String], position: Int): DecodeResult[Tuple3[DecodeSource, Int, Customer]] =
+  *     if (vs.length < 7) DecodeError(UnknownDecodeSource(vs), position, NotEnoughInput(7, "Customer"))
+  *     else {
+  *       val fields = vs.take(7).toArray
+  *       var index = -1
+  *       var value = ""
+  *       var tag = ""
+  *       try {
+  *         val result = Customer.apply(
+  *           fields(0),
+  *           fields(1),
+  *           fields(2),
+  *           fields(3),
+  *           fields(4),
+  *           {
+  *             tag = "Int"
+  *             index = 5
+  *             fields(index).toInt
+  *           },
+  *           fields(6))
+  *         DecodeOk(Tuple3(UnknownDecodeSource(vs.drop(7)), position + 7, result))
+  *       } catch {
+  *         case NonFatal((e @ _)) => DecodeError(UnknownDecodeSource(vs.drop(index - position)), position + index, ParseError(fields(index), tag, That(e)))
+  *       }
+  *     }
+  *   })
+  *  }}}
+  */
 object DecodeMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context): c.Expr[Decode[A]] = {
     import c.universe._
