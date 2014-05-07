@@ -13,9 +13,7 @@ object build extends Build {
   type Sett = Project.Setting[_]
 
   lazy val standardSettings: Seq[Sett] =
-    Defaults.defaultSettings ++ Seq[Sett](
-      version in ThisBuild := "0.1.1"
-    ) ++ uniqueVersionSettings ++ uniformDependencySettings
+    Defaults.defaultSettings ++ uniformDependencySettings
 
   lazy val all = Project(
     id = "all"
