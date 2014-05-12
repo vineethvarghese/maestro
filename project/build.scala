@@ -1,11 +1,15 @@
 import sbt._
 import Keys._
 
+import com.twitter.scrooge.ScroogeSBT._
+
 import au.com.cba.omnia.uniform.core.standard.StandardProjectPlugin._
 import au.com.cba.omnia.uniform.core.version.UniqueVersionPlugin._
 import au.com.cba.omnia.uniform.dependency.UniformDependencyPlugin._
 import au.com.cba.omnia.uniform.thrift.UniformThriftPlugin._
 import au.com.cba.omnia.uniform.assembly.UniformAssemblyPlugin._
+
+import au.com.cba.omnia.humbug.HumbugSBT._
 
 import sbtassembly.Plugin._, AssemblyKeys._
 
@@ -47,7 +51,9 @@ object build extends Build {
         "com.chuusai"             %% "shapeless" % "2.0.0-M1" cross CrossVersion.full
       , "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
       , "com.google.guava"         %  "guava"    % "16.0.1"
-      ) ++ depend.scalaz() ++ depend.omnia("ebenezer", "0.1.0-20140423054509-94353d8") ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
+      ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
+        ++ depend.omnia("ebenezer", "0.1.0-20140423054509-94353d8")
+        ++ depend.omnia("humbug-core", "0.0.1-20140513231339-50ed724")
     )
   )
 
@@ -111,13 +117,17 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro-test", "au.com.cba.omnia.maestro.test")
     ++ uniformThriftSettings
+    ++ humbugSettings
     ++ Seq[Sett](
-         libraryDependencies ++= Seq (
-           "org.specs2"               %% "specs2"                        % depend.versions.specs,
-           "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck,
-           "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
-         )
-       )
+      scroogeThriftSourceFolder in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "scrooge" },
+      humbugThriftSourceFolder  in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "humbug" },
+      (humbugIsDirty in Compile) <<= (humbugIsDirty in Compile) map { (_) => true },
+      libraryDependencies ++= Seq (
+        "org.specs2"               %% "specs2"                        % depend.versions.specs,
+        "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck,
+        "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
+      ) ++ depend.omnia("humbug-core", "0.0.1-20140513231339-50ed724")
+    )
   )
 
   def fixLicenses(old: String => MergeStrategy) =  (path: String) => path match {

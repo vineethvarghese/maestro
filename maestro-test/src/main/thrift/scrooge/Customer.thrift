@@ -1,4 +1,4 @@
-#@namespace scala au.com.cba.omnia.maestro.test.thrift
+#@namespace scala au.com.cba.omnia.maestro.test.thrift.scrooge
 
 struct Customer {
   1  : string CUSTOMER_ID

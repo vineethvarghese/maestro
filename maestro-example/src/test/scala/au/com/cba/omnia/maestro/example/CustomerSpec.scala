@@ -8,7 +8,7 @@ import au.com.cba.omnia.maestro.api._
 
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._
-import au.com.cba.omnia.maestro.test.thrift._
+import au.com.cba.omnia.maestro.test.thrift.scrooge.Customer
 
 object CustomerSpec extends Spec with MacroSupport[Customer] { def is = s2"""
 

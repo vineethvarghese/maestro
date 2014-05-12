@@ -6,11 +6,11 @@ import au.com.cba.omnia.maestro.macros._
 
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._
-import au.com.cba.omnia.maestro.test.thrift._
+import au.com.cba.omnia.maestro.test.thrift.scrooge._
 
-object DecodeMacroSpec extends Spec { def is = s2"""
+object ScroogeDecodeMacroSpec extends Spec { def is = s2"""
 
-DecodeMacro
+ScroogeDecodeMacro
 ===========
 
   decode from UnknownDecodeSource       $unknown
@@ -24,6 +24,8 @@ DecodeMacro
 
   implicit val encode = Macros.mkEncode[Customer]
   implicit val decode = Macros.mkDecode[Customer]
+
+  Macros.mkTag[Customer]
 
   def valdecode = prop { (c: Customer) =>
     decode.decode(ValDecodeSource(Encode.encode(c))) must_== DecodeOk(c)
@@ -54,7 +56,7 @@ DecodeMacro
     decode.decode(ValDecodeSource(List())) must_== DecodeError(
       ValDecodeSource(List()),
       0,
-      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.Customer")
+      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.scrooge.Customer")
     )
   }
 
@@ -73,7 +75,7 @@ DecodeMacro
     decode.decode(UnknownDecodeSource(List())) must_== DecodeError(
       UnknownDecodeSource(List()),
       0,
-      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.Customer")
+      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.scrooge.Customer")
     )
   }
 

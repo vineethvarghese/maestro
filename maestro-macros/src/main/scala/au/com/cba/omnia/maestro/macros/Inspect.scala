@@ -1,9 +1,12 @@
 package au.com.cba.omnia.maestro.macros
 
-import au.com.cba.omnia.maestro.core.codec._
+import scala.reflect.macros.Context
+
 import com.twitter.scrooge._
 
-import scala.reflect.macros.Context
+import au.com.cba.omnia.maestro.core.codec._
+
+import au.com.cba.omnia.humbug.HumbugThriftStruct
 
 object Inspect {
   val ProductField = """_(\d+)""".r
@@ -16,11 +19,26 @@ object Inspect {
     }).sortBy(_._2)
   }
 
-  def fields[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[(c.universe.MethodSymbol, String)] =
-    methods(c).zip(c.universe.weakTypeOf[A].typeSymbol.companionSymbol.typeSignature.members.toList.filter(x =>
-      x.name.toString.endsWith("Field") && !x.name.toString.startsWith("write")
-    ).map(v => v.name.toString.replaceAll("Field$", "")).reverse)
+  def fields[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[(c.universe.MethodSymbol, String)] = {
+    import c.universe._
 
+    val fields =
+      if (c.universe.weakTypeOf[A] <:< c.universe.weakTypeOf[HumbugThriftStruct])
+        c.universe.weakTypeOf[A].members.toList
+          .map(_.name.toString)
+          .filter(x => x.endsWith("_$eq") && !x.startsWith("_"))
+          .map(_.replaceAll("_\\$eq$", "").capitalize)
+          .reverse
+      else
+        c.universe.weakTypeOf[A].typeSymbol.companionSymbol.typeSignature.members.toList
+          .map(_.name.toString)
+          .filter(x =>
+            x.endsWith("Field") && !x.startsWith("write")
+          ).map(_.replaceAll("Field$", ""))
+          .reverse
+
+    methods(c).zip(fields)
+  }
 
   def methods[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[c.universe.MethodSymbol] =
     indexed(c).map({ case (method, _) => method })
