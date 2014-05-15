@@ -19,6 +19,9 @@ object Macros {
 
   def getFields[A <: ThriftStruct]: Any =
     macro FieldsMacro.impl[A]
+
+  def split[A <: ThriftStruct, B <: Product]: A => B =
+    macro SplitMacro.impl[A, B]
 }
 
 // FIX qualification issue, if codec is not important these don't work as expected
