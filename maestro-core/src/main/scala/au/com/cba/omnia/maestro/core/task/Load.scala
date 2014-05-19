@@ -22,7 +22,6 @@ import au.com.cba.omnia.maestro.core.validate.Validator
 import au.com.cba.omnia.maestro.core.filter.RowFilter
 import au.com.cba.omnia.maestro.core.scalding.Errors
 
-
 sealed trait TimeSource {
   def getTime(path: String): String = this match {
     case Predetermined(time) => time
@@ -33,7 +32,14 @@ sealed trait TimeSource {
 case class Predetermined(time: String) extends TimeSource
 case class FromPath(extract: String => String) extends TimeSource
 
-object Load {
+object Load extends Load
+
+trait Load {
+  /**
+    * Loads the supplied files, filters, cleans, validates and parses the rows into
+    * the specified ThriftStruct. It also appends the time using the specified time source to the
+    * struct.
+    */
   def load[A <: ThriftStruct : Decode : Tag : Manifest]
     (delimiter: String, sources: List[String], errors: String, timeSource: TimeSource, clean: Clean,
       validator: Validator[A], filter: RowFilter)
@@ -49,8 +55,8 @@ object Load {
   }
 
   /**
-    * Append a UUID value to the end of each end. The last field of `A` needs to be set aside to
-    * receive the uuid as type string.
+    * Same as `load` but also appends a UUID value to the end of each end. The last field of `A`
+    * needs to be set aside to receive the uuid as type string.
     */
   def loadWithUUID[A <: ThriftStruct : Decode : Tag : Manifest]
     (delimiter: String, sources: List[String], errors: String, timeSource: TimeSource, clean: Clean,
