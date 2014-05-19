@@ -14,7 +14,7 @@ import au.com.cba.omnia.humbug.HumbugSBT._
 import sbtassembly.Plugin._, AssemblyKeys._
 
 object build extends Build {
-  type Sett = Project.Setting[_]
+  type Sett = Def.Setting[_]
 
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++ uniformDependencySettings
@@ -47,6 +47,9 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
+      sourceGenerators in Compile <+= sourceManaged in Compile map { outDir: File =>
+        GenUnravelPipes.gen(outDir)
+      },
       libraryDependencies ++= Seq(
         "com.chuusai"             %% "shapeless" % "2.0.0-M1" cross CrossVersion.full
       , "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.

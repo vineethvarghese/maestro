@@ -10,11 +10,11 @@ import com.twitter.scrooge.ThriftStruct
 
 import au.com.cba.omnia.maestro.core.codec.{Decode, Tag}
 import au.com.cba.omnia.maestro.core.task._
-import au.com.cba.omnia.maestro.core.scalding.ImplicitUnravelPipes
+import au.com.cba.omnia.maestro.core.scalding.UnravelPipeImplicits
 
 import au.com.cba.omnia.maestro.macros.SplitMacro
 
-object Maestro extends ImplicitUnravelPipes {
+object Maestro extends UnravelPipeImplicits {
   /**
     * Loads the supplied files, filters, cleans, validates and parses the rows into
     * the specified ThriftStruct. It also appends the time using the specified time source to the
