@@ -15,7 +15,7 @@ object DecodeMacro {
 
     typ match {
       case t if t <:< humbugTyp => HumbugDecodeMacro.impl(c)
-      case _                    =>  ScroogeDecodeMacro.impl(c)
+      case _                    => ScroogeDecodeMacro.impl(c)
     }
   }
 }
