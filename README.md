@@ -31,7 +31,7 @@ At this point, `maestro` supports `thrift` for schema definitions.
 
 `maestro` uses the thrift schema definition to derive as much meta-data and
 implementation of custom processing (such as printing and parsing) as it
-can. It hen provides APIs that use these "data type" specific tools to
+can. It then provides APIs that use these "data type" specific tools to
 provide generic "tasks" like generating analytics views.
 
 
@@ -74,7 +74,7 @@ to infer how the data should be parsed and validated).
 
 ### Building a pipeline from the built in tools
 
-A pipeline is defined in terms of a `cascade` this terminology comes
+A pipeline is defined in terms of a `cascade`. This terminology comes
 from the underlying technology used, but it is easier to think of it
 as a set of jobs (with an implied partial-ordering, based on data
 dependencies).
@@ -173,7 +173,7 @@ yyyy, MM and dd.
 
 #### Filters
 
-Filters gain are really simple (hopefully). By default filters
+Filters again are really simple (hopefully). By default filters
 allow everything. A filter can then be refined via either
 blacklists (i.e. exclude these columns) or whitelists (i.e.
 only include these columns).
@@ -190,7 +190,7 @@ Filter.include(Fields.EFFECTIVE_DATE, Fields.CUSTOMER_ID)
 #### Validators
 
 Validators start to get a bit more advanced, but hopefully not too bad.
-A Validator can be thought of something that is a function from the record
+A Validator can be thought of as something that is a function from the record
 type to either an error message or an "ok" tick of approval. In a lot of
 cases this understanding can be simplified to saying it is a combination
 of a `Field` to validate and a `Check` to apply. There are a few builtin
@@ -213,4 +213,4 @@ The best tip for advanced pipelines is to look carefully at how
 the maestro tasks are implemented. You have the same set of tools
 available to you and can jump down to the same lower-level of
 abstraction by just implementing a scalding job, and extending the
-MaestroSupport trait.
+`MaestroSupport` trait.
