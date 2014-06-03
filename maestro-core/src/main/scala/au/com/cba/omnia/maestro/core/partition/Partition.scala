@@ -19,6 +19,11 @@ object Partition {
     Partition(v => date.get(v).split("-").toList match {
       case List(y, m, d) => (y, m, d)
     }, "%s/%s/%s")
+
+  def byHour[A](date: Field[A, String]): Partition[A, (String, String, String, String)] =
+    Partition(v => date.get(v).split("-").toList match {
+      case List(y, m, d, h) => (y, m, d, h)
+    }, "%s/%s/%s/%s")
 }
 
 object HivePartition {
@@ -35,6 +40,10 @@ object HivePartition {
     Partition(v => date.get(v).split("-").toList match {
       case List(y, m, d) => (y, m, d)
     }, "year=%s/month=%s/day=%s")
-}
 
+  def byHour[A](date: Field[A, String]): Partition[A, (String, String, String, String)] =
+    Partition(v => date.get(v).split("-").toList match {
+      case List(y, m, d, h) => (y, m, d, h)
+    }, "year=%s/month=%s/day=%s/hour=%s")
+}
 

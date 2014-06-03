@@ -39,4 +39,10 @@ object Maestro extends UnravelPipeImplicits with Load with View{
     m.matches
     s"${m.group(1)}-${m.group(2)}-${m.group(3)}"
   }
+
+  def timeFromPathHour(regex: Regex): TimeSource = FromPath { (path: String) =>
+    val m = regex.pattern.matcher(path)
+    m.matches
+    s"${m.group(1)}-${m.group(2)}-${m.group(3)}-${m.group(4)}"
+  }
 }
