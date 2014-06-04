@@ -7,7 +7,7 @@ import com.twitter.scalding._, TDsl._
 
 import com.twitter.scrooge.ThriftStruct
 
-import au.com.cba.omnia.ebenezer.scrooge.TemplateParquetScroogeSource
+import au.com.cba.omnia.ebenezer.scrooge.PartitionParquetScroogeSource
 
 import au.com.cba.omnia.maestro.core.partition.Partition
 
@@ -21,6 +21,6 @@ trait View {
     (implicit flowDef: FlowDef, mode: Mode): Unit = {
     pipe
       .map(v => partition.extract(v) -> v)
-      .write(TemplateParquetScroogeSource[B, A](partition.pattern, output))
+      .write(PartitionParquetScroogeSource[B, A](partition.pattern, output))
   }
 }

@@ -207,6 +207,18 @@ Validator.all(
 )
 ```
 
+### Type Mappings
+
+| Thrift Type                                       | Hive Type                                                                                     | Scala Type    |
+| ------------------------------------------------- |:---------------------------------------------------------------------------------------------:| -------------:|
+| bool: A boolean value (true or false), one byte   | BOOLEAN                                                                                       | bool          |
+| byte: A signed byte                               | TINYINT (1-byte signed integer, from -128 to 127)                                             | byte          |
+| i16: A 16-bit signed integer                      | SMALLINT (2-byte signed integer, from -32,768 to 32,767)                                      | short         |
+| i32: A 32-bit signed integer                      | INT (4-byte signed integer, from -2,147,483,648 to 2,147,483,647)                             | int           |
+| i64: A 64-bit signed integer                      | BIGINT (8-byte signed integer, from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)  | BigInteger    |
+| double: A 64-bit floating point number            | DOUBLE (8-byte double precision floating point number)                                        | double        |
+| string: Encoding agnostic text or binary string   | string 
+
 ### Advanced tips & tricks
 
 The best tip for advanced pipelines is to look carefully at how

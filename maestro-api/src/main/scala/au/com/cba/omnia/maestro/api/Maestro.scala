@@ -14,7 +14,7 @@ import au.com.cba.omnia.maestro.core.scalding.UnravelPipeImplicits
 
 import au.com.cba.omnia.maestro.macros.SplitMacro
 
-object Maestro extends UnravelPipeImplicits with Load with View{
+object Maestro extends UnravelPipeImplicits with Load with View {
   /**
     * Splits the given struct A into a tuple of smaller thrift structs by matching the field names.
     * 
