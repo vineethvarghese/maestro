@@ -65,12 +65,12 @@ object build extends Build {
         GenUnravelPipes.gen(outDir)
       },
       libraryDependencies ++= Seq(
-        "com.chuusai"             %% "shapeless" % "2.0.0-M1" cross CrossVersion.full
+        "com.chuusai"             %% "shapeless" % "break" cross CrossVersion.full
       , "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
       , "com.google.guava"         %  "guava"    % "16.0.1"
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
-        ++ depend.omnia("ebenezer", "0.3.0-20140612035238-9819d25")
-        ++ depend.omnia("humbug-core", "0.0.1-20140513231339-50ed724")
+        ++ depend.omnia("ebenezer", "0.4.0-20140616005433-923787")
+        ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
     )
   )
 
@@ -84,9 +84,9 @@ object build extends Build {
        libraryDependencies <++= scalaVersion.apply(sv => Seq(
         "org.scala-lang"   % "scala-compiler" % sv
       , "org.scala-lang"   % "scala-reflect"  % sv
-      , "org.scalamacros" %% "quasiquotes"    % "2.0.0-M3" cross CrossVersion.full
+      , "org.scalamacros" %% "quasiquotes"    % "2.0.0" cross CrossVersion.full
       ) ++ depend.testing())
-    , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full)
+    , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
     )
   ).dependsOn(core)
    .dependsOn(test % "test")
@@ -143,7 +143,7 @@ object build extends Build {
         "org.specs2"               %% "specs2"                        % depend.versions.specs,
         "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck,
         "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
-      ) ++ depend.omnia("humbug-core", "0.0.1-20140513231339-50ed724")
+      ) ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
     )
   )
 
