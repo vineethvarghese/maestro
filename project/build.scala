@@ -65,10 +65,10 @@ object build extends Build {
         GenUnravelPipes.gen(outDir)
       },
       libraryDependencies ++= Seq(
-        "com.chuusai"             %% "shapeless" % "break" cross CrossVersion.full
-      , "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
+        "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
       , "com.google.guava"         %  "guava"    % "16.0.1"
-      ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
+      ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
+        ++ depend.shapeless() ++ depend.testing()
         ++ depend.omnia("ebenezer", "0.4.0-20140616005433-923787")
         ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
     )
