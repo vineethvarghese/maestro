@@ -84,7 +84,7 @@ object build extends Build {
        libraryDependencies <++= scalaVersion.apply(sv => Seq(
         "org.scala-lang"   % "scala-compiler" % sv
       , "org.scala-lang"   % "scala-reflect"  % sv
-      , "org.scalamacros" %% "quasiquotes"    % "2.0.0" cross CrossVersion.full
+      , "org.scalamacros" %% "quasiquotes"    % "2.0.0"
       ) ++ depend.testing())
     , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
     )
