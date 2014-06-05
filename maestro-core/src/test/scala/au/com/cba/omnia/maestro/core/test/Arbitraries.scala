@@ -30,7 +30,7 @@ object Arbitraries {
       (arbitrary[Val] |@| arbitrary[String])(ValTypeMismatch.apply)
     , (arbitrary[String] |@| arbitrary[String] |@| arbitrary[These[String, Throwable]])(ParseError.apply)
     , (arbitrary[Int] |@| arbitrary[String])(NotEnoughInput)
-    , TooMuchInput
+    , Gen.const(TooMuchInput)
     ))
 
   implicit def DecodeResultArbitrary[A: Arbitrary]: Arbitrary[DecodeResult[A]] =
