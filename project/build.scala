@@ -55,7 +55,7 @@ object build extends Build {
       , "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
       , "com.google.guava"         %  "guava"    % "16.0.1"
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop() ++ depend.testing()
-        ++ depend.omnia("ebenezer", "0.2.0-20140604034242-aaa7b44")
+        ++ depend.omnia("ebenezer", "0.3.0-20140612035238-9819d25")
         ++ depend.omnia("humbug-core", "0.0.1-20140513231339-50ed724")
     )
   )
