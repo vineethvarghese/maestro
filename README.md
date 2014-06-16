@@ -1,7 +1,7 @@
 maestro
 =======
 
-[![Build Status](https://magnum.travis-ci.com/CommBank/maestro.svg?token=A3xq7fpHLyey1yCrNASy&branch=master)](https://magnum.travis-ci.com/CommBank/maestro)
+[![Build Status](https://travis-ci.org/CommBank/maestro.svg?branch=master)](https://travis-ci.org/CommBank/maestro)
 [![Gitter chat](https://badges.gitter.im/CommBank/maestro.png)](https://gitter.im/CommBank/maestro)
 
 
