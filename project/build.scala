@@ -69,7 +69,7 @@ object build extends Build {
       , "com.google.guava"         %  "guava"    % "16.0.1"
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing()
-        ++ depend.omnia("ebenezer", "0.4.0-20140616005433-923787")
+        ++ depend.omnia("ebenezer", "0.4.0-20140616005433-9237875")
         ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
     )
   )
