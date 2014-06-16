@@ -68,7 +68,10 @@ trait Load {
       validator: Validator[A], filter: RowFilter)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] = {
     loadProcess(
-      sources.map(p => TextLine(p).map(l => s"$l$delimiter${timeSource.getTime(p)}")).reduceLeft(_ ++ _),
+      sources
+        .map(p => TextLine(p).map(l => (p, l)))
+        .reduceLeft(_ ++ _)
+        .map { case (p, l) => s"$l$delimiter${timeSource.getTime(p)}" },
       delimiter,
       errors,
       clean,
