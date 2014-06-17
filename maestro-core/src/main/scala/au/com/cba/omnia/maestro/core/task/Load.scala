@@ -49,8 +49,6 @@ sealed trait TimeSource {
 case class Predetermined(time: String) extends TimeSource
 case class FromPath(extract: String => String) extends TimeSource
 
-object Load extends Load
-
 trait Load {
   /**
     * Loads the supplied text files and converts them to the specified thrift struct.

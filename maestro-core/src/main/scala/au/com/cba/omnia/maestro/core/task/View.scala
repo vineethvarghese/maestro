@@ -25,8 +25,6 @@ import au.com.cba.omnia.ebenezer.scrooge.PartitionParquetScroogeSource
 
 import au.com.cba.omnia.maestro.core.partition.Partition
 
-object View extends View
-
 trait View {
   /** Partitions a pipe using the given partition scheme and writes out the data.*/
   def view[A <: ThriftStruct : Manifest, B: Manifest: TupleSetter]
