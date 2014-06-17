@@ -22,11 +22,16 @@ import com.twitter.scalding._, TDsl._
 
 import com.twitter.scrooge.ThriftStruct
 
+import au.com.cba.omnia.maestro.macros._
 import au.com.cba.omnia.maestro.core.codec.{Decode, Tag}
 import au.com.cba.omnia.maestro.core.task._
 import au.com.cba.omnia.maestro.core.scalding.UnravelPipeImplicits
 
 import au.com.cba.omnia.maestro.macros.SplitMacro
+
+class Maestro[A <: ThriftStruct](args: Args) extends Job(args) with MacroSupport[A] {
+
+}
 
 object Maestro extends UnravelPipeImplicits with Load with View with Query {
   /**

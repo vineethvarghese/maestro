@@ -23,7 +23,7 @@ import au.com.cba.omnia.maestro.core.codec._
 
 import au.com.cba.omnia.maestro.example.thrift._
 
-class CustomerCascade(args: Args) extends Job(args) with MaestroSupport[Customer] {
+class CustomerCascade(args: Args) extends Maestro[Customer](args) {
   val env           = args("env")
   val domain        = "customer"
   val inputs        = Guard.expandPaths(s"${env}/source/${domain}/*")
@@ -46,11 +46,12 @@ class CustomerCascade(args: Args) extends Job(args) with MaestroSupport[Customer
   val filter        = RowFilter.keep
 
   load[Customer]("|", inputs, errors, Maestro.now(), cleaners, validators, filter) |>
-    (view(Partition.byDate(Fields.EffectiveDate), dateView) _ &&&
-     view(Partition.byFields2(Fields.CustomerCat, Fields.CustomerSubCat), catView))
+    ( view(Partition.byDate(Fields.EffectiveDate), dateView) _ &&&
+      view(Partition.byFields2(Fields.CustomerCat, Fields.CustomerSubCat), catView)
+      )
 }
 
-class SplitCustomerCascade(args: Args) extends Job(args) with MaestroSupport[Customer] {
+class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val env           = args("env")
   val domain        = "customer"
   val inputs        = Guard.expandPaths(s"${env}/source/${domain}/*")
