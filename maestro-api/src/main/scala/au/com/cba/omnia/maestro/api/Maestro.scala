@@ -20,7 +20,7 @@ import scala.util.matching.Regex
 
 import cascading.flow.FlowDef
 
-import com.twitter.scalding._, TDsl._
+import com.twitter.scalding.{Hdfs =>_,_},TDsl._
 
 import com.twitter.scrooge.ThriftStruct
 
@@ -33,7 +33,7 @@ import au.com.cba.omnia.maestro.core.scalding.UnravelPipeImplicits
 
 import au.com.cba.omnia.maestro.macros.SplitMacro
 
-import com.cba.omnia.edge.hdfs.{Hdfs => EdgeHdfs}
+import com.cba.omnia.edge.hdfs._
 import com.cba.omnia.edge.hdfs.HdfsString._
 
 class Maestro[A <: ThriftStruct](args: Args) extends Job(args) with MacroSupport[A] {
@@ -75,9 +75,9 @@ object Maestro extends UnravelPipeImplicits with Load with View with Query {
   def writeOutPaths(paths: List[String], file: String): Unit = {
     val conf = new Configuration
     val h = for {
-      _ <- EdgeHdfs.create(file.toPath)
-      _ <- EdgeHdfs.write(file.toPath, paths.mkString("\n"))
-      _ <- paths.map(p => EdgeHdfs.create(s"$p/_PROCESSED".toPath)).sequence
+      _ <- Hdfs.create(file.toPath)
+      _ <- Hdfs.write(file.toPath, paths.mkString("\n"))
+      _ <- paths.map(p => Hdfs.create(s"$p/_PROCESSED".toPath)).sequence
     
     } yield ()
 

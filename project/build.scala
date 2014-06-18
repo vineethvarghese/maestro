@@ -49,7 +49,7 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro", "au.com.cba.omnia.maestro.api")
     ++ Seq[Sett](
-      libraryDependencies ++= depend.hadoop() ++ depend.testing() ++depend.omnia("edge", "1.4.0-20140520132933")
+      libraryDependencies ++= depend.hadoop() ++ depend.testing() ++depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
     )
   ).dependsOn(core)
    .dependsOn(macros)
