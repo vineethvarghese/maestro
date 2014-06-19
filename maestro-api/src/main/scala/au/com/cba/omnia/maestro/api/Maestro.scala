@@ -75,6 +75,6 @@ object Maestro extends UnravelPipeImplicits with Load with View with Query {
     * Creates the _PROCESSED flag to indicate completion of processing in given list of paths
     */
   def createFlagFile(directoryPath : List[String]):Unit={
-    directoryPath foreach ((x:String)=> Hdfs.create(Hdfs.path(s"$x/_PROCESSED")).run(new Configuration))
+    directoryPath foreach ((x)=> Hdfs.create(Hdfs.path(s"$x/_PROCESSED")).run(new Configuration))
   }  
 }
