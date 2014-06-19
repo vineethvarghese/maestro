@@ -72,15 +72,9 @@ object Maestro extends UnravelPipeImplicits with Load with View with Query {
     s"${m.group(1)}-${m.group(2)}-${m.group(3)}-${m.group(4)}"
   }
   /**
-    * Creates the _PROCESSED flag to indicate completion of processing at given list of paths
-	*/
-  def writeOutPaths(paths: List[String], file: String): Unit = {
-    val h = for {
-      _ <- Hdfs.create(file.toPath)
-      _ <- Hdfs.write(file.toPath, paths.mkString("\n"))
-      _ <- paths.map(p => Hdfs.create(s"$p/_PROCESSED".toPath)).sequence
-    
-    } yield ()
-    h.run(new Configuration)
-  } 
+    * Creates the _PROCESSED flag to indicate completion of processing in given list of paths
+    */
+  def createFlagFile(directoryPath : List[String]):Unit={
+    directoryPath foreach ((x:String)=> Hdfs.create(Hdfs.path(s"$x/_PROCESSED")).run(new Configuration))
+  }  
 }
