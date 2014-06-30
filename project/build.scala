@@ -59,11 +59,14 @@ object build extends Build {
   , base = file("maestro-core")
   , settings =
        standardSettings
+    ++ uniformThriftSettings
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
       sourceGenerators in Compile <+= sourceManaged in Compile map { outDir: File =>
         GenUnravelPipes.gen(outDir)
       },
+      scroogeThriftSourceFolder in Test <<=
+        (sourceDirectory) { _ / "test" / "thrift" / "scrooge" },
       libraryDependencies ++= Seq(
         "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
       , "com.google.guava"         %  "guava"    % "16.0.1"
@@ -71,6 +74,7 @@ object build extends Build {
         ++ depend.shapeless() ++ depend.testing()
         ++ depend.omnia("ebenezer-hive", "0.4.0-20140616005433-9237875")
         ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
+        ++ Seq("au.com.cba.omnia" %% "thermometer" % "0.1.0-20140621121315-e002b2f" % "test")
     )
   )
 
