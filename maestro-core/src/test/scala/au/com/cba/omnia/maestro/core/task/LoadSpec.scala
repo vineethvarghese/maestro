@@ -86,8 +86,6 @@ loadProcess applies splitter correctly $loadProcessSplits
   }
 }
 
-object LoadLogic extends Load
-
 class LoadProcessStringPairTestJob
   (args: Args, input: List[String], splitter: Splitter, clean: Clean,
     validator: Validator[StringPair], filter: RowFilter, outFile: String,
@@ -112,7 +110,7 @@ class LoadProcessStringPairTestJob
 
   val in = ThermometerSource(input).map(l => RawRow(l, Nil))
 
-  LoadLogic.loadProcess[StringPair](in, splitter, errFile, clean, validator, filter)
+  Load.loadProcess[StringPair](in, splitter, errFile, clean, validator, filter)
     .map(pair =>
       if (!test(pair)) throw new FailureException(Failure(s"bad result: $pair"))
       else (pair.first, pair.second))

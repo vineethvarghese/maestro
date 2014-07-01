@@ -65,7 +65,7 @@ trait Load {
     (delimiter: String, sources: List[String], errors: String, timeSource: TimeSource, clean: Clean,
       validator: Validator[A], filter: RowFilter)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] =
-    loadProcess(
+    Load.loadProcess(
       sources
         .map(p => TextLine(p).map(l => (p, l)))
         .reduceLeft(_ ++ _)
@@ -102,7 +102,7 @@ trait Load {
         .map(k => k -> md.digest(seed ++ k.getBytes("UTF-8")).drop(12).map("%02x".format(_)).mkString)
         .toMap
 
-    loadProcess(
+    Load.loadProcess(
       sources.map(p =>
         TextLine(p)
           .read
@@ -125,7 +125,7 @@ trait Load {
     (lengths: List[Int], sources: List[String], errors: String, timeSource: TimeSource,
       clean: Clean, validator: Validator[A], filter: RowFilter)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] =
-    loadProcess(
+    Load.loadProcess(
       sources
         .map(p => TextLine(p).map(l => (p, l)))
         .reduceLeft(_ ++ _)
@@ -136,7 +136,18 @@ trait Load {
       validator,
       filter
     )
+}
 
+/**
+  * Contains implementation for `loadFoo` methods in `Load` trait.
+  *
+  * WARNING: The methods on this object are not considered part of the public
+  * maestro API, and may change without warning. Use the methods in the Load
+  * trait instead, unless you know what you are doing.
+  */
+object Load {
+
+  /** Implementation of `loadFoo` methods in `Load` trait */
   def loadProcess[A <: ThriftStruct : Decode : Tag : Manifest]
     (in: TypedPipe[RawRow], splitter: Splitter, errors: String, clean: Clean,
        validator: Validator[A], filter: RowFilter)
