@@ -20,7 +20,7 @@ import com.twitter.scalding.{ Args, Job, Source, TextLine, TypedPipe, TypedTsv }
 
 import org.apache.hadoop.fs.Path
 
-import org.specs2.execute.{Failure, FailureException}
+import org.specs2.execute.{Failure, FailureException, Result}
 
 import scalaz.Validation
 
@@ -46,15 +46,41 @@ loadProcess applies splitter correctly $loadProcessSplits
 """
 
   def loadProcessSplits = {
+    val input      = List("col1col02", "colAcol_B", "colIcolII")
+    val splitter   = Splitter.fixed(List(4,5))
+    val clean      = Clean((_, row) => row)
+    val validator  = Validator[StringPair](Validation.success)
+    val filter     = RowFilter.keep
+    val test       = (pair:StringPair) => pair.first.length == 4 &&
+                                          pair.second.length == 5
 
-    val testJob = new LoadProcessSplitsJob(scaldingArgs)
-    val result = Jobs.runJob(testJob)
+    loadProcessStringPairTest(input, splitter, clean, validator, filter, test)
+  }
+
+  def loadProcessStringPairTest(input: List[String], splitter: Splitter,
+    clean: Clean, validator: Validator[StringPair], filter: RowFilter,
+    test: StringPair => Boolean): Result = {
+
+    val outFile = "output"
+    val errFile = "errors"
+    val outPath = new Path(outFile)
+    val errPath = new Path(errFile)
+
+    val testJob = new LoadProcessStringPairTestJob(scaldingArgs, input,
+      splitter, clean, validator, filter, outFile, errFile, test)
+    val context = Context(conf)
+
+    val result  = Jobs.runJob(testJob)
 
     result match {
-      case None => true
       case Some(err) => {
         err.fold(println(_), _.printStackTrace())
-        false
+        failure(err.fold(m => m, _.toString()))
+      }
+      case None => {
+        if (context.exists(errPath)) failure("errors occured during loadProcess")
+        else if (!context.exists(outPath)) failure("no output")
+        else success
       }
     }
   }
@@ -62,10 +88,14 @@ loadProcess applies splitter correctly $loadProcessSplits
 
 object LoadLogic extends Load
 
-class LoadProcessSplitsJob(args: Args) extends Job(args) {
+class LoadProcessStringPairTestJob
+  (args: Args, input: List[String], splitter: Splitter, clean: Clean,
+    validator: Validator[StringPair], filter: RowFilter, outFile: String,
+    errFile: String, test: StringPair => Boolean
+  ) extends Job(args) {
 
   implicit val StringPairDecode: Decode[StringPair] = for {
-    first <- Decode.of[String]
+    first  <- Decode.of[String]
     second <- Decode.of[String]
   } yield StringPair(first, second)
 
@@ -80,16 +110,11 @@ class LoadProcessSplitsJob(args: Args) extends Job(args) {
     Tag(_ zip fields)
   }
 
-  val in = ThermometerSource(List("col1$col02", "colA$col_B", "colI$colII"))
-  val splitter = Splitter.delimited("$")
-  val clean = Clean((_, row) => row)
-  val validator = Validator[StringPair](Validation.success)
-  val filter = RowFilter.keep
-  val outputPath = "output"
-  val out = TypedTsv[String](outputPath)
+  val in = ThermometerSource(input).map(l => RawRow(l, Nil))
 
-  LoadLogic.loadProcess[StringPair](in, splitter, None, clean, validator, filter)
-    .map(t => if (true) t.first + "$" + t.second // TODO will check fixed length splitting
-              else throw new Exception(s"bad split result: $t"))
-    .write(out)
+  LoadLogic.loadProcess[StringPair](in, splitter, errFile, clean, validator, filter)
+    .map(pair =>
+      if (!test(pair)) throw new FailureException(Failure(s"bad result: $pair"))
+      else (pair.first, pair.second))
+    .write(TypedTsv[(String,String)](outFile))
 }

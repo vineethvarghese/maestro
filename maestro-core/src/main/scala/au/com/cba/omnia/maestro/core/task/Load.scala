@@ -47,6 +47,8 @@ sealed trait TimeSource {
 case class Predetermined(time: String) extends TimeSource
 case class FromPath(extract: String => String) extends TimeSource
 
+case class RawRow(line: String, extraFields: List[String])
+
 trait Load {
   /**
     * Loads the supplied text files and converts them to the specified thrift struct.
@@ -62,19 +64,18 @@ trait Load {
   def load[A <: ThriftStruct : Decode : Tag : Manifest]
     (delimiter: String, sources: List[String], errors: String, timeSource: TimeSource, clean: Clean,
       validator: Validator[A], filter: RowFilter)
-    (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] = {
+    (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] =
     loadProcess(
       sources
         .map(p => TextLine(p).map(l => (p, l)))
         .reduceLeft(_ ++ _)
-        .map { case (p, l) => s"$l$delimiter${timeSource.getTime(p)}" },
+        .map { case (p, l) => RawRow(l, List(timeSource.getTime(p))) },
       Splitter.delimited(delimiter),
-      Some(errors),
+      errors,
       clean,
       validator,
       filter
     )
-  }
 
   /**
     * Same as `load` but also appends a unique key to each line. The last field of `A`
@@ -106,23 +107,43 @@ trait Load {
         TextLine(p)
           .read
           .each(('offset, 'line), 'result)(_ => new GenerateKey(delimiter, p, timeSource, hashes))
-          .toTypedPipe[String]('result)
+          .toTypedPipe[RawRow]('result)
       ).reduceLeft(_ ++ _),
       Splitter.delimited(delimiter),
-      Some(errors),
+      errors,
       clean,
       validator,
       filter
     )
   }
 
+  /**
+    *  Same as `load` but uses a list of column lengths to split the string
+    *   rather than a delimeter.
+    */
+  def loadFixedLength[A <: ThriftStruct : Decode : Tag : Manifest]
+    (lengths: List[Int], sources: List[String], errors: String, timeSource: TimeSource,
+      clean: Clean, validator: Validator[A], filter: RowFilter)
+    (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] =
+    loadProcess(
+      sources
+        .map(p => TextLine(p).map(l => (p, l)))
+        .reduceLeft(_ ++ _)
+        .map { case (p, l) => RawRow(l, List(timeSource.getTime(p))) },
+      Splitter.fixed(lengths),
+      errors,
+      clean,
+      validator,
+      filter
+    )
+
   def loadProcess[A <: ThriftStruct : Decode : Tag : Manifest]
-    (in: TypedPipe[String], splitter: Splitter, errors: Option[String], clean: Clean,
+    (in: TypedPipe[RawRow], splitter: Splitter, errors: String, clean: Clean,
        validator: Validator[A], filter: RowFilter)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] = {
     val pipe =
       in
-        .map(splitter.run(_))
+        .map(row => splitter.run(row.line) ++ row.extraFields)
         .flatMap(filter.run(_).toList)
         .map(record =>
           Tag.tag[A](record).map { case (column, field) => clean.run(field, column) }
@@ -143,10 +164,7 @@ trait Load {
             }
       }
 
-    errors match {
-      case Some(errPath) => Errors.safely(errPath)(pipe)
-      case None => pipe.map(_.fold(e => throw new Exception(e), a => a))
-    }
+    Errors.safely(errors)(pipe)
   }
 }
 
@@ -169,7 +187,7 @@ class GenerateKey(delimiter: String, path: String, timeSource: TimeSource, hashe
 
   override def prepare(flow: FlowProcess[_], call: OperationCall[(ByteBuffer, MessageDigest, Tuple)]): Unit = {
     val md = MessageDigest.getInstance("SHA-1")
-    call.setContext((ByteBuffer.allocate(12), md, Tuple.size(1)));
+    call.setContext((ByteBuffer.allocate(12), md, Tuple.size(2)));
   }
 
   def operate(flow: FlowProcess[_], call: FunctionCall[(ByteBuffer, MessageDigest, Tuple)]): Unit = {
@@ -179,9 +197,12 @@ class GenerateKey(delimiter: String, path: String, timeSource: TimeSource, hashe
     val slice  = flow.getCurrentSliceNum
 
     val (byteBuffer, md, resultTuple) = call.getContext
-    val keyedLine = s"$line$d${timeSource.getTime(path)}$d${uid(path, slice, offset, line, byteBuffer, md)}"
+    val time = timeSource.getTime(path)
+    val key = uid(path, slice, offset, line, byteBuffer, md)
 
-    resultTuple.set(0, keyedLine)
+    // representation of RawRow: tuple with string and List elements
+    resultTuple.set(0, line)
+    resultTuple.set(1, List(time, key))
     call.getOutputCollector.add(resultTuple)
   }
 }
