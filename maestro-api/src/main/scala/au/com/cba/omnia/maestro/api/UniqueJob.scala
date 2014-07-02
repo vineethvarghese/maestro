@@ -12,8 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package scalding
+package au.com.cba.omnia.maestro.api
 
 import com.twitter.scalding._
 import java.util.UUID
