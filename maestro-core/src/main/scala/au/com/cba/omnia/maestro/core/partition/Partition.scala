@@ -30,12 +30,12 @@ object Partition {
     Partition(List(a.value, b.value, c.value), v => (a.get(v), b.get(v), c.get(v)), "%s/%s/%s")
 
   def byDate[A](date: Field[A, String]): Partition[A, (String, String, String)] =
-    Partition(List(date.value), v => date.get(v).split("-").toList match {
+    Partition(List("year", "month", "day"), v => date.get(v).split("-").toList match {
       case List(y, m, d) => (y, m, d)
     }, "%s/%s/%s")
 
   def byHour[A](date: Field[A, String]): Partition[A, (String, String, String, String)] =
-    Partition(List(date.value), v => date.get(v).split("-").toList match {
+    Partition(List("year", "month", "day", "hour"), v => date.get(v).split("-").toList match {
       case List(y, m, d, h) => (y, m, d, h)
     }, "%s/%s/%s/%s")
 }
@@ -51,12 +51,12 @@ object HivePartition {
     Partition(List(a.value, b.value, c.value), v => (a.get(v), b.get(v), c.get(v)), s"${a.value}=%s/${b.value}=%s/${c.value}=%s")
 
   def byDate[A](date: Field[A, String]): Partition[A, (String, String, String)] =
-    Partition(List(date.value), v => date.get(v).split("-").toList match {
+    Partition(List("year", "month", "day"), v => date.get(v).split("-").toList match {
       case List(y, m, d) => (y, m, d)
     }, "year=%s/month=%s/day=%s")
 
   def byHour[A](date: Field[A, String]): Partition[A, (String, String, String, String)] =
-    Partition(List(date.value), v => date.get(v).split("-").toList match {
+    Partition(List("year", "month", "day", "hour"), v => date.get(v).split("-").toList match {
       case List(y, m, d, h) => (y, m, d, h)
     }, "year=%s/month=%s/day=%s/hour=%s")
 }
