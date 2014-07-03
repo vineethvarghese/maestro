@@ -21,13 +21,13 @@ case class Partition[A, B](fieldNames: List[String], extract: A => B, pattern: S
 
 object Partition {
   def byField[A, B](a: Field[A, B]): Partition[A, B] =
-    Partition(List(a.value), a.get, "%s")
+    Partition(List(a.name), a.get, "%s")
 
   def byFields2[A, B, C](a: Field[A, B], b: Field[A, C]): Partition[A, (B, C)] =
-    Partition(List(a.value, b.value), v => (a.get(v), b.get(v)), "%s/%s")
+    Partition(List(a.name, b.name), v => (a.get(v), b.get(v)), "%s/%s")
 
   def byFields3[A, B, C, D](a: Field[A, B], b: Field[A, C], c: Field[A, D]): Partition[A, (B, C, D)] =
-    Partition(List(a.value, b.value, c.value), v => (a.get(v), b.get(v), c.get(v)), "%s/%s/%s")
+    Partition(List(a.name, b.name, c.name), v => (a.get(v), b.get(v), c.get(v)), "%s/%s/%s")
 
   def byDate[A](date: Field[A, String]): Partition[A, (String, String, String)] =
     Partition(List("year", "month", "day"), v => date.get(v).split("-").toList match {
@@ -42,13 +42,13 @@ object Partition {
 
 object HivePartition {
   def byField[A, B](a: Field[A, B]): Partition[A, B] =
-    Partition(List(a.value), a.get, s"${a.value}=%s")
+    Partition(List(a.name), a.get, s"${a.name}=%s")
 
   def byFields2[A, B, C](a: Field[A, B], b: Field[A, C]): Partition[A, (B, C)] =
-    Partition(List(a.value, b.value), v => (a.get(v), b.get(v)), s"${a.value}=%s/${b.value}=%s")
+    Partition(List(a.name, b.name), v => (a.get(v), b.get(v)), s"${a.name}=%s/${b.name}=%s")
 
   def byFields3[A, B, C, D](a: Field[A, B], b: Field[A, C], c: Field[A, D]): Partition[A, (B, C, D)] =
-    Partition(List(a.value, b.value, c.value), v => (a.get(v), b.get(v), c.get(v)), s"${a.value}=%s/${b.value}=%s/${c.value}=%s")
+    Partition(List(a.name, b.name, c.name), v => (a.get(v), b.get(v), c.get(v)), s"${a.name}=%s/${b.name}=%s/${c.name}=%s")
 
   def byDate[A](date: Field[A, String]): Partition[A, (String, String, String)] =
     Partition(List("year", "month", "day"), v => date.get(v).split("-").toList match {

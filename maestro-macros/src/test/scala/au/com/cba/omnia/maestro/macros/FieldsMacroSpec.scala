@@ -40,15 +40,15 @@ The fields macro creates fields
   val customerFields = Macros.mkFields[Customer]
 
   def nameHumbug = {
-    typesFields.StringField.value === "stringField"
-    typesFields.LongField.value   === "longField"
-    typesFields.DoubleField.value === "doubleField"
+    typesFields.StringField.name === "stringField"
+    typesFields.LongField.name   === "longField"
+    typesFields.DoubleField.name === "doubleField"
   }
 
   def nameScrooge = {
-    customerFields.CustomerId.value    === "CUSTOMER_ID"
-    customerFields.CustomerCat.value   === "CUSTOMER_CAT"
-    customerFields.EffectiveDate.value === "EFFECTIVE_DATE"
+    customerFields.CustomerId.name    === "CUSTOMER_ID"
+    customerFields.CustomerCat.name   === "CUSTOMER_CAT"
+    customerFields.EffectiveDate.name === "EFFECTIVE_DATE"
   }
 
   def extractHumbug = prop { (t: Types) =>

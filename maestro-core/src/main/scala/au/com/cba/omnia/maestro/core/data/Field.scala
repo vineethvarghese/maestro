@@ -15,4 +15,8 @@
 package au.com.cba.omnia.maestro.core
 package data
 
-case class Field[A, B](value: String, get: A => B)
+/**
+  * Represents a field of `A` with type `B`. It has the name of the field and a getter given an
+  * instance of `A`.
+  */
+case class Field[A, B](name: String, get: A => B)
