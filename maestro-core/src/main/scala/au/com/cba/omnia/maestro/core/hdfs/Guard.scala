@@ -28,10 +28,11 @@ object Guard {
   val NotProcessed = GuardFilter((fs, p) => !fs.exists(new Path(p, "_PROCESSED")))
   /** Filter out any directories that DO NOT HAVE a _INGESTION_COMPLETE file. */
   val IngestionComplete = GuardFilter((fs, p) => fs.exists(new Path(p, "_INGESTION_COMPLETE")))
+  /** Create the file system **/
+  val fs = FileSystem.get(new Configuration)
 
   /** Expands the globs in the provided path and only keeps those directories that pass the filter. */
   def expandPaths(path: String, filter: GuardFilter = NotProcessed): List[String] = {
-    val fs = FileSystem.get(new Configuration)
     fs.globStatus(new Path(path))
       .toList
       .filter(s => fs.isDirectory(s.getPath))
@@ -40,6 +41,14 @@ object Guard {
       .map(_.toString)
   }
 
+  /** Expand the complete file paths from the expandPaths, filtering out directories and 0 byte files */
+  def expandFilePaths(paths: List[String])= {
+    for {
+      eachPath <- paths
+      status   <- fs.listStatus(new Path(eachPath))
+      if(!status.isDirectory && fs.getFileStatus(status.getPath).getLen>0)
+    } yield status.getPath.toString
+  }
   /** As `expandPath` but the filter is `NotProcessed` and `IngestionComplete`. */
   def expandTransferredPaths(path: String) = expandPaths(path, NotProcessed &&& IngestionComplete)
 }
