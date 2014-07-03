@@ -28,7 +28,7 @@ object Guard {
   val NotProcessed = GuardFilter((fs, p) => !fs.exists(new Path(p, "_PROCESSED")))
   /** Filter out any directories that DO NOT HAVE a _INGESTION_COMPLETE file. */
   val IngestionComplete = GuardFilter((fs, p) => fs.exists(new Path(p, "_INGESTION_COMPLETE")))
-  /** Create the file system **/
+  /** Create the file system */
   val fs = FileSystem.get(new Configuration)
 
   /** Expands the globs in the provided path and only keeps those directories that pass the filter. */
