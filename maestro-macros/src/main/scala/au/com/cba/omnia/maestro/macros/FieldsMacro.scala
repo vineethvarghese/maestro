@@ -23,15 +23,22 @@ import scala.annotation.StaticAnnotation
 
 class body(tree: Any) extends StaticAnnotation
 
+/**
+  * A macro that generates a `Field` for every field in the thrift struct. All the fields are
+  * members of FieldsWrapper.
+  */
 object FieldsMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context) = {
     import c.universe._
 
-    val entries = Inspect.fields[A](c)
+    val typ       = c.universe.weakTypeOf[A]
+    val entries   = Inspect.fields[A](c)
+    val companion = typ.typeSymbol.companionSymbol
+    val nameGetter = newTermName("name")
+
     val fields = entries.map({
       case (method, field) =>
-        val name = Literal(Constant(method.name.toString))
-        val typ = c.universe.weakTypeOf[A]
+        val name    = q"""$companion.${newTermName(field + "Field")}.$nameGetter"""
         val extract = Function(List(ValDef(Modifiers(Flag.PARAM), newTermName("x"), TypeTree(), EmptyTree)), Select(Ident(newTermName("x")), method.name))
         (method, field, q"""au.com.cba.omnia.maestro.core.data.Field[${typ}, ${method.returnType}]($name, ${extract})""")
     }).map({
