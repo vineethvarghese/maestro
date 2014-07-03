@@ -42,11 +42,11 @@ object Guard {
   }
 
   /** Expand the complete file paths from the expandPaths, filtering out directories and 0 byte files */
-  def expandFilePaths(paths: List[String])= {
+  def listNonEmptyFiles(paths: List[String])= {
     for {
       eachPath <- paths
       status   <- fs.listStatus(new Path(eachPath))
-      if(!status.isDirectory && fs.getFileStatus(status.getPath).getLen>0)
+      if(!status.isDirectory && status.getLen>0)
     } yield status.getPath.toString
   }
   /** As `expandPath` but the filter is `NotProcessed` and `IngestionComplete`. */
