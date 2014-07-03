@@ -14,37 +14,39 @@
 
 package au.com.cba.omnia.maestro.api
 
-import scalaz.{Tag => _, _}, Scalaz._
-
 import scala.util.matching.Regex
 
-import cascading.flow.FlowDef
-
-import com.twitter.scalding.{Hdfs =>_,_},TDsl._
+import com.twitter.scalding.{Args, Job, CascadeJob}
 
 import com.twitter.scrooge.ThriftStruct
 
 import org.apache.hadoop.conf.Configuration
 
-import au.com.cba.omnia.maestro.macros._
-import au.com.cba.omnia.maestro.core.codec.{Decode, Tag}
+import com.cba.omnia.edge.hdfs.Hdfs
+import com.cba.omnia.edge.hdfs.HdfsString._
+
+import au.com.cba.omnia.maestro.macros.{MacroSupport, SplitMacro}
+
 import au.com.cba.omnia.maestro.core.task._
 import au.com.cba.omnia.maestro.core.scalding.UnravelPipeImplicits
 
-import au.com.cba.omnia.maestro.macros.SplitMacro
-
-import com.cba.omnia.edge.hdfs._
-import com.cba.omnia.edge.hdfs.HdfsString._
-
-class Maestro[A <: ThriftStruct](args: Args) extends Job(args) with MacroSupport[A] {
-
+/**
+  * Parent class for a more complex maestro job that needs to use cascades. For example, to run hive
+  * queries.
+  */
+abstract class MaestroCascade[A <: ThriftStruct](args: Args) extends CascadeJob(args) with MacroSupport[A] {
+  override def validate { /* workaround for scalding bug, yep, yet another one, no nothing works */ }
 }
+
+/** Parent class for a simple maestro job that does not need to use cascades or run hive queries.*/
+abstract class Maestro[A <: ThriftStruct](args: Args) extends Job(args) with MacroSupport[A]
 
 object Maestro extends UnravelPipeImplicits with Load with View with Query {
   /**
     * Splits the given struct A into a tuple of smaller thrift structs by matching the field names.
     * 
-    * It can duplicate the same original field across several structs, rearrange field order and skip fields.
+    * It can duplicate the same original field across several structs, rearrange field order and
+    * skip fields.
     */
   def split[A <: ThriftStruct, B <: Product]: A => B =
     macro SplitMacro.impl[A, B]

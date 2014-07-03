@@ -17,6 +17,7 @@ package au.com.cba.omnia.maestro.api
 import com.twitter.scalding._
 import java.util.UUID
 
+/** Ensures the scalding job has a unique name.*/
 abstract class UniqueJob(args: Args) extends Job(args) {
   lazy val unique: UUID = UUID.randomUUID
 
