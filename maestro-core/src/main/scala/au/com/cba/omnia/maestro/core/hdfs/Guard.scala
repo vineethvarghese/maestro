@@ -49,6 +49,7 @@ object Guard {
       if(!status.isDirectory && status.getLen>0)
     } yield status.getPath.toString
   }
+  
   /** As `expandPath` but the filter is `NotProcessed` and `IngestionComplete`. */
   def expandTransferredPaths(path: String) = expandPaths(path, NotProcessed &&& IngestionComplete)
 }
