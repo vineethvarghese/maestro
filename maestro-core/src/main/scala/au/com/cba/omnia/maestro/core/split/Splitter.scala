@@ -42,10 +42,8 @@ object Splitter {
     *
     * Valid for all input.
     */
-  def delimited(delimiter: String) = {
-    val splitter = GoogSplitter.on(delimiter)
-    Splitter(s => splitter.split(s).asScala.toList)
-  }
+  def delimited(delimiter: String) =
+    Splitter(s => GoogSplitter.on(delimiter).split(s).asScala.toList)
 
   /**
     * Creates a splitter that splits according to predefined column lengths.
