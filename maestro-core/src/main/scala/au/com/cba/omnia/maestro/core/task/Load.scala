@@ -25,6 +25,7 @@ import scalaz.{Tag => _, _}, Scalaz._
 import cascading.flow.{FlowDef, FlowProcess}
 import cascading.operation._
 import cascading.tuple.Tuple
+import cascading.tap.hadoop.io.MultiInputSplit.CASCADING_SOURCE_PATH
 
 import com.twitter.scalding._, TDsl._, Dsl._
 
@@ -66,10 +67,10 @@ trait Load {
       validator: Validator[A], filter: RowFilter)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] =
     Load.loadProcess(
-      sources
-        .map(p => TextLine(p).map(l => (p, l)))
-        .reduceLeft(_ ++ _)
-        .map { case (p, l) => RawRow(l, List(timeSource.getTime(p))) },
+      MultipleTextLineFiles(sources: _*)
+        .read
+        .each(('offset, 'line), 'result)(_ => new ExtractTime(timeSource))
+        .toTypedPipe[RawRow]('result),
       Splitter.delimited(delimiter),
       errors,
       clean,
@@ -93,22 +94,19 @@ trait Load {
     (delimiter: String, sources: List[String], errors: String, timeSource: TimeSource, clean: Clean,
       validator: Validator[A], filter: RowFilter)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] = {
-    val d    = delimiter
-    val rnd  = new SecureRandom()
-    val seed = rnd.generateSeed(4)
-    val md = MessageDigest.getInstance("SHA-1")
+    val rnd    = new SecureRandom()
+    val seed   = rnd.generateSeed(4)
+    val md     = MessageDigest.getInstance("SHA-1")
     val hashes =
       sources
         .map(k => k -> md.digest(seed ++ k.getBytes("UTF-8")).drop(12).map("%02x".format(_)).mkString)
         .toMap
 
     Load.loadProcess(
-      sources.map(p =>
-        TextLine(p)
-          .read
-          .each(('offset, 'line), 'result)(_ => new GenerateKey(delimiter, p, timeSource, hashes))
-          .toTypedPipe[RawRow]('result)
-      ).reduceLeft(_ ++ _),
+      MultipleTextLineFiles(sources: _*)
+        .read
+        .each(('offset, 'line), 'result)(_ => new GenerateKey(timeSource, hashes))
+        .toTypedPipe[RawRow]('result),
       Splitter.delimited(delimiter),
       errors,
       clean,
@@ -146,7 +144,6 @@ trait Load {
   * trait instead, unless you know what you are doing.
   */
 object Load {
-
   /** Implementation of `loadFoo` methods in `Load` trait */
   def loadProcess[A <: ThriftStruct : Decode : Tag : Manifest]
     (in: TypedPipe[RawRow], splitter: Splitter, errors: String, clean: Clean,
@@ -179,41 +176,87 @@ object Load {
   }
 }
 
-class GenerateKey(delimiter: String, path: String, timeSource: TimeSource, hashes: Map[String, String])
-    extends BaseOperation[(ByteBuffer, MessageDigest, Tuple)](('result)) with Function[(ByteBuffer, MessageDigest, Tuple)] {
-  val d = delimiter
-
+/**
+  * Used by `Load.loadWithKey` to generates a unique key for each input line.
+  *
+  * It hashes each line and combines that with the hash of the path and the slice number
+  * (map task number) to create a unique key for each line.
+  * It also gets the path from cascading and extracts the time from that using the provided
+  * `timeSource`.
+  */ 
+class GenerateKey(timeSource: TimeSource, hashes: Map[String, String])
+    extends BaseOperation[(ByteBuffer, MessageDigest, String, Tuple)](('result))
+    with Function[(ByteBuffer, MessageDigest, String, Tuple)] {
+  /** Creates a unique key from the provided information.*/
   def uid(path: String, slice: Int, offset: Long, line: String, byteBuffer: ByteBuffer, md: MessageDigest): String = {
-    val hash = hashes(path)
+    val hash     = hashes(path)
     val lineHash = md.digest(line.getBytes("UTF-8")).drop(8)
 
     byteBuffer.clear
 
-    val lineInfo  = byteBuffer.putInt(slice).putLong(offset).array
-
-    val hex = (lineInfo ++ lineHash).map("%02x".format(_)).mkString
+    val lineInfo = byteBuffer.putInt(slice).putLong(offset).array
+    val hex      = (lineInfo ++ lineHash).map("%02x".format(_)).mkString
 
     s"$hash$hex"
   }
 
-  override def prepare(flow: FlowProcess[_], call: OperationCall[(ByteBuffer, MessageDigest, Tuple)]): Unit = {
-    val md = MessageDigest.getInstance("SHA-1")
-    call.setContext((ByteBuffer.allocate(12), md, Tuple.size(2)));
+  /**
+    * Sets up the follow on processing by initialising the hashing algorithm, getting the path from
+    * cascading and creating a reusable tuple.
+    */
+  override def prepare(
+    flow: FlowProcess[_],
+    call: OperationCall[(ByteBuffer, MessageDigest, String, Tuple)]
+  ): Unit = {
+    val md   = MessageDigest.getInstance("SHA-1")
+    val path = flow.getProperty(CASCADING_SOURCE_PATH).toString
+    call.setContext((ByteBuffer.allocate(12), md, path, Tuple.size(2)))
   }
 
-  def operate(flow: FlowProcess[_], call: FunctionCall[(ByteBuffer, MessageDigest, Tuple)]): Unit = {
+  /** Operates on each line to create a unique key and extract the time from the path.*/
+  def operate(flow: FlowProcess[_], call: FunctionCall[(ByteBuffer, MessageDigest, String, Tuple)])
+      : Unit = {
     val entry  = call.getArguments
     val offset = entry.getLong(0)
     val line   = entry.getString(1)
     val slice  = flow.getCurrentSliceNum
 
-    val (byteBuffer, md, resultTuple) = call.getContext
+    val (byteBuffer, md, path, resultTuple) = call.getContext
     val time = timeSource.getTime(path)
     val key = uid(path, slice, offset, line, byteBuffer, md)
 
     // representation of RawRow: tuple with string and List elements
     resultTuple.set(0, line)
     resultTuple.set(1, List(time, key))
+    call.getOutputCollector.add(resultTuple)
+  }
+}
+
+/** Gets the path from Cascading and provides it to `timeSource` to get the time.*/
+class ExtractTime(timeSource: TimeSource)
+    extends BaseOperation[(String, Tuple)](('result))
+    with Function[(String, Tuple)] {
+  /**
+    * Sets up the follow on processing by initialising the hashing algorithm, getting the path from
+    * cascading and creating a reusable tuple.
+    */
+  override def prepare(
+    flow: FlowProcess[_],
+    call: OperationCall[(String, Tuple)]
+  ): Unit = {
+    val path = flow.getProperty(CASCADING_SOURCE_PATH).toString
+    call.setContext((path, Tuple.size(2)))
+  }
+
+  /** Operates on each line to extract the time from the path.*/
+  def operate(flow: FlowProcess[_], call: FunctionCall[(String, Tuple)])
+      : Unit = {
+    val line                = call.getArguments.getString(1)
+    val (path, resultTuple) = call.getContext
+
+    // representation of RawRow: tuple with string and List elements
+    resultTuple.set(0, line)
+    resultTuple.set(1, List(timeSource.getTime(path)))
     call.getOutputCollector.add(resultTuple)
   }
 }
