@@ -210,7 +210,7 @@ class GenerateKey(timeSource: TimeSource, hashes: Map[String, String])
   ): Unit = {
     val md   = MessageDigest.getInstance("SHA-1")
     val path = flow.getProperty(CASCADING_SOURCE_PATH).toString
-    call.setContext((ByteBuffer.allocate(12), md, path, Tuple.size(2)))
+    call.setContext((ByteBuffer.allocate(12), md, path, Tuple.size(1)))
   }
 
   /** Operates on each line to create a unique key and extract the time from the path.*/
@@ -223,11 +223,10 @@ class GenerateKey(timeSource: TimeSource, hashes: Map[String, String])
 
     val (byteBuffer, md, path, resultTuple) = call.getContext
     val time = timeSource.getTime(path)
-    val key = uid(path, slice, offset, line, byteBuffer, md)
+    val key  = uid(path, slice, offset, line, byteBuffer, md)
 
     // representation of RawRow: tuple with string and List elements
-    resultTuple.set(0, line)
-    resultTuple.set(1, List(time, key))
+    resultTuple.set(0, RawRow(line, List(time, key)))
     call.getOutputCollector.add(resultTuple)
   }
 }
@@ -245,7 +244,7 @@ class ExtractTime(timeSource: TimeSource)
     call: OperationCall[(String, Tuple)]
   ): Unit = {
     val path = flow.getProperty(CASCADING_SOURCE_PATH).toString
-    call.setContext((path, Tuple.size(2)))
+    call.setContext((path, Tuple.size(1)))
   }
 
   /** Operates on each line to extract the time from the path.*/
@@ -255,8 +254,7 @@ class ExtractTime(timeSource: TimeSource)
     val (path, resultTuple) = call.getContext
 
     // representation of RawRow: tuple with string and List elements
-    resultTuple.set(0, line)
-    resultTuple.set(1, List(timeSource.getTime(path)))
+    resultTuple.set(0, RawRow(line, List(timeSource.getTime(path))))
     call.getOutputCollector.add(resultTuple)
   }
 }
