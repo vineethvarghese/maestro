@@ -41,11 +41,24 @@ object LoadSpec extends ThermometerSpec { def is = s2"""
 Load properties
 ===============
 
-loadProcess applies splitter correctly $loadProcessSplits
+loadProcess applies delimiter based splitter correctly $loadProcessSplitsDelim
+loadProcess applies fixed length splitter correctly    $loadProcessSplitsFixed
 
 """
 
-  def loadProcessSplits = {
+  def loadProcessSplitsDelim = {
+    val input      = List("col1|col02", "colA|col_B", "colI|colII")
+    val splitter   = Splitter.delimited("|")
+    val clean      = Clean((_, row) => row)
+    val validator  = Validator[StringPair](Validation.success)
+    val filter     = RowFilter.keep
+    val test       = (pair:StringPair) => pair.first.length == 4 &&
+    pair.second.length == 5
+
+    loadProcessStringPairTest(input, splitter, clean, validator, filter, test)
+  }
+
+  def loadProcessSplitsFixed = {
     val input      = List("col1col02", "colAcol_B", "colIcolII")
     val splitter   = Splitter.fixed(List(4,5))
     val clean      = Clean((_, row) => row)
