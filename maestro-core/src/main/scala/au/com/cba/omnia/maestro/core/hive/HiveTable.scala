@@ -35,6 +35,6 @@ case class HiveTable[A <: ThriftStruct : Manifest , B : Manifest : TupleSetter](
     PartitionHiveParquetScroogeSource[A](database, table, partitionMetadata, conf)
 
   /** Creates a scalding sink to write to the hive table.*/
-  def sink(conf: HiveConf) =
-    PartitionHiveParquetScroogeSink[B, A](database, table, partitionMetadata, conf)
+  def sink(conf: HiveConf, append: Boolean = true) =
+    PartitionHiveParquetScroogeSink[B, A](database, table, partitionMetadata, conf, append)
 }

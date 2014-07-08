@@ -72,7 +72,7 @@ object build extends Build {
       , "com.google.guava"         % "guava"     % "16.0.1"
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing()
-        ++ depend.omnia("ebenezer-hive", "0.6.0-20140703014326-ca7caad")
+        ++ depend.omnia("ebenezer-hive", "0.6.0-20140708061543-e140eba")
         ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
         ++ Seq("au.com.cba.omnia" %% "thermometer" % "0.1.0-20140621121315-e002b2f" % "test")
     )

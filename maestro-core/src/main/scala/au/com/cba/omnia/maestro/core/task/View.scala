@@ -43,12 +43,14 @@ trait View {
     * 
     * This will create the table if it doesn't already exist. If the existing schema doesn't match
     * the schema expected the job will fail.
+    * 
+    * @param append iff true add files to an already existing partition.
     */
   def viewHive[A <: ThriftStruct : Manifest, B : Manifest : TupleSetter]
-    (table: HiveTable[A, B], conf: HiveConf) (pipe: TypedPipe[A])
+    (table: HiveTable[A, B], conf: HiveConf, append: Boolean = true) (pipe: TypedPipe[A])
     (implicit flowDef: FlowDef, mode: Mode): Unit = {
     pipe
       .map(v => table.partition.extract(v) -> v)
-      .write(table.sink(conf))
+      .write(table.sink(conf, append))
   }
 }
