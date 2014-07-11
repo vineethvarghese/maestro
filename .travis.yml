@@ -1,6 +1,7 @@
 language: scala
 jdk:
 - oraclejdk7
+sudo: false
 cache:
   directories:
   - $HOME/.ivy2
@@ -9,10 +10,11 @@ install:
 - git clone https://github.com/CommBank/ci.git
 - chmod ugo+x ci/*
 - ci/sbt-setup.sh
+- ci/sbt-setup-version.sh
 script:
-- sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; test; package; assembly'
+- sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; test; package; assembly' && ci/sbt-deploy.sh
+  && ci/gh-pages.sh
 after_script:
-- ci/sbt-deploy.sh
 - rm -rf ci
 notifications:
   webhooks:
@@ -24,4 +26,5 @@ notifications:
     on_start: false
 env:
   global:
-    secure: FXL+8T5bDBjGdqmZsEpzHpjBMzG3FThyEyoUFBzgmAnSws94CxYH3FmOxH5mvLXc1iXEln699LWANm4qWSROgQZyHef1VpbmMS5zWDAJjqO1GPuUbE/88raAbOz5L0YniwVMTubIVY5eHUyzaBaqsU8OESQY8OSv6WEGE6jkO5w=
+  - secure: FXL+8T5bDBjGdqmZsEpzHpjBMzG3FThyEyoUFBzgmAnSws94CxYH3FmOxH5mvLXc1iXEln699LWANm4qWSROgQZyHef1VpbmMS5zWDAJjqO1GPuUbE/88raAbOz5L0YniwVMTubIVY5eHUyzaBaqsU8OESQY8OSv6WEGE6jkO5w=
+  - secure: aX3My6qoQhUr2AfNZaV9Jn2s5ILOW6cjr2Cq1sm/EeQDF77iASbDzxyweatk3AIyK7pe9abIjZJVObdYqwaFDk+iqESZdmPJSnqnS0Xptt9e5ZSORChKELysVbvZJy4AuPiIG8gt5cs7hecZOugykHWrS/ZWnKUHZWebm4tprBo=

@@ -31,13 +31,20 @@ object build extends Build {
   type Sett = Def.Setting[_]
 
   lazy val standardSettings: Seq[Sett] =
-    Defaults.defaultSettings ++ uniformDependencySettings
+    Defaults.defaultSettings ++
+    uniformDependencySettings ++
+    uniform.docSettings("https://github.com/CommBank/maestro")
 
   lazy val all = Project(
     id = "all"
   , base = file(".")
-  , settings = standardSettings ++ uniform.project("maestro-all", "au.com.cba.omnia.maestro") ++ Seq[Sett](
-      publishArtifact := false
+  , settings =
+       standardSettings
+    ++ uniform.project("maestro-all", "au.com.cba.omnia.maestro")
+    ++ uniform.ghsettings
+    ++ Seq[Sett](
+         publishArtifact := false
+       , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
     )
   , aggregate = Seq(core, macros, api, example)
   )
@@ -85,12 +92,12 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros")
     ++ Seq[Sett](
-       libraryDependencies <++= scalaVersion.apply(sv => Seq(
-        "org.scala-lang"   % "scala-compiler" % sv
-      , "org.scala-lang"   % "scala-reflect"  % sv
-      , "org.scalamacros" %% "quasiquotes"    % "2.0.0"
-      ) ++ depend.testing())
-    , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
+         libraryDependencies <++= scalaVersion.apply(sv => Seq(
+           "org.scala-lang"   % "scala-compiler" % sv
+         , "org.scala-lang"   % "scala-reflect"  % sv
+         , "org.scalamacros" %% "quasiquotes"    % "2.0.0"
+         ) ++ depend.testing())
+       , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
     )
   ).dependsOn(core)
    .dependsOn(test % "test")
@@ -99,12 +106,12 @@ object build extends Build {
     id = "example"
   , base = file("maestro-example")
   , settings =
-    standardSettings ++
-    uniform.project("maestro-example", "au.com.cba.omnia.maestro.example") ++
-    (uniformAssemblySettings: Seq[Sett]) ++
-    (uniformThriftSettings: Seq[Sett]) ++
-    Seq[Sett](
-     libraryDependencies ++= depend.hadoop()
+       standardSettings
+    ++ uniform.project("maestro-example", "au.com.cba.omnia.maestro.example")
+    ++ uniformAssemblySettings
+    ++ uniformThriftSettings
+    ++ Seq[Sett](
+         libraryDependencies ++= depend.hadoop()
     )
   ).dependsOn(core)
    .dependsOn(macros)
@@ -139,14 +146,14 @@ object build extends Build {
     ++ uniformThriftSettings
     ++ humbugSettings
     ++ Seq[Sett](
-      scroogeThriftSourceFolder in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "scrooge" },
-      humbugThriftSourceFolder  in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "humbug" },
-      (humbugIsDirty in Compile) <<= (humbugIsDirty in Compile) map { (_) => true },
-      libraryDependencies ++= Seq (
-        "org.specs2"               %% "specs2"                        % depend.versions.specs,
-        "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck,
-        "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
-      ) ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
+         scroogeThriftSourceFolder in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "scrooge" }
+       , humbugThriftSourceFolder  in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "humbug" }
+       , (humbugIsDirty in Compile) <<= (humbugIsDirty in Compile) map { (_) => true }
+       , libraryDependencies ++= Seq (
+           "org.specs2"               %% "specs2"                        % depend.versions.specs
+         , "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck
+         , "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
+         ) ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
     )
   )
 }

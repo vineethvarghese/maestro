@@ -19,6 +19,12 @@ with strongly-typed schemas describing the fixed structure of data, and working 
 APIs for manipulating those structures in a sensible way that it can scale to data-sets
 with 100s of columns.
 
+[Scaladoc](https://commbank.github.io/maestro/latest/api/index.html)
+
+Usage
+-----
+
+See https://commbank.github.io/maestro/index.html
 
 starting point
 --------------
