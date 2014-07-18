@@ -192,6 +192,10 @@ initiated and on every node.
     </property>
   ```
 
+You can start with the [example hive-site.xml](doc/hive-site.xml).  To use this either
+install it on your cluster, or
+add it to your project's resources directory so that it is included in your jar.
+
 ### Example
 
 ```
