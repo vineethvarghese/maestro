@@ -30,4 +30,16 @@
     <name>hive.metastore.execute.setugi</name>
     <value>true</value>
   </property>
+  <property>
+    <name>hive.metastore.uris</name>
+    <value>thrift://localhost:9083</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.address</name>
+    <value>bogus</value>
+  </property>
+  <property>
+    <name>hive.exec.dynamic.partition.mode</name>
+    <value>nonstrict</value>
+  </property>
 </configuration>
