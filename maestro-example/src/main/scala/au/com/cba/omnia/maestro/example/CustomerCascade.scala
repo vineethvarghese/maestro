@@ -22,7 +22,7 @@ import org.apache.hadoop.hive.conf.HiveConf
 
 import au.com.cba.omnia.maestro.api._, Maestro._
 import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.example.thrift._
+import au.com.cba.omnia.maestro.example.thrift.Customer
 
 class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   val env           = args("env")
@@ -63,7 +63,7 @@ class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val errors        = s"${env}/errors/${domain}"
   val dateView      = s"${env}/view/warehouse/${domain}/by-date"
   val catView       = s"${env}/view/warehouse/${domain}/by-cat"
-
+  
   val cleaners      = Clean.all(
     Clean.trim,
     Clean.removeNonPrintables
@@ -71,16 +71,17 @@ class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
 
   val validators    = Validator.all(
     Validator.of(Fields.SubCat, Check.oneOf("M", "F")),
-    Validator.by[Customer](_.acct.length == 7, "Customer accounts should always be a length of 5")
+    Validator.by[Customer](_.acct.length == 4, "Customer accounts should always be a length of 4")
   )
-
+  
   val filter        = RowFilter.keep
-
-  load[Customer]("|", inputs, errors, Maestro.now(), cleaners, validators, filter)
-    .map(split[Customer,(Customer, Customer, Customer)]) >>*
+  val timeSource    = Maestro.timeFromPath(""".*(\d{4})-(\d{2})-(\d{2}).*""".r)
+  
+  val parti = Partition.byDate(Fields.EffectiveDate)
+  load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter) |>
   (
-    view(Partition.byDate(Fields.EffectiveDate), dateView),
-    view(Partition.byFields2(Fields.Cat, Fields.SubCat), catView),
-    view( Partition.byDate(Fields.EffectiveDate), dateView)
+    view[Customer, (String, String, String)](parti, dateView) _ &&&
+    view(Partition.byFields2(Fields.Cat, Fields.SubCat), catView)
   )
 }
+
