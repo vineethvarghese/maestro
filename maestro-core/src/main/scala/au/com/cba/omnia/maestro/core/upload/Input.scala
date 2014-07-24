@@ -48,10 +48,12 @@ object Input {
   /** Find files from a directory matching a given filename prefix with a timestamp suffix. */
   def findFiles(sourceDir: File, fileName: String, timeFormat: String): Result[List[Input]] = {
     val fileNameRegex = s"^$fileName[_:-]?$regexTimeStampString.*".r
-    sourceDir
-      .listFiles.toList
-      .filter(f => fileNameRegex.findFirstIn(f.getName).isDefined)
-      .traverse(getInput(_, timeFormat))
+    Option(sourceDir.listFiles) match {
+      case None        => Result.fail(s"$sourceDir is not an existing directory")
+      case Some(files) => files.toList
+        .filter(f => fileNameRegex.findFirstIn(f.getName).isDefined)
+        .traverse(getInput(_, timeFormat))
+    }
   }
 
   /** Gets the input file corresponding to a file */

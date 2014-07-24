@@ -51,6 +51,7 @@ control files
 
   reject longer prefix    $rejectLong
   reject prefix in middle $rejectMiddle
+  reject missing src dir  $rejectMissingSourceDir
 
  categorize input files
  ----------------------
@@ -170,6 +171,12 @@ control files
 
     val fileList = Input.findFiles(dirs.testDir, "local", "yyyyddMM")
     fileList mustEqual Ok(Nil)
+  })
+
+  def rejectMissingSourceDir = isolatedTest((dirs: IsolatedDirs) => {
+    dirs.testDir.delete
+    val fileList = Input.findFiles(dirs.testDir, "local", "yyyyMMdd")
+    fileList must beLike { case Error(_) => ok }
   })
 
   def aceptGoodTime = {
