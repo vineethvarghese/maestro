@@ -26,7 +26,7 @@ import scalaz.Validation
 
 import au.com.cba.omnia.thermometer.core.{ThermometerSpec, ThermometerSource}
 import au.com.cba.omnia.thermometer.context.Context
-import au.com.cba.omnia.thermometer.tools.Jobs
+import au.com.cba.omnia.thermometer.tools.{HadoopSupport,Jobs}
 
 import au.com.cba.omnia.maestro.core.clean.Clean
 import au.com.cba.omnia.maestro.core.codec.{Decode, Tag}
@@ -36,7 +36,7 @@ import au.com.cba.omnia.maestro.core.split.Splitter
 import au.com.cba.omnia.maestro.core.validate.Validator
 import au.com.cba.omnia.maestro.core.thrift.scrooge.StringPair
 
-object LoadSpec extends ThermometerSpec { def is = s2"""
+object LoadSpec extends ThermometerSpec with HadoopSupport { def is = s2"""
 
 Load properties
 ===============
@@ -81,7 +81,7 @@ loadProcess applies fixed length splitter correctly    $loadProcessSplitsFixed
 
     val testJob = new LoadProcessStringPairTestJob(scaldingArgs, input,
       splitter, clean, validator, filter, outFile, errFile, test)
-    val context = Context(conf)
+    val context = Context(jobConf)
 
     val result  = Jobs.runJob(testJob)
 

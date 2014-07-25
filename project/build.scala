@@ -83,7 +83,7 @@ object build extends Build {
         ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
         ++ depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
         ++ depend.omnia("omnitool-time", "1.2.0-20140714061557-6131b76")
-        ++ Seq("au.com.cba.omnia" %% "thermometer" % "0.1.0-20140723000213-a0d5fda" % "test")
+        ++ Seq("au.com.cba.omnia" %% "thermometer" % "0.3.0-20140725044031-74e7e94" % "test")
     )
   )
 
@@ -156,7 +156,7 @@ object build extends Build {
          , "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck
          , "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
          ) ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
-           ++ depend.omnia("thermometer", "0.1.0-20140723000213-a0d5fda")
+           ++ depend.omnia("thermometer", "0.3.0-20140725044031-74e7e94")
            ++ depend.hadoop() 
     )
   ).dependsOn(core)
