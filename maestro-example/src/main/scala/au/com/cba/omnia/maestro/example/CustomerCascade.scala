@@ -73,15 +73,16 @@ class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
     Validator.of(Fields.SubCat, Check.oneOf("M", "F")),
     Validator.by[Customer](_.acct.length == 4, "Customer accounts should always be a length of 4")
   )
-  
+
   val filter        = RowFilter.keep
   val timeSource    = Maestro.timeFromPath(""".*(\d{4})-(\d{2})-(\d{2}).*""".r)
-  
+
   val parti = Partition.byDate(Fields.EffectiveDate)
-  load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter) |>
+  load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter)
+    .map(split[Customer,(Customer, Customer)]) >>*
   (
-    view[Customer, (String, String, String)](parti, dateView) _ &&&
-    view(Partition.byFields2(Fields.Cat, Fields.SubCat), catView)
+    view(Partition.byFields2(Fields.Cat, Fields.SubCat), catView),
+    view(Partition.byDate(Fields.EffectiveDate), dateView)
   )
 }
 
