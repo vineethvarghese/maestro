@@ -47,34 +47,4 @@ trait Query {
     input: HiveTable[_, _], output: Option[HiveTable[_, _]], conf: HiveConf
   ) : Job =
     HiveJob(args, name, query, input.source(conf), output.map(_.sink(conf)))
-
-  /**
-    * Runs the hive query in the specified file under the resource directory.
-    * 
-    * The input and output tables are used to determine dependencies for scheduling.
-    */
-  def hiveQueryFromFile(
-    args: Args, name: String, queryPath: String,
-    inputs: List[HiveTable[_, _]], output: Option[HiveTable[_, _]], conf: HiveConf
-  ) : Job = {
-    val query =
-      Source.fromInputStream(getClass().getResourceAsStream(queryPath))
-        .mkString
-    hiveQuery(args, name, query, inputs, output, conf)
-  }
-
-  /**
-    * Runs the hive query in the specified file under the resource directory..
-    * 
-    * The input and output tables are used to determine dependencies for scheduling.
-    */
-  def hiveQueryFromFile(
-    args: Args, name: String, queryPath: String,
-    input: HiveTable[_, _], output: Option[HiveTable[_, _]], conf: HiveConf
-  ) : Job = {
-    val query =
-      Source.fromInputStream(getClass().getResourceAsStream(queryPath))
-        .mkString
-    hiveQuery(args, name, query, input, output, conf)
-  }
 }
