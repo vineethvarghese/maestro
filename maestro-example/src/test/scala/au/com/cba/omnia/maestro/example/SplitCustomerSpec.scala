@@ -14,23 +14,16 @@
 
 package au.com.cba.omnia.maestro.example
 
-import com.twitter.scrooge.ThriftStruct
-
-import org.apache.hadoop.fs.Path
-
-import org.scalacheck.Arbitrary
-import org.scalacheck.Arbitrary._
+import org.scalacheck.Arbitrary, Arbitrary._
 
 import scalaz.Scalaz._
-import scalaz.effect.IO
 import scalaz.scalacheck.ScalaCheckBinding._
 
-import au.com.cba.omnia.ebenezer.scrooge.ParquetScroogeTools
 import au.com.cba.omnia.maestro.core.codec._
 import au.com.cba.omnia.maestro.example.thrift.Customer
 import au.com.cba.omnia.maestro.macros._
 import au.com.cba.omnia.maestro.test.Records
-import au.com.cba.omnia.thermometer.core._,Thermometer._
+import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
 import au.com.cba.omnia.thermometer.fact.PathFactoids._
 
 class SplitCustomerSpec extends ThermometerSpec with MacroSupport[Customer] with Records { def is = s2"""
