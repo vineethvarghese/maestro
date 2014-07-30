@@ -25,7 +25,9 @@ import au.com.cba.omnia.maestro.core.partition.Partition
 import au.com.cba.omnia.ebenezer.scrooge.hive._
 
 /** Information need to address/describe a specific partitioned hive table.*/
-case class HiveTable[A <: ThriftStruct : Manifest , B : Manifest : TupleSetter](database: String, table: String, partition: Partition[A, B]) {
+case class HiveTable[A <: ThriftStruct : Manifest , B : Manifest : TupleSetter](
+  database: String, table: String, partition: Partition[A, B], path: Option[String] = None
+) {
   val name = s"$database.$table"
 
   val partitionMetadata = partition.fieldNames.map(n => (n, "string"))
@@ -37,4 +39,12 @@ case class HiveTable[A <: ThriftStruct : Manifest , B : Manifest : TupleSetter](
   /** Creates a scalding sink to write to the hive table.*/
   def sink(append: Boolean = true) =
     PartitionHiveParquetScroogeSink[B, A](database, table, partitionMetadata, path, append)
+}
+
+/** Alternative contructors for HiveTable. */
+object HiveTable {
+  /** Information need to address/describe a specific partitioned hive table.*/
+  def apply[A <: ThriftStruct : Manifest , B : Manifest : TupleSetter](
+    database: String, table: String, partition: Partition[A, B], path: String
+  ) = new HiveTable(database, table, partition, Some(path))
 }
