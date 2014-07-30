@@ -16,7 +16,7 @@ package au.com.cba.omnia.maestro.core.task
 
 import scala.io.Source
 
-import org.apache.hadoop.hive.conf.HiveConf
+import org.apache.hadoop.hive.conf.HiveConf.ConfVars
 
 import com.twitter.scalding.{Args, Job}
 
@@ -32,10 +32,11 @@ trait Query {
     * The input and output tables are used to determine dependencies for scheduling.
     */
   def hiveQuery(
-    args: Args, name: String, query: String,
-    inputs: List[HiveTable[_, _]], output: Option[HiveTable[_, _]], conf: HiveConf
+    args: Args, name: String,
+    inputs: List[HiveTable[_, _]], output: Option[HiveTable[_, _]],
+    query: String*
   ) : Job =
-    HiveJob(args, name, query, inputs.map(_.source(conf)), output.map(_.sink(conf)))
+    HiveJob(args, name, inputs.map(_.source), output.map(_.sink()), query: _* )
 
   /**
     * Runs the specified hive query.
@@ -43,8 +44,34 @@ trait Query {
     * The input and output tables are used to determine dependencies for scheduling.
     */
   def hiveQuery(
-    args: Args, name: String, query: String,
-    input: HiveTable[_, _], output: Option[HiveTable[_, _]], conf: HiveConf
+    args: Args, name: String,
+    input: HiveTable[_, _], output: Option[HiveTable[_, _]],
+    query: String*
   ) : Job =
-    HiveJob(args, name, query, input.source(conf), output.map(_.sink(conf)))
+    HiveJob(args, name, input.source, output.map(_.sink()), query: _*)
+
+  /**
+    * Runs the specified hive query.
+    * 
+    * The input and output tables are used to determine dependencies for scheduling.
+    */
+  def hiveQuery(
+    args: Args, name: String,
+    inputs: List[HiveTable[_, _]], output: Option[HiveTable[_, _]],
+    hiveSettings: Map[ConfVars, String], query: String*
+  ) : Job =
+    HiveJob(args, name, inputs.map(_.source), output.map(_.sink()), hiveSettings, query: _* )
+
+  /**
+    * Runs the specified hive query.
+    * 
+    * The input and output tables are used to determine dependencies for scheduling.
+    */
+  def hiveQuery(
+    args: Args, name: String,
+    input: HiveTable[_, _], output: Option[HiveTable[_, _]],
+    hiveSettings: Map[ConfVars, String], query: String*
+  ) : Job =
+    HiveJob(args, name, input.source, output.map(_.sink()), hiveSettings, query: _*)
 }
+
