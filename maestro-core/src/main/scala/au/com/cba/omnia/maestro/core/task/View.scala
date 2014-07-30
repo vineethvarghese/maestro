@@ -47,10 +47,10 @@ trait View {
     * @param append iff true add files to an already existing partition.
     */
   def viewHive[A <: ThriftStruct : Manifest, B : Manifest : TupleSetter]
-    (table: HiveTable[A, B], conf: HiveConf, append: Boolean = true) (pipe: TypedPipe[A])
+    (table: HiveTable[A, B], append: Boolean = true) (pipe: TypedPipe[A])
     (implicit flowDef: FlowDef, mode: Mode): Unit = {
     pipe
       .map(v => table.partition.extract(v) -> v)
-      .write(table.sink(conf, append))
+      .write(table.sink(append))
   }
 }

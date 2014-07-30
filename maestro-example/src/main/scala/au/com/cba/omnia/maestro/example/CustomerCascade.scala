@@ -29,7 +29,6 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   val domain        = "customer"
   val inputs        = Guard.expandPaths(s"${env}/source/${domain}/*")
   val errors        = s"${env}/errors/${domain}"
-  val conf          = new HiveConf
   val validators    = Validator.all[Customer]()
   val filter        = RowFilter.keep
   val cleaners      = Clean.all(
@@ -39,13 +38,13 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
 
   val dateTable =
     HiveTable(domain, "by_date", Partition.byDate(Fields.EffectiveDate) )
-  val idTable =
-    HiveTable(domain, "by_id", Partition(List("pid"), Fields.Id.get, "%s"))
+  val catTable =
+    HiveTable(domain, "by_cat", Partition(List("pcat"), Fields.Cat.get, "%s"))
   val jobs = Seq(
     new UniqueJob(args) {
       load[Customer]("|", inputs, errors, Maestro.now(), cleaners, validators, filter) |>
-      (viewHive(dateTable, conf) _ &&&
-        viewHive(idTable, conf)
+      (viewHive(dateTable) _ &&&
+        viewHive(catTable)
       )
     },
     hiveQuery(

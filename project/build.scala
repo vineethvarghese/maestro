@@ -79,11 +79,11 @@ object build extends Build {
       , "com.google.guava"         % "guava"     % "16.0.1"
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing() ++ depend.time()
-        ++ depend.omnia("ebenezer-hive", "0.6.0-20140708061543-e140eba")
+        ++ depend.omnia("ebenezer-hive", "0.8.0-20140731043415-a63c034")
         ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
         ++ depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
         ++ depend.omnia("omnitool-time", "1.2.0-20140714061557-6131b76")
-        ++ Seq("au.com.cba.omnia" %% "thermometer" % "0.3.0-20140725044031-74e7e94" % "test")
+        ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % "0.3.0-20140725044031-74e7e94" % "test")
     )
   )
 
@@ -113,7 +113,9 @@ object build extends Build {
     ++ uniformAssemblySettings
     ++ uniformThriftSettings
     ++ Seq[Sett](
-         libraryDependencies ++= depend.hadoop()
+         libraryDependencies ++= depend.hadoop() ++ Seq(
+           "com.twitter" % "parquet-hive" % "1.2.5-cdh4.6.0" % "test"
+         )
     )
   ).dependsOn(core)
    .dependsOn(macros)
@@ -156,7 +158,8 @@ object build extends Build {
          , "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck
          , "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
          ) ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
-           ++ depend.omnia("thermometer", "0.3.0-20140725044031-74e7e94")
+           ++ depend.omnia("ebenezer-test", "0.8.0-20140731043415-a63c034")
+           ++ depend.omnia("thermometer-hive", "0.3.0-20140725044031-74e7e94")
            ++ depend.hadoop() 
     )
   ).dependsOn(core)
