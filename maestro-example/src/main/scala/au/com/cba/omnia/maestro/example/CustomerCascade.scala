@@ -18,7 +18,7 @@ import scalaz.{Tag => _, _}, Scalaz._
 
 import com.twitter.scalding._, TDsl._
 
-import org.apache.hadoop.hive.conf.HiveConf
+import org.apache.hadoop.hive.conf.HiveConf.ConfVars._
 
 import au.com.cba.omnia.maestro.api._, Maestro._
 import au.com.cba.omnia.maestro.core.codec._
@@ -49,8 +49,10 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
     },
     hiveQuery(
       args, "test",
-      s"INSERT OVERWRITE TABLE ${idTable.name} PARTITION (pid) SELECT id, name, acct, cat, sub_cat, -10, effective_date FROM ${dateTable.name}",
-      List(dateTable, idTable), None, conf
+      dateTable, Some(catTable),
+      Map(HIVEMERGEMAPFILES -> "true"),
+      s"INSERT OVERWRITE TABLE ${catTable.name} PARTITION (pcat) SELECT id, name, acct, cat, sub_cat, -10, effective_date, cat AS pcat FROM ${dateTable.name}",
+      s"SELECT COUNT(*) FROM ${catTable.name}"
     )
   )
 }
