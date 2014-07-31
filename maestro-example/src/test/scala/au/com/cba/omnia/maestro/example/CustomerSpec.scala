@@ -15,32 +15,65 @@
 package au.com.cba.omnia.maestro.example
 
 import scalaz._, Scalaz._
+import scalaz.scalacheck.ScalaCheckBinding._
+
+import org.scalacheck.Arbitrary, Arbitrary._
+
+import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
+import au.com.cba.omnia.thermometer.hive.HiveSupport
+import au.com.cba.omnia.thermometer.fact.PathFactoids._
+
+import au.com.cba.omnia.ebenezer.test.ParquetThermometerRecordReader
 
 import au.com.cba.omnia.maestro.core.codec._
 import au.com.cba.omnia.maestro.macros._
 import au.com.cba.omnia.maestro.api._
+import au.com.cba.omnia.maestro.test.Records
 
-import au.com.cba.omnia.maestro.test.Spec
-import au.com.cba.omnia.maestro.test.Arbitraries._
-import au.com.cba.omnia.maestro.test.thrift.scrooge.Customer
+import au.com.cba.omnia.maestro.example.thrift.Customer
 
-object CustomerSpec extends Spec with MacroSupport[Customer] { def is = s2"""
+object CustomerSpec extends ThermometerSpec with MacroSupport[Customer] with Records with HiveSupport { def is = s2"""
 
-Customer properties
-=================
+Customer Cascade
+================
 
-  encode / decode       $codec
+  encode/decode round trip   $codec
+  end to end pipeline        $pipeline
 
 """
 
+  implicit def CustomerArbitrary: Arbitrary[Customer] = Arbitrary((
+    arbitrary[String] |@|
+    arbitrary[String] |@|
+    arbitrary[String] |@|
+    arbitrary[String] |@|
+    arbitrary[String] |@|
+    arbitrary[Int]    |@|
+    arbitrary[String]
+  )(Customer.apply))
+
+  lazy val decoder = Macros.mkDecode[Customer]
+
   def codec = prop { (c: Customer) =>
-    Decode.decode[Customer](ValDecodeSource(Encode.encode(c))) must_== DecodeOk(c)
+    decoder.decode(ValDecodeSource(Encode.encode(c))) must_== DecodeOk(c)
 
     val unknown = UnknownDecodeSource(List(
-      c.customerId, c. customerName, c.customerAcct, c.customerCat,
-      c.customerSubCat, c.customerBalance.toString, c.effectiveDate
-    ))
+      c.id, c.name, c.acct, c.cat,
+      c.subCat, c.balance.toString, c.effectiveDate))
 
-    Decode.decode[Customer](unknown) must_== DecodeOk(c)
+    decoder.decode(unknown) must_== DecodeOk(c)
+  }
+
+  def pipeline = {
+    val actualReader   = ParquetThermometerRecordReader[Customer]
+    val expectedReader = delimitedThermometerRecordReader[Customer]('|', decoder)
+
+    withEnvironment(path(getClass.getResource("environment").toString)) {
+      val cascade = withArgs(Map("env" -> s"$dir/user"))(new CustomerCascade(_))
+      cascade.withFacts(
+        hiveWarehouse </> "customer.db" </> "by_date" ==> recordsByDirectory(actualReader, expectedReader, "customer-expected" </> "by-date"),
+        hiveWarehouse </> "customer.db" </> "by_cat"   ==> recordsByDirectory(actualReader, expectedReader, "customer-expected" </> "by-cat")
+      )
+    }
   }
 }

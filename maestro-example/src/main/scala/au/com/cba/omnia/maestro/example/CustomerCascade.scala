@@ -42,7 +42,11 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
     HiveTable(domain, "by_cat", Partition(List("pcat"), Fields.Cat.get, "%s"))
   val jobs = Seq(
     new UniqueJob(args) {
-      load[Customer]("|", inputs, errors, Maestro.now(), cleaners, validators, filter) |>
+      load[Customer](
+        "|", inputs, errors,
+        Maestro.timeFromPath(".*/([0-9]{4})-([0-9]{2})-([0-9]{2}).*".r),
+        cleaners, validators, filter
+      ) |>
       (viewHive(dateTable) _ &&&
         viewHive(catTable)
       )

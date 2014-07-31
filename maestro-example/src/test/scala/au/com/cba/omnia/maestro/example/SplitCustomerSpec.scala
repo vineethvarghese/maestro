@@ -14,60 +14,39 @@
 
 package au.com.cba.omnia.maestro.example
 
-import org.scalacheck.Arbitrary, Arbitrary._
-
 import scalaz.Scalaz._
 import scalaz.scalacheck.ScalaCheckBinding._
 
-import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.example.thrift.Customer
-import au.com.cba.omnia.maestro.macros._
-import au.com.cba.omnia.maestro.test.Records
 import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
 import au.com.cba.omnia.thermometer.fact.PathFactoids._
 
+import au.com.cba.omnia.ebenezer.test.ParquetThermometerRecordReader
+
+import au.com.cba.omnia.maestro.core.codec._
+import au.com.cba.omnia.maestro.macros._
+import au.com.cba.omnia.maestro.test.Records
+import au.com.cba.omnia.maestro.example.thrift.Customer
+
 class SplitCustomerSpec extends ThermometerSpec with MacroSupport[Customer] with Records { def is = s2"""
 
-Customer properties
-=================
+SplitCustomer Cascade
+=====================
 
-  encode / decode       $codec
   end to end pipeline   $facts
 
 """
 
   // Because this is a different customer to the one in maestro-test
-  implicit def CustomerArbitrary: Arbitrary[Customer] = Arbitrary((
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[Int] |@|
-    arbitrary[String])(Customer.apply))
-
   lazy val decoder = Macros.mkDecode[Customer]
-  def codec = prop { (c: Customer) =>
-    decoder.decode(ValDecodeSource(Encode.encode(c))) must_== DecodeOk(c)
-
-    val unknown = UnknownDecodeSource(List(
-      c.id, c.name, c.acct, c.cat,
-      c.subCat, c.balance.toString, c.effectiveDate))
-
-    decoder.decode(unknown) must_== DecodeOk(c)
-  }
-
   def actualReader = ParquetThermometerRecordReader[Customer]
   def expectedReader = delimitedThermometerRecordReader[Customer]('|', decoder)
 
-  //user test hadoop user dir as env. 
-  lazy val cascade = new SplitCustomerCascade(scaldingArgs + ("env" -> List(".")))
-
-  def facts = withEnvironment(path(getClass.getResource("environment").toString()))({
+  def facts = withEnvironment(path(getClass.getResource("environment").toString)) {
+    val cascade = withArgs(Map("env" -> s"$dir/user"))(new SplitCustomerCascade(_))
     cascade.withFacts(
       path(cascade.catView)  ==> recordsByDirectory(actualReader, expectedReader, "split-expected" </> "by-cat"),
       path(cascade.dateView) ==> recordsByDirectory(actualReader, expectedReader, "split-expected" </> "by-date")
     )
-  })
+  }
 
 }

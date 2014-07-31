@@ -116,6 +116,7 @@ object build extends Build {
          libraryDependencies ++= depend.hadoop() ++ Seq(
            "com.twitter" % "parquet-hive" % "1.2.5-cdh4.6.0" % "test"
          )
+       , parallelExecution in Test := false
     )
   ).dependsOn(core)
    .dependsOn(macros)
