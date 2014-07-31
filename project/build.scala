@@ -30,6 +30,9 @@ import au.com.cba.omnia.humbug.HumbugSBT._
 object build extends Build {
   type Sett = Def.Setting[_]
 
+  val thermometerVersion = "0.3.1-20140728002504-0d721d2"
+  val ebenezerVersion    = "0.8.0-20140803225314-c0817fc"
+
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++
     uniformDependencySettings ++
@@ -46,7 +49,7 @@ object build extends Build {
          publishArtifact := false
        , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
     )
-  , aggregate = Seq(core, macros, api, example)
+  , aggregate = Seq(core, macros, api)
   )
 
   lazy val api = Project(
@@ -79,11 +82,11 @@ object build extends Build {
       , "com.google.guava"         % "guava"     % "16.0.1"
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing() ++ depend.time()
-        ++ depend.omnia("ebenezer-hive", "0.8.0-20140731043415-a63c034")
+        ++ depend.omnia("ebenezer-hive", ebenezerVersion)
         ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
         ++ depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
         ++ depend.omnia("omnitool-time", "1.2.0-20140714061557-6131b76")
-        ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % "0.3.0-20140725044031-74e7e94" % "test")
+        ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
     )
   )
 
@@ -159,8 +162,8 @@ object build extends Build {
          , "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck
          , "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
          ) ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
-           ++ depend.omnia("ebenezer-test", "0.8.0-20140731043415-a63c034")
-           ++ depend.omnia("thermometer-hive", "0.3.0-20140725044031-74e7e94")
+           ++ depend.omnia("ebenezer-test", ebenezerVersion)
+           ++ depend.omnia("thermometer-hive", thermometerVersion)
            ++ depend.hadoop() 
     )
   ).dependsOn(core)
