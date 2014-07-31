@@ -35,6 +35,7 @@ archive behaviour
   archive puts file in archive dir   $archivesFile
   archive puts file in sub directory $archivesInSubDir
   archive will overwrite duplicates  $archiveDuplicate
+  archive removes source file        $archiveDeletesSource
 
 push behaviour
 --------------
@@ -80,6 +81,16 @@ push behaviour
 
     val archiveCheck2 = Push.archiveFile(local, dirs.archiveDir)
     archiveCheck2 mustEqual Ok(())
+  })
+
+  def archiveDeletesSource = isolatedTest((dirs: IsolatedDirs) => {
+    val local = new File(dirs.testDir, "local.txt")
+    local.createNewFile
+
+    val archiveCheck = Push.archiveFile(local, dirs.archiveDir)
+    archiveCheck mustEqual Ok(())
+
+    local.isFile must beFalse
   })
 
   def pushCopiesFile = isolatedTest((dirs: IsolatedDirs) => {

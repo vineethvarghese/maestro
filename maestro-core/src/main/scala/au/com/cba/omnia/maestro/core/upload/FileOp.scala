@@ -90,6 +90,7 @@ object FileOp {
         writer.close
       }
       overwrite(temp, dest)
+      source.delete
     }
     finally {
       temp.delete // can't rely on deleteOnExit
