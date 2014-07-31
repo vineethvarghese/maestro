@@ -14,7 +14,10 @@
 
 package au.com.cba.omnia.maestro.core.hive
 
+import org.apache.hadoop.fs.Path
+
 import org.apache.hadoop.hive.conf.HiveConf
+import org.apache.hadoop.hive.conf.HiveConf.ConfVars.METASTOREWAREHOUSE
 
 import com.twitter.scalding.TupleSetter
 
@@ -26,11 +29,18 @@ import au.com.cba.omnia.ebenezer.scrooge.hive._
 
 /** Information need to address/describe a specific partitioned hive table.*/
 case class HiveTable[A <: ThriftStruct : Manifest , B : Manifest : TupleSetter](
-  database: String, table: String, partition: Partition[A, B], path: Option[String] = None
+  database: String, table: String, partition: Partition[A, B], externalPath: Option[String] = None
 ) {
-  val name = s"$database.$table"
+  /** Fully qualified SQL reference to table.*/
+  val name: String = s"$database.$table"
 
-  val partitionMetadata = partition.fieldNames.map(n => (n, "string"))
+  /** List of partition column names and type (string by default). */ 
+  val partitionMetadata: List[(String, String)] = partition.fieldNames.map(n => (n, "string"))
+
+  /** Path of the table. */
+  lazy val path = new Path(externalPath.getOrElse(
+    s"${(new HiveConf()).getVar(METASTOREWAREHOUSE)}/$database.db/$table"
+  ))
 
   /** Creates a scalding source to read from the hive table.*/
   def source(): PartitionHiveParquetScroogeSource[A] =
@@ -38,7 +48,7 @@ case class HiveTable[A <: ThriftStruct : Manifest , B : Manifest : TupleSetter](
 
   /** Creates a scalding sink to write to the hive table.*/
   def sink(append: Boolean = true) =
-    PartitionHiveParquetScroogeSink[B, A](database, table, partitionMetadata, path, append)
+    PartitionHiveParquetScroogeSink[B, A](database, table, partitionMetadata, externalPath, append)
 }
 
 /** Alternative contructors for HiveTable. */
