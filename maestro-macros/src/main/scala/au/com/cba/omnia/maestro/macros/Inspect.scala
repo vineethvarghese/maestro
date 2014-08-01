@@ -44,11 +44,12 @@ object Inspect {
     import c.universe._
 
     val fields =
-      if (typ <:< c.universe.weakTypeOf[HumbugThriftStruct])
-        typ.declarations.toList.collect {
+      if (typ <:< c.universe.weakTypeOf[HumbugThriftStruct]) {
+        // Get the fields in declaration order
+        typ.declarations.sorted.toList.collect {
           case sym: TermSymbol if sym.isVar => sym.name.toString.trim.capitalize
         }
-      else
+      } else
         typ.typeSymbol.companionSymbol.typeSignature
           .member(newTermName("apply")).asMethod.paramss.head.map(_.name.toString.capitalize)
 
