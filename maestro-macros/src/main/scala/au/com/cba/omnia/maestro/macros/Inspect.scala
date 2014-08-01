@@ -25,9 +25,11 @@ import au.com.cba.omnia.humbug.HumbugThriftStruct
 object Inspect {
   val ProductField = """_(\d+)""".r
 
+  /** Gets all the `_1` style getters and their number for a thrift struct in numerical order.*/
   def indexed[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[(c.universe.MethodSymbol, Int)] = 
     indexedUnsafe(c)(c.universe.weakTypeOf[A])
 
+  /** Same as indexed but for any type where the type is assumed to be ThriftStruct.*/
   def indexedUnsafe(c: Context)(typ: c.universe.Type): List[(c.universe.MethodSymbol, Int)] = {
     import c.universe._
     typ.members.toList.map(member => (member, member.name.toString)).collect({
@@ -36,10 +38,11 @@ object Inspect {
     }).sortBy(_._2)
   }
 
+  /** Gets all the fields of a Thrift struct sorted in order of definition.*/
   def fields[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[(c.universe.MethodSymbol, String)] =
     fieldsUnsafe(c)(c.universe.weakTypeOf[A])
 
-
+  /** Same as fields but for any type where the type is assumed to be ThriftStruct.*/
   def fieldsUnsafe(c: Context)(typ: c.universe.Type): List[(c.universe.MethodSymbol, String)] = {
     import c.universe._
 
@@ -56,10 +59,11 @@ object Inspect {
     methodsUnsafe(c)(typ).zip(fields)
   }
 
+  /** Gets all the `_1` style getters for a thrift struct in numerical order.*/
   def methods[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[c.universe.MethodSymbol] =
     indexed(c).map({ case (method, _) => method })
 
-
+  /** Same as methods but for any type where the type is assumed to be ThriftStruct.*/
   def methodsUnsafe(c: Context)(typ: c.universe.Type): List[c.universe.MethodSymbol] =
     indexedUnsafe(c)(typ).map({ case (method, _) => method })
 }
