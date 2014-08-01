@@ -34,7 +34,8 @@ object SplitMacro {
 
     val in = newTermName(c.fresh)
 
-    val targetTypes = productType.declarations.toList collect {
+    // Get the split target types in declaration order.
+    val targetTypes = productType.declarations.sorted.toList collect {
       case sym: TermSymbol if sym.isVal && sym.isCaseAccessor => sym.typeSignatureIn(productType)
     }
 
