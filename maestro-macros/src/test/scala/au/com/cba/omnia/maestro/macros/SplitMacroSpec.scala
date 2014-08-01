@@ -28,14 +28,21 @@ object SplitMacroSpec extends Spec { def is = s2"""
 SplitMacro
 ===========
 
-  Take a thrift struct and split it into several smaller structs, duplicating and rearranging the fields  $split
+  Take a thrift struct and split it into several smaller structs, duplicating and rearranging the fields
+    for Scrooge $splitScrooge
+    for Humbug  $splitHumbug
   Take a large thrift struct and split it $splitLarge
 """
 
-  val splitter      = Macros.split[Types, (SubOne, SubTwo, SubThree)]
-  val largeSplitter = Macros.split[Large, (SubOne, SubThree, SubFour)]
+  val scroogeSplitter = Macros.split[Customer, (Customer, Customer)]
+  val humbugSplitter  = Macros.split[Types, (SubOne, SubTwo, SubThree)]
+  val largeSplitter   = Macros.split[Large, (SubOne, SubThree, SubFour)]
 
-  def split = prop { (types: Types) =>
+  def splitScrooge = prop { (customer: Customer) =>
+    scroogeSplitter(customer) must_== ((customer, customer))
+  }
+
+  def splitHumbug = prop { (types: Types) =>
     val s1 = new SubOne()
     s1.stringField  = types.stringField
     s1.booleanField = types.booleanField
@@ -49,7 +56,7 @@ SplitMacro
     s3.longField = types.longField
     s3.intField  = types.intField
 
-    splitter(types) must_== ((s1, s2, s3))
+    humbugSplitter(types) must_== ((s1, s2, s3))
   }
 
   def splitLarge = {
