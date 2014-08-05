@@ -39,7 +39,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A trait for API to run hive queries.</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/13022ada61c35833cf2437699a968fb56c8b2651//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/task/Query.scala" target="_blank">Query.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A trait for API to run hive queries.</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/31c16f143b3d4df8d7b06437763f3a3a45142376//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/task/Query.scala" target="_blank">Query.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
@@ -257,60 +257,60 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="au.com.cba.omnia.maestro.core.task.Query#hiveQuery" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hiveQuery(args:com.twitter.scalding.Args,name:String,query:String,input:au.com.cba.omnia.maestro.core.hive.HiveTable[_,_],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],conf:org.apache.hadoop.hive.conf.HiveConf):com.twitter.scalding.Job"></a>
-      <a id="hiveQuery(Args,String,String,HiveTable[_,_],Option[HiveTable[_,_]],HiveConf):Job"></a>
+      <a id="hiveQuery(args:com.twitter.scalding.Args,name:String,input:au.com.cba.omnia.maestro.core.hive.HiveTable[_,_],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],hiveSettings:Map[org.apache.hadoop.hive.conf.HiveConf.ConfVars,String],query:String*):com.twitter.scalding.Job"></a>
+      <a id="hiveQuery(Args,String,HiveTable[_,_],Option[HiveTable[_,_]],Map[ConfVars,String],String*):Job"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hiveQuery</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="query">query: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="input">input: <a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="conf">conf: <span class="extype" name="org.apache.hadoop.hive.conf.HiveConf">HiveConf</span></span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
+        <span class="name">hiveQuery</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="input">input: <a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="hiveSettings">hiveSettings: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="org.apache.hadoop.hive.conf.HiveConf.ConfVars">ConfVars</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="query">query: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Runs the specified hive query.</p><div class="fullcomment"><div class="comment cmt"><p>Runs the specified hive query.</p><p>The input and output tables are used to determine dependencies for scheduling.
 </p></div></div>
     </li><li name="au.com.cba.omnia.maestro.core.task.Query#hiveQuery" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hiveQuery(args:com.twitter.scalding.Args,name:String,query:String,inputs:List[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],conf:org.apache.hadoop.hive.conf.HiveConf):com.twitter.scalding.Job"></a>
-      <a id="hiveQuery(Args,String,String,List[HiveTable[_,_]],Option[HiveTable[_,_]],HiveConf):Job"></a>
+      <a id="hiveQuery(args:com.twitter.scalding.Args,name:String,inputs:List[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],hiveSettings:Map[org.apache.hadoop.hive.conf.HiveConf.ConfVars,String],query:String*):com.twitter.scalding.Job"></a>
+      <a id="hiveQuery(Args,String,List[HiveTable[_,_]],Option[HiveTable[_,_]],Map[ConfVars,String],String*):Job"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hiveQuery</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="query">query: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="inputs">inputs: <span class="extype" name="scala.List">List</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="conf">conf: <span class="extype" name="org.apache.hadoop.hive.conf.HiveConf">HiveConf</span></span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
+        <span class="name">hiveQuery</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="inputs">inputs: <span class="extype" name="scala.List">List</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="hiveSettings">hiveSettings: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="org.apache.hadoop.hive.conf.HiveConf.ConfVars">ConfVars</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="query">query: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Runs the specified hive query.</p><div class="fullcomment"><div class="comment cmt"><p>Runs the specified hive query.</p><p>The input and output tables are used to determine dependencies for scheduling.
 </p></div></div>
-    </li><li name="au.com.cba.omnia.maestro.core.task.Query#hiveQueryFromFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hiveQueryFromFile(args:com.twitter.scalding.Args,name:String,queryPath:String,input:au.com.cba.omnia.maestro.core.hive.HiveTable[_,_],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],conf:org.apache.hadoop.hive.conf.HiveConf):com.twitter.scalding.Job"></a>
-      <a id="hiveQueryFromFile(Args,String,String,HiveTable[_,_],Option[HiveTable[_,_]],HiveConf):Job"></a>
+    </li><li name="au.com.cba.omnia.maestro.core.task.Query#hiveQuery" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hiveQuery(args:com.twitter.scalding.Args,name:String,input:au.com.cba.omnia.maestro.core.hive.HiveTable[_,_],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],query:String*):com.twitter.scalding.Job"></a>
+      <a id="hiveQuery(Args,String,HiveTable[_,_],Option[HiveTable[_,_]],String*):Job"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hiveQueryFromFile</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="queryPath">queryPath: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="input">input: <a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="conf">conf: <span class="extype" name="org.apache.hadoop.hive.conf.HiveConf">HiveConf</span></span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
+        <span class="name">hiveQuery</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="input">input: <a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="query">query: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Runs the hive query in the specified file under the resource directory.</p><div class="fullcomment"><div class="comment cmt"><p>Runs the hive query in the specified file under the resource directory..</p><p>The input and output tables are used to determine dependencies for scheduling.
+      <p class="shortcomment cmt">Runs the specified hive query.</p><div class="fullcomment"><div class="comment cmt"><p>Runs the specified hive query.</p><p>The input and output tables are used to determine dependencies for scheduling.
 </p></div></div>
-    </li><li name="au.com.cba.omnia.maestro.core.task.Query#hiveQueryFromFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hiveQueryFromFile(args:com.twitter.scalding.Args,name:String,queryPath:String,inputs:List[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],conf:org.apache.hadoop.hive.conf.HiveConf):com.twitter.scalding.Job"></a>
-      <a id="hiveQueryFromFile(Args,String,String,List[HiveTable[_,_]],Option[HiveTable[_,_]],HiveConf):Job"></a>
+    </li><li name="au.com.cba.omnia.maestro.core.task.Query#hiveQuery" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hiveQuery(args:com.twitter.scalding.Args,name:String,inputs:List[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],output:Option[au.com.cba.omnia.maestro.core.hive.HiveTable[_,_]],query:String*):com.twitter.scalding.Job"></a>
+      <a id="hiveQuery(Args,String,List[HiveTable[_,_]],Option[HiveTable[_,_]],String*):Job"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hiveQueryFromFile</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="queryPath">queryPath: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="inputs">inputs: <span class="extype" name="scala.List">List</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="conf">conf: <span class="extype" name="org.apache.hadoop.hive.conf.HiveConf">HiveConf</span></span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
+        <span class="name">hiveQuery</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="inputs">inputs: <span class="extype" name="scala.List">List</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="output">output: <span class="extype" name="scala.Option">Option</span>[<a href="../hive/HiveTable.html" class="extype" name="au.com.cba.omnia.maestro.core.hive.HiveTable">HiveTable</a>[_, _]]</span>, <span name="query">query: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Runs the hive query in the specified file under the resource directory.</p><div class="fullcomment"><div class="comment cmt"><p>Runs the hive query in the specified file under the resource directory.</p><p>The input and output tables are used to determine dependencies for scheduling.
+      <p class="shortcomment cmt">Runs the specified hive query.</p><div class="fullcomment"><div class="comment cmt"><p>Runs the specified hive query.</p><p>The input and output tables are used to determine dependencies for scheduling.
 </p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
