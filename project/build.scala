@@ -85,7 +85,7 @@ object build extends Build {
         ++ depend.omnia("ebenezer-hive", ebenezerVersion)
         ++ depend.omnia("humbug-core", "0.3.0-20140806235539-03ed2e3")
         ++ depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
-        ++ depend.omnia("omnitool-time", "1.2.0-20140714061557-6131b76")
+        ++ depend.omnia("omnitool-time", "1.2.0-20140808032849-c96c574")
         ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
     )
   )
@@ -163,7 +163,7 @@ object build extends Build {
          , "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
          ) ++ depend.omnia("ebenezer-test", ebenezerVersion)
            ++ depend.omnia("thermometer-hive", thermometerVersion)
-           ++ depend.hadoop() 
+           ++ depend.hadoop()
     )
   ).dependsOn(core)
 }

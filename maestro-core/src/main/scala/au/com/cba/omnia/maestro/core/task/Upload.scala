@@ -49,19 +49,17 @@ trait Upload {
     *
     * `upload` expects data files intended for HDFS to be placed in
     * the local folder `\$sourceRoot/dataFeed/\$domain`. Different source systems
-    * will use different values for `domain`. Data files will look like
-    * `\$tableName<separator><timeStamp>.<extension>`. `tableName` and
-    * the `<timeStamp>` format will vary for each source system. The `timeFormat`
-    * parameter specifies the format `<timeStamp>` should have.
+    * will use different values for `domain`. `upload` processes all data files
+    * that match a given file pattern. The file pattern format is explained below.
     *
     * Each data file will be copied onto HDFS as the following file:
-    * `\$hdfsRoot/source/\$domain/\$tableName/<year>/<month>/<originalFileName>`.
+    * `\$hdfsRoot/source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>`.
     *
     * Data files are also gzipped and archived on the local machine. Each data
     * file is archived as:
-    * `\$archiveRoot/dataFeed/\$domain/\$tableName/<year>/<month>/<originalFileName>.gz`.
+    * `\$archiveRoot/dataFeed/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>.gz`.
     *
-    * (These destination paths may change slightly depending on the format of the timeStamp.)
+    * (These destination paths may change slightly depending on the fields in the file pattern.)
     *
     * Some files placed on the local machine are control files. These files
     * are not intended for HDFS and are ignored by `upload`. `upload` will log
@@ -74,23 +72,47 @@ trait Upload {
     * need to overwrite a file that already exists in HDFS, you will need to
     * delete the file and it's control flags before `upload` will replace it.
     *
+    * The file pattern is a string containing the following elements:
+    *  - Literals:
+    *    - Any character other than `{`, `}`, `*`, `?`, or `\` represents itself.
+    *    - `\{`, `\}`, `\*`, `\?`, or `\\` represents `{`, `}`, `*`, `?`, and `\`, respectively.
+    *    - The string `{table}` represents the table name.
+    *  - Wildcards:
+    *    - The character `*` represents an arbitrary number of arbitrary characters.
+    *    - The character `?` represents one arbitrary character.
+    *  - Date times:
+    *    - The string `{<timestamp-pattern>}` represents a JodaTime timestamp pattern.
+    *    - `upload` only supports certain date time fields:
+    *      - year (y),
+    *      - month of year (M),
+    *      - day of month (d),
+    *      - hour of day (H),
+    *      - minute of hour (m), and
+    *      - second of minute (s).
+    *
+    * Some example file patterns:
+    *  - `{table}{yyyyMMdd}.DAT`
+    *  - `{table}_{yyyyMMdd_HHss}.TXT.*.{yyyyMMddHHss}`
+    *  - `??_{table}-{ddMMyy}*`
+    *
     * @param conf: Hadoop configuration
     * @param domain: Domain (source system name)
-    * @param tableName: Table name (file prefix)
-    * @param timeFormat: Timestamp format
+    * @param tableName: Table name
+    * @param filePattern: File name pattern
     * @param sourceRoot: Root directory of incoming data files
     * @param archiveRoot: Root directory of the local archive
     * @param hdfsRoot: Root directory of HDFS
     * @return Any error occuring when uploading files
     */
-  def upload(conf: Configuration, domain: String, tableName: String, timeFormat: String,
-    sourceRoot: String, archiveRoot: String, hdfsRoot: String): Result[Unit] = {
+  def upload(conf: Configuration, domain: String, tableName: String,
+    filePattern: String, sourceRoot: String, archiveRoot: String,
+    hdfsRoot: String): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
     logger.info("Start of upload")
     logger.info(s"domain      = $domain")
     logger.info(s"tableName   = $tableName")
-    logger.info(s"timeFormat  = $timeFormat")
+    logger.info(s"filePattern = $filePattern")
     logger.info(s"sourceRoot  = $sourceRoot")
     logger.info(s"archiveRoot = $archiveRoot")
     logger.info(s"hdfsRoot    = $hdfsRoot")
@@ -99,7 +121,8 @@ trait Upload {
     val archiveDir     = List(archiveRoot, "dataFeed", domain, tableName) mkString File.separator
     val hdfsLandingDir = List(hdfsRoot,    "source",   domain, tableName) mkString File.separator
 
-    val result: Result[Unit] = Upload.uploadImpl(tableName, timeFormat, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
+    val result: Result[Unit] =
+      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
 
     val args = s"$domain $tableName"
     result match {
@@ -126,25 +149,26 @@ trait Upload {
     * In all other respects `customUpload` behaves the same as [[upload]].
     *
     * @param conf: Hadoop configuration
-    * @param tableName: Table name (file prefix)
-    * @param timeFormat: Timestamp format
+    * @param tableName: Table name
+    * @param filePattern: File name pattern
     * @param locSourceDir: Local source landing directory
     * @param archiveDir: Local archive directory
     * @param hdfsLandingDir: HDFS landing directory
     * @return Any error occuring when uploading files
     */
-  def customUpload(conf: Configuration, tableName: String, timeFormat: String,
+  def customUpload(conf: Configuration, tableName: String, filePattern: String,
     locSourceDir: String, archiveDir: String, hdfsLandingDir: String): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
     logger.info("Start of custom upload")
     logger.info(s"tableName      = $tableName")
-    logger.info(s"timeFormat     = $timeFormat")
+    logger.info(s"filePattern    = $filePattern")
     logger.info(s"locSourceDir   = $locSourceDir")
     logger.info(s"archiveDir     = $archiveDir")
     logger.info(s"hdfsLandingDir = $hdfsLandingDir")
 
-    val result = Upload.uploadImpl(tableName, timeFormat, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
+    val result =
+      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
 
     result match {
       case Ok(())                => logger.info(s"Custom upload ended from $locSourceDir")
@@ -167,11 +191,11 @@ trait Upload {
 object Upload {
   val logger = Logger.getLogger("Upload")
 
-  /** Implementation of `upload methods in [[Upload]] trait */
-  def uploadImpl(tableName: String, timeFormat: String,
+  /** Implementation of `upload` methods in [[Upload]] trait */
+  def uploadImpl(tableName: String, filePattern: String,
     locSourceDir: String, archiveDir: String, hdfsLandingDir: String): Hdfs[Unit] =
     for {
-      inputFiles <- Hdfs.result(Input.findFiles(new File(locSourceDir), tableName, timeFormat))
+      inputFiles <- Hdfs.result(Input.findFiles(new File(locSourceDir), tableName, filePattern))
 
       _ <- inputFiles traverse_ {
         case Control(file)   => Hdfs.value(logger.info(s"skipping control file ${file.getName}"))
