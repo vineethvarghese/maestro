@@ -41,12 +41,11 @@ SplitCustomer Cascade
   def actualReader = ParquetThermometerRecordReader[Customer]
   def expectedReader = delimitedThermometerRecordReader[Customer]('|', decoder)
 
-  def facts = withEnvironment(path(getClass.getResource("environment").toString)) {
+  def facts = withEnvironment(path(getClass.getResource("/split-customer").toString)) {
     val cascade = withArgs(Map("env" -> s"$dir/user"))(new SplitCustomerCascade(_))
     cascade.withFacts(
-      path(cascade.catView)  ==> recordsByDirectory(actualReader, expectedReader, "split-expected" </> "by-cat"),
-      path(cascade.dateView) ==> recordsByDirectory(actualReader, expectedReader, "split-expected" </> "by-date")
+      path(cascade.catView)  ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "by-cat"),
+      path(cascade.dateView) ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "by-date")
     )
   }
-
 }

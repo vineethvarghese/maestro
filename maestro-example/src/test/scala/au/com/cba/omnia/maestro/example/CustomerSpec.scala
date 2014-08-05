@@ -68,11 +68,17 @@ Customer Cascade
     val actualReader   = ParquetThermometerRecordReader[Customer]
     val expectedReader = delimitedThermometerRecordReader[Customer]('|', decoder)
 
-    withEnvironment(path(getClass.getResource("environment").toString)) {
-      val cascade = withArgs(Map("env" -> s"$dir/user"))(new CustomerCascade(_))
+    withEnvironment(path(getClass.getResource("/customer").toString)) {
+      val cascade = withArgs(
+        Map(
+          "hdfs-root"    -> s"$dir/user",
+          "local-root"   -> s"$dir/user",
+          "archive-root" -> s"$dir/user/archive")
+      )(new CustomerCascade(_))
+
       cascade.withFacts(
-        hiveWarehouse </> "customer.db" </> "by_date" ==> recordsByDirectory(actualReader, expectedReader, "customer-expected" </> "by-date"),
-        hiveWarehouse </> "customer.db" </> "by_cat"   ==> recordsByDirectory(actualReader, expectedReader, "customer-expected" </> "by-cat")
+        hiveWarehouse </> "customer.db" </> "by_date" ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "by-date"),
+        hiveWarehouse </> "customer.db" </> "by_cat"  ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "by-cat")
       )
     }
   }

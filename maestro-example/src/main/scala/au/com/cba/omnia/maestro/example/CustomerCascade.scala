@@ -18,33 +18,45 @@ import scalaz.{Tag => _, _}, Scalaz._
 
 import com.twitter.scalding._, TDsl._
 
+import org.apache.hadoop.conf.Configuration
+
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars._
+
+import com.cba.omnia.edge.hdfs.{Error, Ok}
 
 import au.com.cba.omnia.maestro.api._, Maestro._
 import au.com.cba.omnia.maestro.core.codec._
 import au.com.cba.omnia.maestro.example.thrift.Customer
 
 class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
-  val env           = args("env")
-  val domain        = "customer"
-  val inputs        = Guard.expandPaths(s"${env}/source/${domain}/*")
-  val errors        = s"${env}/errors/${domain}"
-  val validators    = Validator.all[Customer]()
-  val filter        = RowFilter.keep
-  val cleaners      = Clean.all(
+  val hdfsRoot    = args("hdfs-root")
+  val domain      = "customer"
+  val tablename   = "customer"
+  val localRoot   = args("local-root")
+  val archiveRoot = args("archive-root")
+  val errors      = s"${hdfsRoot}/errors/${domain}"
+  val validators  = Validator.all[Customer]()
+  val filter      = RowFilter.keep
+  val cleaners    = Clean.all(
     Clean.trim,
     Clean.removeNonPrintables
   )
-
   val dateTable =
     HiveTable(domain, "by_date", Partition.byDate(Fields.EffectiveDate) )
-  val catTable =
+  val catTable  =
     HiveTable(domain, "by_cat", Partition(List("pcat"), Fields.Cat.get, "%s"))
+
+  upload(new Configuration, domain, tablename, "yyyyMMdd", localRoot, archiveRoot, hdfsRoot) match {
+    case Ok(_)    => {}
+    case Error(_) => throw new Exception("Failed to upload file to HDFS")
+  }
+
+  val inputs = Guard.expandPaths(s"${hdfsRoot}/source/${domain}/${tablename}/*/*/*")
   val jobs = Seq(
     new UniqueJob(args) {
       load[Customer](
         "|", inputs, errors,
-        Maestro.timeFromPath(".*/([0-9]{4})-([0-9]{2})-([0-9]{2}).*".r),
+        Maestro.timeFromPath(".*/([0-9]{4})/([0-9]{2})/([0-9]{2}).*".r),
         cleaners, validators, filter
       ) |>
       (viewHive(dateTable) _ &&&
