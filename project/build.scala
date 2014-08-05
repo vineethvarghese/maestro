@@ -49,7 +49,7 @@ object build extends Build {
          publishArtifact := false
        , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
     )
-  , aggregate = Seq(core, macros, api)
+  , aggregate = Seq(core, macros, api, test)
   )
 
   lazy val api = Project(
@@ -161,8 +161,7 @@ object build extends Build {
            "org.specs2"               %% "specs2"                        % depend.versions.specs
          , "org.scalacheck"           %% "scalacheck"                    % depend.versions.scalacheck
          , "org.scalaz"               %% "scalaz-scalacheck-binding"     % depend.versions.scalaz
-         ) ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
-           ++ depend.omnia("ebenezer-test", ebenezerVersion)
+         ) ++ depend.omnia("ebenezer-test", ebenezerVersion)
            ++ depend.omnia("thermometer-hive", thermometerVersion)
            ++ depend.hadoop() 
     )
