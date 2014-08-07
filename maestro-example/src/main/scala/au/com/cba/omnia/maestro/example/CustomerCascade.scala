@@ -44,7 +44,7 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   val dateTable =
     HiveTable(domain, "by_date", Partition.byDate(Fields.EffectiveDate) )
   val catTable  =
-    HiveTable(domain, "by_cat", Partition(List("pcat"), Fields.Cat.get, "%s"))
+    HiveTable(domain, "by_cat", Partition.byField(Fields.Cat))
 
   upload(new Configuration, domain, tablename, "yyyyMMdd", localRoot, archiveRoot, hdfsRoot) match {
     case Ok(_)    => {}
@@ -67,7 +67,7 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
       args, "test",
       dateTable, Some(catTable),
       Map(HIVEMERGEMAPFILES -> "true"),
-      s"INSERT OVERWRITE TABLE ${catTable.name} PARTITION (pcat) SELECT id, name, acct, cat, sub_cat, -10, effective_date, cat AS pcat FROM ${dateTable.name}",
+      s"INSERT OVERWRITE TABLE ${catTable.name} PARTITION (partition_cat) SELECT id, name, acct, cat, sub_cat, -10, effective_date, cat AS partition_cat FROM ${dateTable.name}",
       s"SELECT COUNT(*) FROM ${catTable.name}"
     )
   )
