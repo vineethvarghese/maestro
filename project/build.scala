@@ -83,7 +83,7 @@ object build extends Build {
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing() ++ depend.time()
         ++ depend.omnia("ebenezer-hive", ebenezerVersion)
-        ++ depend.omnia("humbug-core", "0.2.0-20140604045236-c8018a9")
+        ++ depend.omnia("humbug-core", "0.3.0-20140806235539-03ed2e3")
         ++ depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
         ++ depend.omnia("omnitool-time", "1.2.0-20140714061557-6131b76")
         ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
