@@ -35,13 +35,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">Large</span><span class="result"> extends <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span> with <span class="extype" name="java.io.Serializable">Serializable</span> with <span class="extype" name="au.com.cba.omnia.humbug.HumbugThriftStruct">HumbugThriftStruct</span></span>
+        <span class="name">Large</span><span class="result"> extends <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="java.io.Serializable">Serializable</span> with <span class="extype" name="au.com.cba.omnia.humbug.HumbugThriftStruct">HumbugThriftStruct</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/d08770d2023dea258dca02ca8203a484453c9815//maestro-test/target/scala-2.10/src_managed/main/au/com/cba/omnia/maestro/test/thrift/humbug/Large.scala" target="_blank">Large.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/73723072fa7cff67de738696aa94daf405d2d61c//maestro-test/target/scala-2.10/src_managed/main/au/com/cba/omnia/maestro/test/thrift/humbug/Large.scala" target="_blank">Large.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="au.com.cba.omnia.humbug.HumbugThriftStruct">HumbugThriftStruct</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="au.com.cba.omnia.humbug.HumbugThriftStruct">HumbugThriftStruct</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large"><span>Large</span></li><li class="in" name="au.com.cba.omnia.humbug.HumbugThriftStruct"><span>HumbugThriftStruct</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="com.twitter.scrooge.ThriftStruct"><span>ThriftStruct</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large"><span>Large</span></li><li class="in" name="au.com.cba.omnia.humbug.HumbugThriftStruct"><span>HumbugThriftStruct</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="com.twitter.scrooge.ThriftStruct"><span>ThriftStruct</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -26192,6 +26192,19 @@
       </span>
       </h4>
       
+    </li><li name="au.com.cba.omnia.maestro.test.thrift.humbug.Large#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(other:Any):Boolean"></a>
+      <a id="canEqual(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large">Large</a> → Equals</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -26249,7 +26262,7 @@
         <span class="name">equals</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large">Large</a> → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large">Large</a> → Equals → AnyRef → Any</dd></dl></div>
     </li><li name="au.com.cba.omnia.maestro.test.thrift.humbug.Large#field10" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="field10:String"></a>
       <a id="field10:String"></a>
@@ -39217,7 +39230,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="au.com.cba.omnia.maestro.test.thrift.humbug.Large#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
       <h4 class="signature">
@@ -39229,7 +39242,7 @@
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large">Large</a> → AnyRef → Any</dd></dl></div>
     </li><li name="au.com.cba.omnia.maestro.test.thrift.humbug.Large#intField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="intField:Int"></a>
       <a id="intField:Int"></a>
@@ -39308,6 +39321,58 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.test.thrift.humbug.Large#productArity" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productArity:Int"></a>
+      <a id="productArity:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productArity</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large">Large</a> → Product</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.test.thrift.humbug.Large#productElement" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productElement(n:Int):Any"></a>
+      <a id="productElement(Int):Any"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productElement</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Any">Any</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.test.thrift.humbug.Large">Large</a> → Product</dd></dl></div>
+    </li><li name="scala.Product#productIterator" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productIterator:Iterator[Any]"></a>
+      <a id="productIterator:Iterator[Any]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productIterator</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scala.Any">Any</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
+    </li><li name="scala.Product#productPrefix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productPrefix:String"></a>
+      <a id="productPrefix:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productPrefix</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
     </li><li name="au.com.cba.omnia.maestro.test.thrift.humbug.Large#stringField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="stringField:String"></a>
       <a id="stringField:String"></a>
@@ -39430,6 +39495,10 @@
               <h3>Inherited from <span class="extype" name="au.com.cba.omnia.humbug.HumbugThriftStruct">HumbugThriftStruct</span></h3>
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="com.twitter.scrooge.ThriftStruct">
               <h3>Inherited from <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span></h3>
             </div><div class="parent" name="scala.AnyRef">
