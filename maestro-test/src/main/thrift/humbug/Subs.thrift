@@ -39,3 +39,7 @@ struct SubFour {
 struct Unsub {
   1: string otherStringField
 }
+
+struct WrongType {
+  1: string booleanField
+}

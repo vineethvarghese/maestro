@@ -17,6 +17,7 @@ package au.com.cba.omnia.maestro.macros
 import com.twitter.scrooge._
 
 import au.com.cba.omnia.maestro.core.codec._
+import au.com.cba.omnia.maestro.core.transform.Transform
 
 object Macros {
   def mkDecode[A <: ThriftStruct]: Decode[A] =
@@ -36,6 +37,27 @@ object Macros {
 
   def split[A <: ThriftStruct, B <: Product]: A => B =
     macro SplitMacro.impl[A, B]
+
+  /**
+    * Macro to automatically derive Transformations from one thrift struct to another.
+    * 
+    * It can take a variable number of rules that determine how to calculate the value for the
+    * specified target field. Target fields that don't have specified rules are copied from a source
+    * field with the same name. If there are no source fields with the same name, and no explicit
+    * transformation exists to populate the target field, then the compilation will fail.
+    * 
+    * Example:
+    * {{{
+    * val transform = Macros.mkTransform[Types, SubTwo](
+    *   ('intField,  (x: Types) => x.intField + 1),
+    *   ('longField, (x: Types) => x.longField - 1)
+    * )
+    * val result: TypedPipe[SubTwo] = pipe.map(transform.run(_))
+    * }}}
+    */
+  def mkTransform[A <: ThriftStruct, B <: ThriftStruct](
+    transformations: (Symbol, A => _)*
+  ): Transform[A, B] = macro TransformMacro.impl[A, B]
 }
 
 // FIX qualification issue, if codec is not important these don't work as expected
