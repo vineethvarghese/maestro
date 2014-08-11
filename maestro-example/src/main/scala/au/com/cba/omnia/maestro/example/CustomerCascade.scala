@@ -46,9 +46,9 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   val catTable  =
     HiveTable(domain, "by_cat", Partition.byField(Fields.Cat))
 
-  upload(new Configuration, domain, tablename, "yyyyMMdd", localRoot, archiveRoot, hdfsRoot) match {
+  upload(new Configuration, domain, tablename, "{table}_{yyyyMMdd}.txt", localRoot, archiveRoot, hdfsRoot) match {
     case Ok(_)    => {}
-    case Error(_) => throw new Exception("Failed to upload file to HDFS")
+    case Error(e) => throw new Exception(s"Failed to upload file to HDFS: $e")
   }
 
   val inputs = Guard.expandPaths(s"${hdfsRoot}/source/${domain}/${tablename}/*/*/*")
@@ -80,7 +80,7 @@ class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val errors        = s"${env}/errors/${domain}"
   val dateView      = s"${env}/view/warehouse/${domain}/by-date"
   val catView       = s"${env}/view/warehouse/${domain}/by-cat"
-  
+
   val cleaners      = Clean.all(
     Clean.trim,
     Clean.removeNonPrintables
@@ -102,4 +102,3 @@ class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
     view(Partition.byDate(Fields.EffectiveDate), dateView)
   )
 }
-

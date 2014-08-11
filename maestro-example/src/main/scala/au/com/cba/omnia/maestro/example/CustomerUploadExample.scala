@@ -31,10 +31,10 @@ class CustomerUploadExample(args: Args) extends Maestro[Customer](args) {
   val archiveRoot = args("archivedir")
   val conf        = new Configuration
   val domain      = "customer"
-  val timeFormat  = "yyyyMMddHHmm"
+  val filePattern = "{table}_{yyyyMMdd_HHmm}*"
 
-  val byDateResult = Maestro.upload(conf, domain, "by_date", timeFormat, sourceRoot, archiveRoot, hdfsRoot)
-  val byIdResult   = Maestro.upload(conf, domain, "by_id", timeFormat, sourceRoot, archiveRoot, hdfsRoot)
+  val byDateResult = Maestro.upload(conf, domain, "by_date", filePattern, sourceRoot, archiveRoot, hdfsRoot)
+  val byIdResult   = Maestro.upload(conf, domain, "by_id",   filePattern, sourceRoot, archiveRoot, hdfsRoot)
 
   List(byDateResult, byIdResult).sequence_ match {
     case Error(_) => {
