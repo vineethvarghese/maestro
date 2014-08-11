@@ -25,7 +25,7 @@ import au.com.cba.omnia.maestro.test.thrift.humbug._
 object HumbugDecodeMacroSpec extends Spec { def is = s2"""
 
 HumbugDecodeMacro
-===========
+=================
 
   decode from UnknownDecodeSource                           $unknown                          
   decode from ValDecodeSource                               $valdecode                        

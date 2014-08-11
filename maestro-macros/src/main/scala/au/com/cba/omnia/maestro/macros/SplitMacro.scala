@@ -79,7 +79,6 @@ object SplitMacro {
     val tuple = newTermName(s"Tuple${targetTypes.length}")
     val constructors: List[Tree] = targetTypes.map(t => createSubset(t))
 
-    val x: ValDef = q"val $in: $srcType"
     val result = q"($in: $srcType) => $tuple.apply(..$constructors)"
 
     c.Expr[Function1[A, B]](result)
