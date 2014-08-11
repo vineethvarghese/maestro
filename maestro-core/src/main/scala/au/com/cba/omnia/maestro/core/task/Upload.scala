@@ -48,16 +48,17 @@ trait Upload {
     * Pushes source files onto HDFS and archives them locally.
     *
     * `upload` expects data files intended for HDFS to be placed in
-    * the local folder `\$sourceRoot/dataFeed/\$domain`. Different source systems
-    * will use different values for `domain`. `upload` processes all data files
-    * that match a given file pattern. The file pattern format is explained below.
+    * the local folder `\$sourceRoot/dataFeed/\$source/\$domain`. Different
+    * source systems will use different values for `source` and `domain`.
+    * `upload` processes all data files that match a given file pattern.
+    * The file pattern format is explained below.
     *
     * Each data file will be copied onto HDFS as the following file:
-    * `\$hdfsRoot/source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>`.
+    * `\$hdfsRoot/source/\$source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>`.
     *
     * Data files are also gzipped and archived on the local machine. Each data
     * file is archived as:
-    * `\$archiveRoot/dataFeed/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>.gz`.
+    * `\$archiveRoot/dataFeed/\$source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>.gz`.
     *
     * (These destination paths may change slightly depending on the fields in the file pattern.)
     *
@@ -95,21 +96,23 @@ trait Upload {
     *  - `{table}_{yyyyMMdd_HHss}.TXT.*.{yyyyMMddHHss}`
     *  - `??_{table}-{ddMMyy}*`
     *
-    * @param conf: Hadoop configuration
-    * @param domain: Domain (source system name)
-    * @param tableName: Table name
+    * @param source: Source system
+    * @param domain: Database or project within source
+    * @param tableName: Table name or file name in database or project
     * @param filePattern: File name pattern
     * @param sourceRoot: Root directory of incoming data files
     * @param archiveRoot: Root directory of the local archive
     * @param hdfsRoot: Root directory of HDFS
+    * @param conf: Hadoop configuration
     * @return Any error occuring when uploading files
     */
-  def upload(conf: Configuration, domain: String, tableName: String,
+  def upload(source: String, domain: String, tableName: String,
     filePattern: String, sourceRoot: String, archiveRoot: String,
-    hdfsRoot: String): Result[Unit] = {
+    hdfsRoot: String, conf: Configuration): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
     logger.info("Start of upload")
+    logger.info(s"source      = $source")
     logger.info(s"domain      = $domain")
     logger.info(s"tableName   = $tableName")
     logger.info(s"filePattern = $filePattern")
@@ -117,9 +120,9 @@ trait Upload {
     logger.info(s"archiveRoot = $archiveRoot")
     logger.info(s"hdfsRoot    = $hdfsRoot")
 
-    val locSourceDir   = List(sourceRoot,  "dataFeed", domain)            mkString File.separator
-    val archiveDir     = List(archiveRoot, "dataFeed", domain, tableName) mkString File.separator
-    val hdfsLandingDir = List(hdfsRoot,    "source",   domain, tableName) mkString File.separator
+    val locSourceDir   = List(sourceRoot,  "dataFeed", source, domain)            mkString File.separator
+    val archiveDir     = List(archiveRoot, "dataFeed", source, domain, tableName) mkString File.separator
+    val hdfsLandingDir = List(hdfsRoot,    "source",   source, domain, tableName) mkString File.separator
 
     val result: Result[Unit] =
       Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
@@ -148,16 +151,16 @@ trait Upload {
     *
     * In all other respects `customUpload` behaves the same as [[upload]].
     *
-    * @param conf: Hadoop configuration
-    * @param tableName: Table name
+    * @param tableName: Table name or file name in database or project
     * @param filePattern: File name pattern
     * @param locSourceDir: Local source landing directory
     * @param archiveDir: Local archive directory
     * @param hdfsLandingDir: HDFS landing directory
+    * @param conf: Hadoop configuration
     * @return Any error occuring when uploading files
     */
-  def customUpload(conf: Configuration, tableName: String, filePattern: String,
-    locSourceDir: String, archiveDir: String, hdfsLandingDir: String): Result[Unit] = {
+  def customUpload(tableName: String, filePattern: String,
+    locSourceDir: String, archiveDir: String, hdfsLandingDir: String, conf: Configuration): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
     logger.info("Start of custom upload")

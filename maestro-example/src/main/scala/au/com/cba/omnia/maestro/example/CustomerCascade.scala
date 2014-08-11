@@ -30,6 +30,7 @@ import au.com.cba.omnia.maestro.example.thrift.Customer
 
 class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   val hdfsRoot    = args("hdfs-root")
+  val source      = "customer"
   val domain      = "customer"
   val tablename   = "customer"
   val localRoot   = args("local-root")
@@ -46,12 +47,13 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   val catTable  =
     HiveTable(domain, "by_cat", Partition.byField(Fields.Cat))
 
-  upload(new Configuration, domain, tablename, "{table}_{yyyyMMdd}.txt", localRoot, archiveRoot, hdfsRoot) match {
+  upload(source, domain, tablename, "{table}_{yyyyMMdd}.txt", localRoot, archiveRoot, hdfsRoot, new Configuration) match {
     case Ok(_)    => {}
     case Error(e) => throw new Exception(s"Failed to upload file to HDFS: $e")
   }
 
-  val inputs = Guard.expandPaths(s"${hdfsRoot}/source/${domain}/${tablename}/*/*/*")
+  val inputs = Guard.expandPaths(s"${hdfsRoot}/source/${source}/${domain}/${tablename}/*/*/*")
+
   val jobs = Seq(
     new UniqueJob(args) {
       load[Customer](

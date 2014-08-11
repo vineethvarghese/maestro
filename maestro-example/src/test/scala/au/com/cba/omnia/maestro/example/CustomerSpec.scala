@@ -77,8 +77,8 @@ Customer Cascade
       )(new CustomerCascade(_))
 
       cascade.withFacts(
-        hiveWarehouse </> "customer.db" </> "by_date" ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "by-date"),
-        hiveWarehouse </> "customer.db" </> "by_cat"  ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "by-cat")
+        hiveWarehouse </> "customer.db" </> "by_date" ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "customer" </> "by-date"),
+        hiveWarehouse </> "customer.db" </> "by_cat"  ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "customer" </> "by-cat")
       )
     }
   }
