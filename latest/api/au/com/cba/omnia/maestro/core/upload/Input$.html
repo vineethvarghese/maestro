@@ -39,7 +39,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Factory for <code>Input</code>s</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/ae05883e46a4c797551e62b82d030496759db663//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/upload/Input.scala" target="_blank">Input.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Factory for <code>Input</code>s</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/a03a7ae16ce4353c20a0d9ac198c26d871cfb285//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/upload/Input.scala" target="_blank">Input.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -240,8 +240,8 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#findFiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findFiles(sourceDir:java.io.File,fileName:String,timeFormat:String):com.cba.omnia.edge.hdfs.Result[List[au.com.cba.omnia.maestro.core.upload.Input]]"></a>
+    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#findFiles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="findFiles(sourceDir:java.io.File,tableName:String,pattern:String):com.cba.omnia.edge.hdfs.Result[List[au.com.cba.omnia.maestro.core.upload.Input]]"></a>
       <a id="findFiles(File,String,String):Result[List[Input]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -249,10 +249,24 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findFiles</span><span class="params">(<span name="sourceDir">sourceDir: <span class="extype" name="java.io.File">File</span></span>, <span name="fileName">fileName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="timeFormat">timeFormat: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="com.cba.omnia.edge.hdfs.Result">Result</span>[<span class="extype" name="scala.List">List</span>[<a href="Input.html" class="extype" name="au.com.cba.omnia.maestro.core.upload.Input">Input</a>]]</span>
+        <span class="name">findFiles</span><span class="params">(<span name="sourceDir">sourceDir: <span class="extype" name="java.io.File">File</span></span>, <span name="tableName">tableName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pattern">pattern: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="com.cba.omnia.edge.hdfs.Result">Result</span>[<span class="extype" name="scala.List">List</span>[<a href="Input.html" class="extype" name="au.com.cba.omnia.maestro.core.upload.Input">Input</a>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Find files from a directory matching a given filename prefix with a timestamp suffix.</p>
+      <p class="shortcomment cmt">Find files from a directory matching a given file pattern.</p><div class="fullcomment"><div class="comment cmt"><p>Find files from a directory matching a given file pattern.</p><p>See the description of the file pattern at <span class="extype" name="au.cba.com.omnia.meastro.core.task.Upload">au.cba.com.omnia.meastro.core.task.Upload</span>
+</p></div></div>
+    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#fromDisjunction" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fromDisjunction[A](x:scalaz.\/[String,A]):com.cba.omnia.edge.hdfs.Result[_&lt;:A]"></a>
+      <a id="fromDisjunction[A](\/[String,A]):Result[_&lt;:A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDisjunction</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="x">x: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="au.com.cba.omnia.maestro.core.upload.Input.fromDisjunction.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="com.cba.omnia.edge.hdfs.Result">Result</span>[_ &lt;: <span class="extype" name="au.com.cba.omnia.maestro.core.upload.Input.fromDisjunction.A">A</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Convert a disjunction into a Result</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -266,32 +280,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#getInput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getInput(file:java.io.File,timeFormat:String):com.cba.omnia.edge.hdfs.Result[au.com.cba.omnia.maestro.core.upload.Input]"></a>
-      <a id="getInput(File,String):Result[Input]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">getInput</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="timeFormat">timeFormat: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="com.cba.omnia.edge.hdfs.Result">Result</span>[<a href="Input.html" class="extype" name="au.com.cba.omnia.maestro.core.upload.Input">Input</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Gets the input file corresponding to a file</p>
-    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#getTimeStamp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getTimeStamp(file:java.io.File):com.cba.omnia.edge.hdfs.Result[_&lt;:String]"></a>
-      <a id="getTimeStamp(File):Result[_&lt;:String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">getTimeStamp</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="com.cba.omnia.edge.hdfs.Result">Result</span>[_ &lt;: <span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">get the timestamp from the file name</p>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -370,45 +358,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#parseTimeStamp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="parseTimeStamp(timeFormat:String,timeStamp:String):com.cba.omnia.edge.hdfs.Result[_&lt;:org.joda.time.DateTime]"></a>
-      <a id="parseTimeStamp(String,String):Result[_&lt;:DateTime]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">parseTimeStamp</span><span class="params">(<span name="timeFormat">timeFormat: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="timeStamp">timeStamp: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="com.cba.omnia.edge.hdfs.Result">Result</span>[_ &lt;: <span class="extype" name="org.joda.time.DateTime">DateTime</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">parsing <code>Result</code></p>
-    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#pathToFile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="pathToFile(dateTime:org.joda.time.DateTime,timeFormat:String):java.io.File"></a>
-      <a id="pathToFile(DateTime,String):File"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">pathToFile</span><span class="params">(<span name="dateTime">dateTime: <span class="extype" name="org.joda.time.DateTime">DateTime</span></span>, <span name="timeFormat">timeFormat: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="java.io.File">File</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">get the relative path to this file in hdfs and the archive dir</p>
-    </li><li name="au.com.cba.omnia.maestro.core.upload.Input#regexTimeStampString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="regexTimeStampString:String"></a>
-      <a id="regexTimeStampString:String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">regexTimeStampString</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Pattern for fetching time from file name</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>

@@ -110,6 +110,32 @@
       </span>
       </h4>
       <p class="comment cmt">A file existing in the source directory</p>
+    </li><li name="au.com.cba.omnia.maestro.core.upload.Match" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MatchextendsMatchResultwithProductwithSerializable"></a>
+      <a id="Match:Match"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Match.html"><span class="name">Match</span></a><span class="params">(<span name="dirs">dirs: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="MatchResult.html" class="extype" name="au.com.cba.omnia.maestro.core.upload.MatchResult">MatchResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The file matches the pattern.</p>
+    </li><li name="au.com.cba.omnia.maestro.core.upload.MatchResult" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MatchResultextendsAnyRef"></a>
+      <a id="MatchResult:MatchResult"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MatchResult.html"><span class="name">MatchResult</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The results of a match against a file name</p>
     </li></ol>
             </div>
 
@@ -156,6 +182,32 @@
       </span>
       </h4>
       <p class="comment cmt">Factory for <code>Input</code>s</p>
+    </li><li name="au.com.cba.omnia.maestro.core.upload.InputParsers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InputParsers"></a>
+      <a id="InputParsers:InputParsers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="InputParsers$.html"><span class="name">InputParsers</span></a><span class="result"> extends <span class="extype" name="scala.util.parsing.combinator.Parsers">Parsers</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Contains parsers for input file patterns and input files</p>
+    </li><li name="au.com.cba.omnia.maestro.core.upload.NoMatch" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NoMatch"></a>
+      <a id="NoMatch:NoMatch"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="NoMatch$.html"><span class="name">NoMatch</span></a><span class="result"> extends <a href="MatchResult.html" class="extype" name="au.com.cba.omnia.maestro.core.upload.MatchResult">MatchResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The file does not match the pattern</p>
     </li><li name="au.com.cba.omnia.maestro.core.upload.Push" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Push"></a>
       <a id="Push:Push"></a>
