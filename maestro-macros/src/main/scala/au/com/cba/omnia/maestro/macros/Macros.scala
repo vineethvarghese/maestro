@@ -35,9 +35,6 @@ object Macros {
   def getFields[A <: ThriftStruct]: Any =
     macro FieldsMacro.impl[A]
 
-  def split[A <: ThriftStruct, B <: Product]: A => B =
-    macro SplitMacro.impl[A, B]
-
   /**
     * Macro to automatically derive Transformations from one thrift struct to another.
     * 

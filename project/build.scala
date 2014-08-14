@@ -72,9 +72,6 @@ object build extends Build {
     ++ uniformThriftSettings
     ++ uniform.project("maestro-core", "au.com.cba.omnia.maestro.core")
     ++ Seq[Sett](
-      sourceGenerators in Compile <+= sourceManaged in Compile map { outDir: File =>
-        GenUnravelPipes.gen(outDir)
-      },
       scroogeThriftSourceFolder in Test <<=
         (sourceDirectory) { _ / "test" / "thrift" / "scrooge" },
       libraryDependencies ++= Seq(
