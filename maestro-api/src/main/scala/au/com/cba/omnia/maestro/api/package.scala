@@ -19,6 +19,8 @@ package object api {
   type Clean           = au.com.cba.omnia.maestro.core.clean.Clean
   type Validator[A]    = au.com.cba.omnia.maestro.core.validate.Validator[A]
   type RowFilter       = au.com.cba.omnia.maestro.core.filter.RowFilter
+  type Decode[A]       = au.com.cba.omnia.maestro.core.codec.Decode[A]
+  type Tag[A]          = au.com.cba.omnia.maestro.core.codec.Tag[A]
 
   val Partition     = au.com.cba.omnia.maestro.core.partition.Partition
   val HivePartition = au.com.cba.omnia.maestro.core.partition.HivePartition
@@ -28,4 +30,5 @@ package object api {
   val RowFilter     = au.com.cba.omnia.maestro.core.filter.RowFilter
   val Guard         = au.com.cba.omnia.maestro.core.hdfs.Guard
   val HiveTable     = au.com.cba.omnia.maestro.core.hive.HiveTable
+  val Macros        = au.com.cba.omnia.maestro.macros.Macros
 }

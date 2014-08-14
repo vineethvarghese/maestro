@@ -22,8 +22,9 @@ import au.com.cba.omnia.thermometer.fact.PathFactoids._
 
 import au.com.cba.omnia.ebenezer.test.ParquetThermometerRecordReader
 
+import au.com.cba.omnia.maestro.api._
 import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.macros._
+import au.com.cba.omnia.maestro.macros.MacroSupport
 import au.com.cba.omnia.maestro.test.Records
 import au.com.cba.omnia.maestro.example.thrift.Customer
 

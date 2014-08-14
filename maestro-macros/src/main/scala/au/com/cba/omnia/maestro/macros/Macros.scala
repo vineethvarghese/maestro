@@ -60,7 +60,6 @@ object Macros {
   ): Transform[A, B] = macro TransformMacro.impl[A, B]
 }
 
-// FIX qualification issue, if codec is not important these don't work as expected
 trait MacroSupport[A <: ThriftStruct] {
   implicit def DerivedDecode: Decode[A] =
     macro DecodeMacro.impl[A]

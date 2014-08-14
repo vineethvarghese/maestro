@@ -25,7 +25,6 @@ import org.apache.hadoop.hive.conf.HiveConf.ConfVars._
 import com.cba.omnia.edge.hdfs.{Error, Ok}
 
 import au.com.cba.omnia.maestro.api._, Maestro._
-import au.com.cba.omnia.maestro.core.codec._
 import au.com.cba.omnia.maestro.example.thrift.Customer
 
 class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {

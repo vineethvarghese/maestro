@@ -112,20 +112,22 @@ object HumbugDecodeMacro {
       }
     }
 
-    val combined = q"""Decode((source, position) => {
-      import scala.util.control.NonFatal
-      import scalaz.\&/.That
-      import au.com.cba.omnia.maestro.core.data.{Val, BooleanVal, IntVal, LongVal, DoubleVal, StringVal}
-      import au.com.cba.omnia.maestro.core.codec.{DecodeSource, ValDecodeSource, UnknownDecodeSource, DecodeOk, DecodeError, DecodeResult, ParseError, ValTypeMismatch, NotEnoughInput}
-
-      ${decodeValSource(members)}
-      ${decodeUnknownSource(members)}
-
-      source match {
-        case ValDecodeSource(vs)     => decodeVals(vs, position)
-        case UnknownDecodeSource(vs) => decodeUnknowns(vs, position)
-      }
-    })
+    val combined = q"""
+      import au.com.cba.omnia.maestro.core.codec.Decode
+      Decode((source, position) => {
+        import scala.util.control.NonFatal
+        import scalaz.\&/.That
+        import au.com.cba.omnia.maestro.core.data.{Val, BooleanVal, IntVal, LongVal, DoubleVal, StringVal}
+        import au.com.cba.omnia.maestro.core.codec.{DecodeSource, ValDecodeSource, UnknownDecodeSource, DecodeOk, DecodeError, DecodeResult, ParseError, ValTypeMismatch, NotEnoughInput, Decode}
+  
+        ${decodeValSource(members)}
+        ${decodeUnknownSource(members)}
+  
+        source match {
+          case ValDecodeSource(vs)     => decodeVals(vs, position)
+          case UnknownDecodeSource(vs) => decodeUnknowns(vs, position)
+        }
+      })
     """
 
     c.Expr[Decode[A]](combined)
