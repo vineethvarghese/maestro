@@ -74,13 +74,14 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   )
 }
 
-class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
+class TransformCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val env           = args("env")
   val domain        = "customer"
   val inputs        = Guard.expandPaths(s"${env}/source/${domain}/*")
   val errors        = s"${env}/errors/${domain}"
   val dateView      = s"${env}/view/warehouse/${domain}/by-date"
-  val catView       = s"${env}/view/warehouse/${domain}/by-cat"
+  val transformer   =
+    Macros.mkTransform[Customer, Customer](('balance, (c: Customer) => c.balance * 10))
 
   val cleaners      = Clean.all(
     Clean.trim,
@@ -97,9 +98,6 @@ class SplitCustomerCascade(args: Args) extends Maestro[Customer](args) {
 
   val parti = Partition.byDate(Fields.EffectiveDate)
   load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter)
-    .map(split[Customer,(Customer, Customer)]) >>*
-  (
-    view(Partition.byFields2(Fields.Cat, Fields.SubCat), catView),
-    view(Partition.byDate(Fields.EffectiveDate), dateView)
-  )
+    .map(transformer.run) |>
+  view(Partition.byDate(Fields.EffectiveDate), dateView)
 }
