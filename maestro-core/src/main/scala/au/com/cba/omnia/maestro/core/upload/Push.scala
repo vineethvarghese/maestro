@@ -53,25 +53,19 @@ object Push {
 
     for {
       // fail if any traces of the file already exist on HDFS
-      dup     <- Hdfs.exists(hdfsDestFile)
-      _       <- EdgeOp.failHdfsIf(dup)(s"${src.file.getName} already exists at $hdfsDestFile")
-
-      dupFlag <- Hdfs.exists(hdfsFlagFile)
-      _       <- EdgeOp.failHdfsIf(dupFlag)(s"${src.file.getName} already has an ingestion complete flag at $hdfsFlagFile")
-
-      dupProc <- Hdfs.exists(hdfsProcFlagFile)
-      _       <- EdgeOp.failHdfsIf(dupProc)(s"${src.file.getName} already has a processed flag at $hdfsProcFlagFile")
+      _ <- Hdfs.forbidden(Hdfs.exists(hdfsDestFile),     s"${src.file.getName} already exists at $hdfsDestFile")
+      _ <- Hdfs.forbidden(Hdfs.exists(hdfsFlagFile),     s"${src.file.getName} already has an ingestion complete flag at $hdfsFlagFile")
+      _ <- Hdfs.forbidden(Hdfs.exists(hdfsProcFlagFile), s"${src.file.getName} already has a processed flag at $hdfsProcFlagFile")
 
       // copy file over
-      dirOk   <- Hdfs.mkdirs(hdfsDestDir) // returns true if directory already exists
-      _       <- EdgeOp.failHdfsIf(!dirOk)("$hdfsDestDir could not be created")
-      _       <- Hdfs.copyFromLocalFile(src.file, hdfsDestDir)
+      _ <- Hdfs.mandatory(Hdfs.mkdirs(hdfsDestDir),      s"$hdfsDestDir could not be created") // mkdirs returns true if dir already exists
+      _ <- Hdfs.copyFromLocalFile(src.file, hdfsDestDir)
 
       // create ingestion complete flag
-      _       <- Hdfs.create(hdfsFlagFile)
+      _ <- Hdfs.create(hdfsFlagFile)
 
       // archive file
-      _      <- Hdfs.result(archiveFile(src.file, archiveDestDir))
+      _ <- Hdfs.result(archiveFile(src.file, archiveDestDir))
 
     } yield Copied(src.file, hdfsDestFile)
   }
@@ -87,7 +81,7 @@ object Push {
       val dirExists  = destDir.isDirectory
 
       for {
-        _ <- EdgeOp.failIf(!dirExists && !destDir.mkdirs)("could not create archive directory for ${srcFile.getName}")
+        _ <- Result.guard(dirExists || destDir.mkdirs, s"could not create archive directory for ${srcFile.getName}")
         _ <- Result.safe(FileOp.overwriteCompressed(srcFile, destFile))
       } yield ()
     }

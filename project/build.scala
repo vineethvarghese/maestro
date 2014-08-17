@@ -32,6 +32,7 @@ object build extends Build {
 
   val thermometerVersion = "0.3.2-20140818231306-749dcce"
   val ebenezerVersion    = "0.8.0-20140803225314-c0817fc"
+  val edgeVersion        = "2.1.0-20140817232646-c24b23c"
 
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++
@@ -59,7 +60,7 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro", "au.com.cba.omnia.maestro.api")
     ++ Seq[Sett](
-      libraryDependencies ++= depend.hadoop() ++ depend.testing() ++ depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
+      libraryDependencies ++= depend.hadoop() ++ depend.testing() ++ depend.omnia("edge", edgeVersion)
     )
   ).dependsOn(core)
    .dependsOn(macros)
@@ -80,8 +81,8 @@ object build extends Build {
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing() ++ depend.time()
         ++ depend.omnia("ebenezer-hive", ebenezerVersion)
+        ++ depend.omnia("edge", edgeVersion)
         ++ depend.omnia("humbug-core", "0.3.0-20140806235539-03ed2e3")
-        ++ depend.omnia("edge", "2.1.0-20140604032756-0c0abb1")
         ++ depend.omnia("omnitool-time", "1.2.0-20140808032849-c96c574")
         ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
     )
