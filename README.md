@@ -24,8 +24,8 @@ with 100s of columns.
 Documentation
 -------------
 
-Github Pages: https://commbank.github.io/maestro/index.html
-Extended documentation: https://github.com/CommBank/maestro/tree/master/doc
+* Github Pages: https://commbank.github.io/maestro/index.html
+* Extended documentation: https://github.com/CommBank/maestro/tree/master/doc
 
 starting point
 --------------
