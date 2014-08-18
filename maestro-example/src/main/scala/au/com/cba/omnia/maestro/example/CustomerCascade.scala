@@ -16,6 +16,8 @@ package au.com.cba.omnia.maestro.example
 
 import scalaz.{Tag => _, _}, Scalaz._
 
+import java.util.UUID
+
 import com.twitter.scalding._, TDsl._
 
 import org.apache.hadoop.conf.Configuration
@@ -25,7 +27,7 @@ import org.apache.hadoop.hive.conf.HiveConf.ConfVars._
 import com.cba.omnia.edge.hdfs.{Error, Ok}
 
 import au.com.cba.omnia.maestro.api._, Maestro._
-import au.com.cba.omnia.maestro.example.thrift.Customer
+import au.com.cba.omnia.maestro.example.thrift.{Account, Customer}
 
 class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
   val hdfsRoot    = args("hdfs-root")
@@ -79,9 +81,17 @@ class TransformCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val domain        = "customer"
   val inputs        = Guard.expandPaths(s"${env}/source/${domain}/*")
   val errors        = s"${env}/errors/${domain}"
-  val dateView      = s"${env}/view/warehouse/${domain}/by-date"
+  val customerView  = s"${env}/view/warehouse/${domain}/customer"
+  val accountView   = s"${env}/view/warehouse/${domain}/account"
+  def accountFields = Macros.mkFields[Account]
+
   val transformer   =
-    Macros.mkTransform[Customer, Customer](('balance, (c: Customer) => c.balance * 10))
+    Macros.mkTransform[Customer, Account](
+      ('id,           (c: Customer) => c.acct),
+      ('customer,     (c: Customer) => c.id ),
+      ('balance,      (c: Customer) => c.balance / 100),
+      ('balanceCents, (c: Customer) => c.balance % 100)
+    )
 
   val cleaners      = Clean.all(
     Clean.trim,
@@ -96,8 +106,10 @@ class TransformCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val filter        = RowFilter.keep
   val timeSource    = Maestro.timeFromPath(""".*(\d{4})-(\d{2})-(\d{2}).*""".r)
 
-  val parti = Partition.byDate(Fields.EffectiveDate)
-  load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter)
-    .map(transformer.run) |>
-  view(Partition.byDate(Fields.EffectiveDate), dateView)
+  val in = load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter)
+  
+  view(Partition.byDate(Fields.EffectiveDate), customerView)(in)
+
+  in.map(transformer.run) |>
+  view(Partition.byDate(accountFields.EffectiveDate), accountView)
 }

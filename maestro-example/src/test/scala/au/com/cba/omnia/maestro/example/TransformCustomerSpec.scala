@@ -14,21 +14,16 @@
 
 package au.com.cba.omnia.maestro.example
 
-import scalaz.Scalaz._
-import scalaz.scalacheck.ScalaCheckBinding._
-
 import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
 import au.com.cba.omnia.thermometer.fact.PathFactoids._
 
 import au.com.cba.omnia.ebenezer.test.ParquetThermometerRecordReader
 
 import au.com.cba.omnia.maestro.api._
-import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.macros.MacroSupport
 import au.com.cba.omnia.maestro.test.Records
-import au.com.cba.omnia.maestro.example.thrift.Customer
+import au.com.cba.omnia.maestro.example.thrift.{Account, Customer}
 
-class TransformCustomerSpec extends ThermometerSpec with MacroSupport[Customer] with Records { def is = s2"""
+class TransformCustomerSpec extends ThermometerSpec  with Records { def is = s2"""
 TransformCustomer Cascade
 =====================
 
@@ -36,15 +31,20 @@ TransformCustomer Cascade
 
 """
 
-  // Because this is a different customer to the one in maestro-test
-  lazy val decoder = Macros.mkDecode[Customer]
-  def actualReader = ParquetThermometerRecordReader[Customer]
-  def expectedReader = delimitedThermometerRecordReader[Customer]('|', decoder)
+  lazy val accountDecoder   = Macros.mkDecode[Account]
+  def actualAccountReader   = ParquetThermometerRecordReader[Account]
+  def expectedAccountReader = delimitedThermometerRecordReader[Account]('|', accountDecoder)
+
+  lazy val customerDecoder   = Macros.mkDecode[Customer]
+  def actualCustomerReader   = ParquetThermometerRecordReader[Customer]
+  def expectedCustomerReader = delimitedThermometerRecordReader[Customer]('|', customerDecoder)
+
 
   def facts = withEnvironment(path(getClass.getResource("/transform-customer").toString)) {
     val cascade = withArgs(Map("env" -> s"$dir/user"))(new TransformCustomerCascade(_))
     cascade.withFacts(
-      path(cascade.dateView) ==> recordsByDirectory(actualReader, expectedReader, "expected" </> "by-date")
+      path(cascade.accountView)  ==> recordsByDirectory(actualAccountReader, expectedAccountReader, "expected" </> "account"),
+      path(cascade.customerView) ==> recordsByDirectory(actualCustomerReader, expectedCustomerReader, "expected" </> "customer")
     )
   }
 }
