@@ -12,15 +12,46 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package filter
+package au.com.cba.omnia.maestro.core.filter
 
-case class RowFilter(run: List[String] => Option[List[String]])
+/** Filter for individual rows of data.
+  * 
+  * Runs across a list of string and returns `Some` subset of the list if the filter is satisfied.
+  * Otherwise returns `None`.
+  */
+case class RowFilter(run: List[String] => Option[List[String]]) {
+  /**
+    * Combines to filters, one after the other.
+    * 
+    * The input is processed sequentially. First `this` filter is applied to the input and then the
+    * `f` is applied to the output of running `this`.
+    */
+  def and(f: RowFilter): RowFilter = RowFilter(l => run(l).flatMap(f.run))
+
+  /**
+    * Combines to filters, one after the other.
+    * 
+    * The input is processed sequentially. First `this` filter is applied to the input and then the
+    * `f` is applied to the output of running `this`.
+    */
+  def &&&(f: RowFilter): RowFilter = and(f)
+}
 
 object RowFilter {
+  /** Passes through everything.*/
   def keep: RowFilter =
     RowFilter(Some.apply)
 
+  /** Only keeps rows where the first field matches `include`.
+    * 
+    * It also removes the first field after filtering.
+    */
   def byRowLeader(include: String): RowFilter =
     RowFilter(row => if (row.headOption.exists(_ == include)) Some(row.tail) else None)
+
+  /** Drops the last field. */
+  def init: RowFilter = RowFilter(l => 
+    if (l.isEmpty) None
+    else           Option(l.init)
+  )
 }
