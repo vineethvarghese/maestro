@@ -39,7 +39,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/5b529693a153530d85d0fc0b596a5865eac2b65a//maestro-macros/src/main/scala/au/com/cba/omnia/maestro/macros/Macros.scala" target="_blank">Macros.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/29182131aa035129bb7db66432c1eb83daba50e9//maestro-macros/src/main/scala/au/com/cba/omnia/maestro/macros/Macros.scala" target="_blank">Macros.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -361,6 +361,32 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.macros.Macros#mkTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mkTransform[A&lt;:com.twitter.scrooge.ThriftStruct,B&lt;:com.twitter.scrooge.ThriftStruct](transformations:(Symbol,Function1[A,_])*):au.com.cba.omnia.maestro.core.transform.Transform[A,B]"></a>
+      <a id="mkTransform[A&lt;:ThriftStruct,B&lt;:ThriftStruct]((Symbol,Function1[A,_])*):Transform[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mkTransform</span><span class="tparams">[<span name="A">A &lt;: <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span></span>, <span name="B">B &lt;: <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span></span>]</span><span class="params">(<span name="transformations">transformations: (<span class="extype" name="scala.Symbol">Symbol</span>, <span class="extype" name="scala.Function1">Function1</span>[<span class="extype" name="au.com.cba.omnia.maestro.macros.Macros.mkTransform.A">A</span>, _])*</span>)</span><span class="result">: <a href="../core/transform/Transform.html" class="extype" name="au.com.cba.omnia.maestro.core.transform.Transform">Transform</a>[<span class="extype" name="au.com.cba.omnia.maestro.macros.Macros.mkTransform.A">A</span>, <span class="extype" name="au.com.cba.omnia.maestro.macros.Macros.mkTransform.B">B</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Macro to automatically derive Transformations from one thrift struct to another.</p><div class="fullcomment"><div class="comment cmt"><p>Macro to automatically derive Transformations from one thrift struct to another.</p><p>It can take a variable number of rules that determine how to calculate the value for the
+specified target field. Target fields that don't have specified rules are copied from a source
+field with the same name. If there are no source fields with the same name, and no explicit
+transformation exists to populate the target field, then the compilation will fail.</p><p>Example:</p><pre><span class="kw">val</span> transform = Macros.mkTransform[Types, SubTwo](
+  ('intField,  (x: Types) <span class="kw">=&gt;</span> x.intField + <span class="num">1</span>),
+  ('longField, (x: Types) <span class="kw">=&gt;</span> x.longField - <span class="num">1</span>)
+)
+<span class="kw">val</span> result: TypedPipe[SubTwo] = pipe.map(transform.run(_))</pre></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@macroImpl</span><span class="args">(<span>
+      
+      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;au.com.cba.omnia.maestro.macros.TransformMacro&quot;, &quot;methodName&quot; = &quot;impl&quot;, &quot;signature&quot; = List(-1, -1, 0, 1))[A, B]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -400,25 +426,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.macros.Macros#split" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="split[A&lt;:com.twitter.scrooge.ThriftStruct,B&lt;:Product]:A=&gt;B"></a>
-      <a id="split[A&lt;:ThriftStruct,B&lt;:Product]:(A)⇒B"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">split</span><span class="tparams">[<span name="A">A &lt;: <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span></span>, <span name="B">B &lt;: <span class="extype" name="scala.Product">Product</span></span>]</span><span class="result">: (<span class="extype" name="au.com.cba.omnia.maestro.macros.Macros.split.A">A</span>) ⇒ <span class="extype" name="au.com.cba.omnia.maestro.macros.Macros.split.B">B</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@macroImpl</span><span class="args">(<span>
-      
-      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;au.com.cba.omnia.maestro.macros.SplitMacro&quot;, &quot;methodName&quot; = &quot;impl&quot;, &quot;signature&quot; = List(-1, 0, 1))[A, B]">...</span>
-    </span>)</span>
-              
-        </dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
