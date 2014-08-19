@@ -30,7 +30,7 @@ import au.com.cba.omnia.humbug.HumbugSBT._
 object build extends Build {
   type Sett = Def.Setting[_]
 
-  val thermometerVersion = "0.3.1-20140728002504-0d721d2"
+  val thermometerVersion = "0.3.2-20140818231306-749dcce"
   val ebenezerVersion    = "0.8.0-20140803225314-c0817fc"
 
   lazy val standardSettings: Seq[Sett] =
