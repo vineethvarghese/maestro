@@ -39,7 +39,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/ba2e539a685f87a59472f5a909d649012831cbb2//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/filter/RowFilter.scala" target="_blank">RowFilter.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/6285b7f913dcf2330c019705f69eaaea47bac28d//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/filter/RowFilter.scala" target="_blank">RowFilter.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -163,7 +163,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.core.filter.RowFilter#byRowLeader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="au.com.cba.omnia.maestro.core.filter.RowFilter#byRowLeader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="byRowLeader(include:String):au.com.cba.omnia.maestro.core.filter.RowFilter"></a>
       <a id="byRowLeader(String):RowFilter"></a>
       <h4 class="signature">
@@ -175,7 +175,8 @@
         <span class="name">byRowLeader</span><span class="params">(<span name="include">include: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="RowFilter.html" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Only keeps rows where the first field matches <code>include</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Only keeps rows where the first field matches <code>include</code>.</p><p>It also removes the first field after filtering.
+</p></div></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -266,6 +267,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.core.filter.RowFilter#init" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="init:au.com.cba.omnia.maestro.core.filter.RowFilter"></a>
+      <a id="init:RowFilter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">init</span><span class="result">: <a href="RowFilter.html" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Drops the last field.</p>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -291,7 +305,7 @@
         <span class="name">keep</span><span class="result">: <a href="RowFilter.html" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Passes through everything.</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>

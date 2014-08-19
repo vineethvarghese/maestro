@@ -39,7 +39,9 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/ba2e539a685f87a59472f5a909d649012831cbb2//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/filter/RowFilter.scala" target="_blank">RowFilter.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Filter for individual rows of data.</p><p>Runs across a list of string and returns <code>Some</code> subset of the list if the filter is satisfied.
+Otherwise returns <code>None</code>.
+</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/6285b7f913dcf2330c019705f69eaaea47bac28d//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/filter/RowFilter.scala" target="_blank">RowFilter.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -140,6 +142,21 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.core.filter.RowFilter#&amp;&amp;&amp;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&amp;&amp;&amp;(f:au.com.cba.omnia.maestro.core.filter.RowFilter):au.com.cba.omnia.maestro.core.filter.RowFilter"></a>
+      <a id="&amp;&amp;&amp;(RowFilter):RowFilter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $amp$amp$amp" class="name">&amp;&amp;&amp;</span><span class="params">(<span name="f">f: <a href="" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>)</span><span class="result">: <a href="" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Combines to filters, one after the other.</p><div class="fullcomment"><div class="comment cmt"><p>Combines to filters, one after the other.</p><p>The input is processed sequentially. First <code>this</code> filter is applied to the input and then the
+<code>f</code> is applied to the output of running <code>this</code>.
+</p></div></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:AnyRef):Boolean"></a>
       <a id="==(AnyRef):Boolean"></a>
@@ -166,6 +183,21 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.core.filter.RowFilter#and" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="and(f:au.com.cba.omnia.maestro.core.filter.RowFilter):au.com.cba.omnia.maestro.core.filter.RowFilter"></a>
+      <a id="and(RowFilter):RowFilter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">and</span><span class="params">(<span name="f">f: <a href="" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>)</span><span class="result">: <a href="" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Combines to filters, one after the other.</p><div class="fullcomment"><div class="comment cmt"><p>Combines to filters, one after the other.</p><p>The input is processed sequentially. First <code>this</code> filter is applied to the input and then the
+<code>f</code> is applied to the output of running <code>this</code>.
+</p></div></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
