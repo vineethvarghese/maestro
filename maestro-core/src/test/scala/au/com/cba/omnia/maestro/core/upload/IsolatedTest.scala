@@ -23,16 +23,22 @@ import java.io.FileNotFoundException
 import org.specs2.execute.AsResult
 import org.specs2.specification.Fixture
 
+import org.apache.hadoop.fs.Path
+
 /** Isolated directories for upload tests */
 case class IsolatedDirs(rootDir: File) {
-  val testDir = new File(rootDir, "testInputDirectory")
-  val testDirS = testDir.toString
+  val testDir         = new File(rootDir, "testInputDirectory")
+  val testDirS        = testDir.toString
 
-  val archiveDir = new File(rootDir, "testArchiveDirectory")
-  val archiveDirS = archiveDir.toString
+  val archiveDir      = new File(rootDir, "testArchiveDirectory")
+  val archiveDirS     = archiveDir.toString
 
-  val hdfsDir = new File(rootDir, "testHdfsDirectory")
-  val hdfsDirS = hdfsDir.toString
+  val hdfsArchiveDir  = new File(rootDir.toString, "testHdfsArchiveDirectory")
+  val hdfsArchiveDirS = hdfsArchiveDir.toString
+  val hdfsArchiveDirP = new Path(hdfsArchiveDirS)
+
+  val hdfsDir         = new File(rootDir, "testHdfsDirectory")
+  val hdfsDirS        = hdfsDir.toString
 }
 
 /** Provides clean test directories for Upload tests */

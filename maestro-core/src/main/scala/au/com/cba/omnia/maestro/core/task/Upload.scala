@@ -56,9 +56,10 @@ trait Upload {
     * Each data file will be copied onto HDFS as the following file:
     * `\$hdfsRoot/source/\$source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>`.
     *
-    * Data files are also gzipped and archived on the local machine. Each data
-    * file is archived as:
-    * `\$archiveRoot/dataFeed/\$source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>.gz`.
+    * Data files are also gzipped and archived on the local machine and on HDFS.
+    * Each data file is archived as:
+    *  - `\$archiveRoot/\$source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>.gz`
+    *  - `\$hdfsRoot/archive/\$source/\$domain/\$tableName/<year>/<month>/<day>/<originalFileName>.gz`
     *
     * (These destination paths may change slightly depending on the fields in the file pattern.)
     *
@@ -106,9 +107,11 @@ trait Upload {
     * @param conf: Hadoop configuration
     * @return Any error occuring when uploading files
     */
-  def upload(source: String, domain: String, tableName: String,
-    filePattern: String, sourceRoot: String, archiveRoot: String,
-    hdfsRoot: String, conf: Configuration): Result[Unit] = {
+  def upload(
+    source: String, domain: String, tableName: String, filePattern: String,
+    sourceRoot: String, archiveRoot: String, hdfsRoot: String,
+    conf: Configuration
+  ): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
     logger.info("Start of upload")
@@ -121,11 +124,12 @@ trait Upload {
     logger.info(s"hdfsRoot    = $hdfsRoot")
 
     val locSourceDir   = List(sourceRoot,  "dataFeed", source, domain)            mkString File.separator
-    val archiveDir     = List(archiveRoot, "dataFeed", source, domain, tableName) mkString File.separator
+    val archiveDir     = List(archiveRoot,             source, domain, tableName) mkString File.separator
+    val hdfsArchiveDir = List(hdfsRoot,    "archive",  source, domain, tableName) mkString File.separator
     val hdfsLandingDir = List(hdfsRoot,    "source",   source, domain, tableName) mkString File.separator
 
     val result: Result[Unit] =
-      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
+      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsArchiveDir, hdfsLandingDir).safe.run(conf)
 
     val args = s"$source/$domain/$tableName"
     result match {
@@ -155,12 +159,16 @@ trait Upload {
     * @param filePattern: File name pattern
     * @param locSourceDir: Local source landing directory
     * @param archiveDir: Local archive directory
+    * @param hdfsArchiveDir: HDFS archive directory
     * @param hdfsLandingDir: HDFS landing directory
     * @param conf: Hadoop configuration
     * @return Any error occuring when uploading files
     */
-  def customUpload(tableName: String, filePattern: String,
-    locSourceDir: String, archiveDir: String, hdfsLandingDir: String, conf: Configuration): Result[Unit] = {
+  def customUpload(
+    tableName: String, filePattern: String, locSourceDir: String,
+    archiveDir: String, hdfsArchiveDir: String, hdfsLandingDir: String,
+    conf: Configuration
+  ): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
     logger.info("Start of custom upload")
@@ -168,10 +176,11 @@ trait Upload {
     logger.info(s"filePattern    = $filePattern")
     logger.info(s"locSourceDir   = $locSourceDir")
     logger.info(s"archiveDir     = $archiveDir")
+    logger.info(s"hdfsArchiveDir = $hdfsArchiveDir")
     logger.info(s"hdfsLandingDir = $hdfsLandingDir")
 
     val result =
-      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
+      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsArchiveDir, hdfsLandingDir).safe.run(conf)
 
     result match {
       case Ok(())                => logger.info(s"Custom upload ended from $locSourceDir")
@@ -195,15 +204,17 @@ object Upload {
   val logger = Logger.getLogger("Upload")
 
   /** Implementation of `upload` methods in [[Upload]] trait */
-  def uploadImpl(tableName: String, filePattern: String,
-    locSourceDir: String, archiveDir: String, hdfsLandingDir: String): Hdfs[Unit] =
+  def uploadImpl(
+    tableName: String, filePattern: String, locSourceDir: String,
+    archiveDir: String, hdfsArchiveDir: String, hdfsLandingDir: String
+  ): Hdfs[Unit] =
     for {
       inputFiles <- Hdfs.result(Input.findFiles(new File(locSourceDir), tableName, filePattern))
 
       _ <- inputFiles traverse_ {
         case Control(file)   => Hdfs.value(logger.info(s"skipping control file ${file.getName}"))
         case src @ Data(_,_) => for {
-          copied <- Push.push(src, archiveDir, hdfsLandingDir)
+          copied <- Push.push(src, hdfsLandingDir, archiveDir, hdfsArchiveDir)
           _      =  logger.info(s"copied ${copied.source.getName} to ${copied.dest}")
         } yield ()
       }

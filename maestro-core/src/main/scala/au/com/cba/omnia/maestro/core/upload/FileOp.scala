@@ -32,56 +32,19 @@ import scalaz.\/
   */
 object FileOp {
   /**
-    * Moves file from source to destination.
+    * Run an action on a temporary gzipped copy of a file.
     *
-    * If another file already exists at destination, this method overwrites it.
+    * Typically the temporary file would be copied to other location(s)
+    * during the action.
     *
-    * This method is not atomic. Other processes operating on dest or source at
-    * the same time will cause problems.
+    * The temporary file reference should not escape `action`.
     */
-  def overwrite(source: File, dest: File): Unit =
-    // if there is nothing to overwrite, we simply move the file
-    if (!dest.exists)
-      Files.move(source, dest)
-
-    // if we have to overwrite destination file, we try not to be left in a state
-    // where the destination file is deleted but we failed to move new file over
-    else {
-      val tempDir = Files.createTempDir
-      val temp = new File(tempDir, "target")
-
-      try {
-        Files.move(dest, temp)
-        Files.move(source, dest)
-      }
-      catch {
-        case NonFatal(e) => {
-          // assuming either dest is old file and temp does not exist,
-          // or dest does not exist and temp is old file
-          if (temp.exists) Files.move(temp, dest)
-          throw e
-        }
-      }
-      finally {
-        if (temp.exists) temp.delete
-        if (tempDir.exists) tempDir.delete
-      }
-    }
-
-  /**
-    * Moves file from source to destination. Destination is gzipped.
-    *
-    * If another file already exists at destination, this method overwrites it.
-    *
-    * This method is not atomic. Other processes operating on dest or source at
-    * the same time will cause problems.
-    */
-  def overwriteCompressed(source: File, dest: File): Unit = {
-    val temp = File.createTempFile("moved", "gz")
-
+  def withTempCompressed[A](source: File, fileName: String, action: File => A): A = {
     // there must be a more convienient canonical way of doing this in scala ...
+    val tempDir = Files.createTempDir
+    val tempFile = new File(tempDir, fileName)
     try {
-      val writer = new GZIPOutputStream(new FileOutputStream(temp))
+      val writer = new GZIPOutputStream(new FileOutputStream(tempFile))
       try {
         Files.copy(source, writer)
         writer.flush
@@ -89,11 +52,17 @@ object FileOp {
       finally {
         writer.close
       }
-      overwrite(temp, dest)
-      source.delete
+      action(tempFile)
     }
     finally {
-      temp.delete // can't rely on deleteOnExit
+      // assuming the tempFile reference did not escape action
+      // and nobody else is doing anything with this file
+      if (tempFile.exists && !tempFile.delete) {
+        throw new Exception(s"can't delete temporary file $tempFile")
+      }
+      if (tempDir.exists && !tempDir.delete) {
+        throw new Exception(s"can't delete temporary directory $tempDir")
+      }
     }
   }
 }

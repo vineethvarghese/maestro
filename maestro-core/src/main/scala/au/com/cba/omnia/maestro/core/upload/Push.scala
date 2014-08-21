@@ -19,6 +19,8 @@ import java.io.File
 
 import org.apache.hadoop.fs.Path
 
+import com.google.common.io.Files
+
 import com.cba.omnia.edge.hdfs.{Hdfs, Result}
 
 /** File copied to HDFS */
@@ -36,47 +38,66 @@ object Push {
     *   - archive the file
     *
     * This method will fail if a duplicate of the file or it's
-    * ingestion complete or processed flags already exist in HDFS.
+    * ingestion complete or processed flags already exist in HDFS,
+    * or if an archived copy of the file already exists locally or on HDFS.
+    *
+    * This method is not atomic. It assumes no other process is touching the
+    * source and multiple destination files while this method runs.
     */
-  def push(src: Data, archiveDir: String, hdfsLandingDir: String): Hdfs[Copied] = {
+  def push(src: Data, hdfsLandingDir: String, archiveDir: String, hdfsArchiveDir: String): Hdfs[Copied] = {
+    val fileName = src.file.getName
+    val archName = fileName + ".gz"
     val hdfsDestDir      = Hdfs.path(List(hdfsLandingDir, src.fileSubDir) mkString File.separator)
-    val hdfsDestFile     = new Path(hdfsDestDir, src.file.getName)
-    val hdfsFlagFile     = new Path(hdfsDestDir, "_INGESTION_COMPLETE")
+    val hdfsDestFile     = new Path(hdfsDestDir, fileName)
+    val hdfsPushFlagFile = new Path(hdfsDestDir, "_INGESTION_COMPLETE")
     val hdfsProcFlagFile = new Path(hdfsDestDir, "_PROCESSED")
-    val archiveDestDir   = new File(List(archiveDir, src.fileSubDir) mkString File.separator)
+    val archDestDir      = new File(List(archiveDir, src.fileSubDir) mkString File.separator)
+    val archDestFile     = new File(archDestDir, archName)
+    val archHdfsDestDir  = new Path(List(hdfsArchiveDir, src.fileSubDir) mkString File.separator)
+    val archHdfsDestFile = new Path(archHdfsDestDir, archName)
 
     for {
       // fail if any traces of the file already exist on HDFS
-      _ <- Hdfs.forbidden(Hdfs.exists(hdfsDestFile),     s"${src.file.getName} already exists at $hdfsDestFile")
-      _ <- Hdfs.forbidden(Hdfs.exists(hdfsFlagFile),     s"${src.file.getName} already has an ingestion complete flag at $hdfsFlagFile")
-      _ <- Hdfs.forbidden(Hdfs.exists(hdfsProcFlagFile), s"${src.file.getName} already has a processed flag at $hdfsProcFlagFile")
+      _ <- Hdfs.forbidden(Hdfs.exists(hdfsDestFile),     s"$fileName already exists at $hdfsDestFile")
+      _ <- Hdfs.forbidden(Hdfs.exists(hdfsPushFlagFile), s"$fileName already has an ingestion complete flag at $hdfsPushFlagFile")
+      _ <- Hdfs.forbidden(Hdfs.exists(hdfsProcFlagFile), s"$fileName already has a processed flag at $hdfsProcFlagFile")
+      _ <- Hdfs.forbidden(Hdfs.exists(archHdfsDestFile), s"$fileName has already been archived to $archHdfsDestFile")
+      _ <- Hdfs.prevent(archDestFile.exists,             s"$fileName has already been archived to $archDestFile")
 
-      // copy file over
-      _ <- Hdfs.mandatory(Hdfs.mkdirs(hdfsDestDir),      s"$hdfsDestDir could not be created") // mkdirs returns true if dir already exists
-      _ <- Hdfs.copyFromLocalFile(src.file, hdfsDestDir)
-
-      // create ingestion complete flag
-      _ <- Hdfs.create(hdfsFlagFile)
-
-      // archive file
-      _ <- Hdfs.result(archiveFile(src.file, archiveDestDir))
+      // push file everywhere and create flag
+      _ <- copyToHdfs(src.file, hdfsDestDir)
+      _ <- Hdfs.create(hdfsPushFlagFile)
+      _ <- archiveFile(src.file, archDestDir, archHdfsDestDir, archName)
+      _ <- Hdfs.guard(src.file.delete, s"could not delete $fileName after processing")
 
     } yield Copied(src.file, hdfsDestFile)
   }
 
-  /**
-    * Archive the file after moving to HDFS.
-    *
-    * Overwrites any existing file in the archive directory.
-    */
-  def archiveFile(srcFile: File, destDir: File): Result[Unit] = {
-      val destFile   = new File(destDir, srcFile.getName + ".gz")
-      val fileExists = destFile.isFile
-      val dirExists  = destDir.isDirectory
+  /** Compress and archive file both locally and in hdfs */
+  def archiveFile(raw: File, archDestDir: File, archHdfsDestDir: Path, archName: String): Hdfs[Unit] =
+    hdfsWithTempFile(raw, archName, compressed => for {
+      _ <- copyToHdfs(compressed, archHdfsDestDir)
+      _ <- moveToDir(compressed, archDestDir)
+    } yield () )
 
+  /** Copy file to hdfs */
+  def copyToHdfs(file: File, destDir: Path): Hdfs[Unit] =
+    for {
+      // mkdirs returns true if dir already exists
+      _ <- Hdfs.mandatory(Hdfs.mkdirs(destDir), s"$destDir could not be created")
+      _ <- Hdfs.copyFromLocalFile(file, destDir)
+    } yield ()
+
+  /** Move file to another directory. Convienient to run in a Hdfs operation. */
+  def moveToDir(file: File, destDir: File): Hdfs[Unit] =
+    Hdfs.result(
       for {
-        _ <- Result.guard(dirExists || destDir.mkdirs, s"could not create archive directory for ${srcFile.getName}")
-        _ <- Result.safe(FileOp.overwriteCompressed(srcFile, destFile))
+        _ <- Result.guard(destDir.isDirectory || destDir.mkdirs, s"$destDir could not be created")
+        _ <- Result.ok[Unit](Files.move(file, new File(destDir, file.getName)))
       } yield ()
-    }
+    )
+
+  /** Convert a Hdfs operation that depends on a temporary file into a normal Hdfs operation */
+  def hdfsWithTempFile[A](raw: File, fileName: String, action: File => Hdfs[A]): Hdfs[A] =
+    Hdfs(c => FileOp.withTempCompressed(raw, fileName, compressed => action(compressed).run(c)))
 }
