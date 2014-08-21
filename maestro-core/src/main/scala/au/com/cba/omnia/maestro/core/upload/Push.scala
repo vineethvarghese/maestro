@@ -24,13 +24,7 @@ import com.cba.omnia.edge.hdfs.{Hdfs, Result}
 /** File copied to HDFS */
 case class Copied(source: File, dest: Path)
 
-/**
- * Functions to push files to HDFS
- * Hdfs operations are done using the `edge` project.
- *
- * Time Format can be any of the following:
- * yyyyMMdd, yyyyddMM, yyMMdd, yyMMddHH, yyyy-MM-dd-HH, yyMM etc
- */
+/** Functions to push files to HDFS */
 object Push {
 
   /**

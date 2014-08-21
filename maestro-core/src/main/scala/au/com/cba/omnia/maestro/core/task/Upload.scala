@@ -127,7 +127,7 @@ trait Upload {
     val result: Result[Unit] =
       Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsLandingDir).safe.run(conf)
 
-    val args = s"$domain $tableName"
+    val args = s"$source/$domain/$tableName"
     result match {
       case Ok(())                => logger.info(s"Upload ended for $args")
       case Error(This(msg))      => logger.error(s"Upload failed for $args: $msg")
