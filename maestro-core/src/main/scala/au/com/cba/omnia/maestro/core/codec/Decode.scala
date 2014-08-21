@@ -15,10 +15,14 @@
 package au.com.cba.omnia.maestro.core
 package codec
 
-import au.com.cba.omnia.maestro.core.data._
 import scala.util.control.NonFatal
+import scala.reflect.runtime.universe.{typeOf, WeakTypeTag}
+
 import scalaz._, Scalaz._, \&/._
+
 import shapeless.{ProductTypeClass, TypeClassCompanion}
+
+import au.com.cba.omnia.maestro.core.data._
 
 sealed trait DecodeSource
 case class UnknownDecodeSource(source: List[String]) extends DecodeSource
@@ -86,6 +90,23 @@ object Decode extends TypeClassCompanion[Decode] {
       { case StringVal(v) => v },
       { s => s.right })
 
+  /** Decoder into Option[A]. '''NB: For strings "" is decoded as Some("")'''. */
+  implicit def OptionDecode[A : WeakTypeTag](implicit decode: Decode[A]):Decode[Option[A]] =
+    Decode((source, n) => source match {
+      case ValDecodeSource(h :: remainder) => h match {
+        case NoneVal => DecodeOk((ValDecodeSource(remainder), n + 1, None))
+        case v: Val  =>
+          decode.map(Option(_)).run(source, n)
+        case _       =>
+          DecodeError(ValDecodeSource(remainder), n, ValTypeMismatch(h, "Option"))
+      }
+      case UnknownDecodeSource(s :: remainder) =>
+        if (!s.isEmpty || implicitly[WeakTypeTag[A]].tpe =:= typeOf[String])
+          decode.map(Option(_)).run(source, n)
+        else
+          DecodeOk((UnknownDecodeSource(remainder), n + 1, None))
+      case _ => DecodeError(source, n, NotEnoughInput(1, "option"))
+    })
 
   implicit def ListDecode[A: Decode]: Decode[List[A]] =
     VectorDecode[A].map(_.toList)
