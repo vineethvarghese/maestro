@@ -15,14 +15,13 @@
 package au.com.cba.omnia.maestro.core
 package codec
 
-import test.Arbitraries._
-import au.com.cba.omnia.maestro.core.data._
-
 import scalaz._, Scalaz._
 import scalaz.scalacheck.ScalazProperties._
 
 import org.scalacheck._
 
+import au.com.cba.omnia.maestro.core.data._
+import au.com.cba.omnia.maestro.core.test.Arbitraries._
 
 object EncodeSpec extends test.Spec { def is = s2"""
 
@@ -39,6 +38,7 @@ Encode properties
   long encoding                                             ${primitive[Long](LongVal)}
   double encoding                                           ${primitive[Double](DoubleVal)}
   string encoding                                           ${primitive[String](StringVal)}
+  option encoding                                           ${option}
   tuple encoding                                            ${tuples}
 
 Encode witness
@@ -50,6 +50,12 @@ Encode witness
 
   def primitive[A: Arbitrary: Encode](f: A => Val) = prop((v: A) =>
     Encode.encode(v) must_== List(f(v)))
+
+  def option = {
+    (Encode.encode(Option(3))         must_== List(IntVal(3))) and
+    (Encode.encode(Option.empty[Int]) must_== List(NoneVal))   and
+    (Encode.encode(Option("test"))    must_== List(StringVal("test")))
+  }
 
   def tuples = prop((b: Boolean, i: Int, l: Long, d: Double, s: String) =>
     Encode.encode((b, i, l, d, s, (b, i, l, d, s))) must_== twice(List(
@@ -75,6 +81,11 @@ Encode witness
   Encode.of[(String, Int)]
   Encode.of[(String, (Long, Int), (Double, Boolean))]
   Encode.of[Example]
+  Encode.of[Option[String]]
+  Encode.of[Option[Int]]
+  Encode.of[Option[Long]]
+  Encode.of[Option[Double]]
+  Encode.of[Option[Boolean]]
 
   case class Nested(i: Int, b: Boolean)
   case class Example(s: String, l: Long, n: Nested)

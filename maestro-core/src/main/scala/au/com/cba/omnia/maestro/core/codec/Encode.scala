@@ -49,6 +49,12 @@ object Encode extends TypeClassCompanion[Encode] {
   implicit val StringEncode: Encode[String] =
     value(StringVal)
 
+  implicit def OptionEncode[A : Encode]: Encode[Option[A]] =
+    Encode(_.cata(
+      of[A].run(_),
+      List(NoneVal)
+    ))
+
   implicit def ListEncode[A: Encode]: Encode[List[A]] =
     Encode(_.flatMap(encode[A]))
 
