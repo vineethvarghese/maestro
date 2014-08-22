@@ -16,7 +16,7 @@
 
 struct Customer {
   1  : string id
-  2  : string name
+  2  : optional string name
   3  : string acct
   4  : string cat
   5  : string sub_cat

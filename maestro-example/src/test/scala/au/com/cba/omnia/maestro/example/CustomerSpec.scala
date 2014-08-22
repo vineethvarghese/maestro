@@ -14,11 +14,6 @@
 
 package au.com.cba.omnia.maestro.example
 
-import scalaz._, Scalaz._
-import scalaz.scalacheck.ScalaCheckBinding._
-
-import org.scalacheck.Arbitrary, Arbitrary._
-
 import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
 import au.com.cba.omnia.thermometer.hive.HiveSupport
 import au.com.cba.omnia.thermometer.fact.PathFactoids._
@@ -26,43 +21,20 @@ import au.com.cba.omnia.thermometer.fact.PathFactoids._
 import au.com.cba.omnia.ebenezer.test.ParquetThermometerRecordReader
 
 import au.com.cba.omnia.maestro.api._
-import au.com.cba.omnia.maestro.core.codec.{Encode, UnknownDecodeSource, ValDecodeSource, DecodeOk}
-import au.com.cba.omnia.maestro.macros.MacroSupport
 import au.com.cba.omnia.maestro.test.Records
 
 import au.com.cba.omnia.maestro.example.thrift.Customer
 
-object CustomerSpec extends ThermometerSpec with MacroSupport[Customer] with Records with HiveSupport { def is = s2"""
+object CustomerSpec extends ThermometerSpec with Records with HiveSupport { def is = s2"""
 
 Customer Cascade
 ================
 
-  encode/decode round trip   $codec
   end to end pipeline        $pipeline
 
 """
 
-  implicit def CustomerArbitrary: Arbitrary[Customer] = Arbitrary((
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[Int]    |@|
-    arbitrary[String]
-  )(Customer.apply))
-
   lazy val decoder = Macros.mkDecode[Customer]
-
-  def codec = prop { (c: Customer) =>
-    decoder.decode(ValDecodeSource(Encode.encode(c))) must_== DecodeOk(c)
-
-    val unknown = UnknownDecodeSource(List(
-      c.id, c.name, c.acct, c.cat,
-      c.subCat, c.balance.toString, c.effectiveDate))
-
-    decoder.decode(unknown) must_== DecodeOk(c)
-  }
 
   def pipeline = {
     val actualReader   = ParquetThermometerRecordReader[Customer]
