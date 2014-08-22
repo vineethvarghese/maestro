@@ -26,20 +26,20 @@ import au.com.cba.omnia.maestro.test.thrift.humbug._
 
 object Arbitraries {
   implicit def CustomerArbitrary: Arbitrary[Customer] = Arbitrary((
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[String] |@|
-    arbitrary[Int] |@|
+    arbitrary[String]         |@|
+    arbitrary[String]         |@|
+    arbitrary[String]         |@|
+    arbitrary[String]         |@|
+    arbitrary[Option[String]] |@|
+    arbitrary[Option[Int]]    |@|
     arbitrary[String])(Customer.apply))
 
   implicit def TypesArbitrary: Arbitrary[Types] = Arbitrary((
     arbitrary[String]  |@|
-      arbitrary[Boolean] |@|
-      arbitrary[Int]     |@|
-      arbitrary[Long]    |@|
-      arbitrary[Double]
+    arbitrary[Boolean] |@|
+    arbitrary[Int]     |@|
+    arbitrary[Long]    |@|
+    arbitrary[Double]
   ){ case (string, boolean, int, long, double) =>
       val types = new Types()
       types.stringField = string

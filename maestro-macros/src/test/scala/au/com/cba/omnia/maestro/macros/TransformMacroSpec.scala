@@ -86,12 +86,12 @@ For Scrooge
   def manualScrooge = prop { (c: Customer) =>
     val expected = c.copy(
       customerId = c.customerId + "1",
-      customerBalance = c.customerBalance - 1
+      customerBalance = c.customerBalance.map(_ - 1)
     )
 
     val t = Macros.mkTransform[Customer, Customer](
       ('customerId, (x: Customer) => x.customerId  + "1"),
-      ('customerBalance, (x: Customer) => x.customerBalance - 1)
+      ('customerBalance, (x: Customer) => x.customerBalance.map(_ - 1))
     )
 
     t.run(c) must_== expected

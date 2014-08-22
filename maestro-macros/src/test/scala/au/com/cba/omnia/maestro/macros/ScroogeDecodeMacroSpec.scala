@@ -14,13 +14,14 @@
 
 package au.com.cba.omnia.maestro.macros
 
+import scalaz._, Scalaz._
+
 import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.core.data._
-import au.com.cba.omnia.maestro.macros._
+import au.com.cba.omnia.maestro.core.data.StringVal
 
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._
-import au.com.cba.omnia.maestro.test.thrift.scrooge._
+import au.com.cba.omnia.maestro.test.thrift.scrooge.Customer
 
 object ScroogeDecodeMacroSpec extends Spec { def is = s2"""
 
@@ -48,10 +49,11 @@ ScroogeDecodeMacro
   def unknown = prop { (c: Customer) =>
     val unknown = UnknownDecodeSource(List(
       c.customerId, c. customerName, c.customerAcct, c.customerCat,
-      c.customerSubCat, c.customerBalance.toString, c.effectiveDate
+      c.customerSubCat.getOrElse(""), c.customerBalance.cata(_.toString, ""), c.effectiveDate
     ))
 
-    decode.decode(unknown) must_== DecodeOk(c)
+    val expected = c.copy(customerSubCat = Option(c.customerSubCat.getOrElse("")))
+    decode.decode(unknown) must_== DecodeOk(expected)
   }
 
   def typeErrorVal = {
@@ -62,7 +64,7 @@ ScroogeDecodeMacro
     decode.decode(encoded) must_== DecodeError(
       ValDecodeSource(List(StringVal("6"), StringVal("7"))),
       5,
-      ValTypeMismatch(StringVal("6"), "Int")
+      ValTypeMismatch(StringVal("6"), "Option[Int]")
     )
   }
 
@@ -81,7 +83,7 @@ ScroogeDecodeMacro
     decode.decode(encoded) must parseErrorMatcher[Customer](DecodeError(
       UnknownDecodeSource(List("not an int", "7")),
       5,
-      ParseError("not an int", "Int", null)
+      ParseError("not an int", "Option[Int]", null)
     ))
   }
 
