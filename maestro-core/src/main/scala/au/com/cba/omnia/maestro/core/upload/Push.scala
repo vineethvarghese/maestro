@@ -23,6 +23,8 @@ import com.google.common.io.Files
 
 import com.cba.omnia.edge.hdfs.{Hdfs, Result}
 
+import au.com.cba.omnia.omnitool.file.ops.Temp
+
 /** File copied to HDFS */
 case class Copied(source: File, dest: Path)
 
@@ -99,5 +101,5 @@ object Push {
 
   /** Convert a Hdfs operation that depends on a temporary file into a normal Hdfs operation */
   def hdfsWithTempFile[A](raw: File, fileName: String, action: File => Hdfs[A]): Hdfs[A] =
-    Hdfs(c => FileOp.withTempCompressed(raw, fileName, compressed => action(compressed).run(c)))
+    Hdfs(c => Temp.withTempCompressed(raw, fileName, compressed => action(compressed).run(c)))
 }
