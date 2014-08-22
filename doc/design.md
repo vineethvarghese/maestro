@@ -108,7 +108,24 @@ Essentially we have 2 clusters. I won't go into the details as to the purposes o
 
 ![Data Flow](./dataflow.png)
 
-Data lands on the integration node(s), where it is immediately transfered onto HDFS for further downstream processing. It is also compressed and stored on the NAS and HDFS. As a result there are immediately 4 copies of the data. 2 copies on the NAS (1 un-compressed and 1 compressed) and similarly 2 copies on HDFS. The source data then gets removed from the NAS and HDFS a day after processing. The compressed copy on the NAS gets removed up to 7 days after processing, and finally the compressed data on HDFS gets removed up to 30 days after processing. Note that we aren't _losing_ data, we are processing the data into our internal parquet tables, which are true to source. These various copies of the data are there to support DR processes, and reduce operational risks. If we introduce a bug into our basic ingest code, we have the source data on hand to re-ingest into the 'true to source' tables (even though this is highly unlikely). 
+Data lands on the integration node(s) as new files in the local landing directory. These files are copied to multiple locations:
+
+ - The original file is transfered into the HDFS source directory for further downstream processing.
+ - The original file is compressed and archived in the local archive on the NAS.
+ - The original file is compressed and archived in the HDFS archive directory.
+ - The new data in the HDFS source directory is processed into various parquet tables:
+   - A raw table which is true to source.
+   - A conformed table containing basic fixes to the data in the raw table.
+
+The dataflow diagram above shows possible file paths for each location and the dataflow between locations. The actual file paths used may be different: they aren't baked into the API, just gently encouraged. The red text in the example paths will vary for different sources of data and different time periods: _source_, _domain_, and _table_ refer to the source system where the data originated, the database or project within that source system, and the specific table or file within that database or project, respectively.
+
+After being transferred to HDFS and archived, the original file is deleted from the landing directory. There are then 3 copies of the original file: 1 copy on the NAS, and 2 copies on HDFS. These various copies of the data are there to support DR processes, and reduce operational risks. If we introduce a bug into our basic ingest code, we have the source data on hand to re-ingest into the 'true to source' tables (even though this is highly unlikely).
+
+The 3 copies of the original file are deleted a number of days after processing. Note that we aren't _losing_ data: we are processing the data into our internal parquet tables, which are true to source. Only the original files are deleted:
+
+ - The original file in the HDFS source directory is removed 4 days after processing, as long as a flag indicates the file has been processed.
+ - The compressed copy of the original file archived on the NAS is removed 4 days after processing, as long as an archived copy of the original file exists in HDFS.
+ - The compressed copy of the original file archived on HDFS is removed 30 days after processing.
 
 Types
 -----
