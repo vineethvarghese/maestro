@@ -14,26 +14,39 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import au.com.cba.omnia.maestro.core.codec._
-import com.twitter.scrooge._
-
 import scala.reflect.macros.Context
 
+import com.twitter.scrooge.ThriftStruct
+
+import au.com.cba.omnia.maestro.core.codec.Encode
+
+/**
+  * Converts a thrift struct into a list of its fields.
+  * 
+  * Each field is encoded as the [[Val]] corresponding to its type.
+  */
 object EncodeMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context): c.Expr[Encode[A]] = {
     import c.universe._
-    val companion = c.universe.weakTypeOf[A].typeSymbol.companionSymbol
-    val members = Inspect.methods[A](c)
+    val optionConstructor = weakTypeOf[Option[_]].typeConstructor
+    val companion         = c.universe.weakTypeOf[A].typeSymbol.companionSymbol
+    val members           = Inspect.methods[A](c)
 
-    def encode(xs: List[MethodSymbol]): List[Tree] = xs.map(x => {
-      val encoder = newTermName(x.returnType + "Val")
-      q"""$encoder.apply(a.${x})"""
-    })
+    def encode(xs: List[MethodSymbol]): List[Tree] = xs.map { x =>
+      if (x.returnType.typeConstructor == optionConstructor) {
+        val TypeRef(_, _, typParams) = x.returnType
+        val encoder = newTermName(typParams.head  + "Val")
+        q"a.${x}.map($encoder.apply).getOrElse(NoneVal)"
+      } else {
+        val encoder = newTermName(x.returnType + "Val")
+        q"""$encoder.apply(a.${x})"""
+      }
+    }
 
     val fields = q"""List(..${encode(members)})"""
 
     c.Expr[Encode[A]](q"""Encode(a => {
-      import au.com.cba.omnia.maestro.core.data.{Val, BooleanVal, IntVal, LongVal, DoubleVal, StringVal}
+      import au.com.cba.omnia.maestro.core.data.{Val, BooleanVal, IntVal, LongVal, DoubleVal, StringVal, NoneVal}
 
       $fields
      })""")
