@@ -35,18 +35,22 @@ object Arbitraries {
     arbitrary[String])(Customer.apply))
 
   implicit def TypesArbitrary: Arbitrary[Types] = Arbitrary((
-    arbitrary[String]  |@|
-    arbitrary[Boolean] |@|
-    arbitrary[Int]     |@|
-    arbitrary[Long]    |@|
-    arbitrary[Double]
-  ){ case (string, boolean, int, long, double) =>
+    arbitrary[String]      |@|
+    arbitrary[Boolean]     |@|
+    arbitrary[Int]         |@|
+    arbitrary[Long]        |@|
+    arbitrary[Double]      |@|
+    arbitrary[Option[Int]] |@|
+    arbitrary[Option[String]]
+  ){ case (string, boolean, int, long, double, optInt, optString) =>
       val types = new Types()
-      types.stringField = string
-      types.booleanField = boolean
-      types.intField = int
-      types.longField = long
-      types.doubleField = double
+      types.stringField    = string
+      types.booleanField   = boolean
+      types.intField       = int
+      types.longField      = long
+      types.doubleField    = double
+      types.optIntField    = optInt
+      types.optStringField = optString
 
       types
   })

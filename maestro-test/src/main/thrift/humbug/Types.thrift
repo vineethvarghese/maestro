@@ -20,4 +20,6 @@ struct Types {
   3: i32     intField
   4: i64     longField
   5: double  doubleField
+  6: optional i32 optIntField
+  7: optional string optStringField
 }
