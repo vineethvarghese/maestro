@@ -28,16 +28,15 @@ import au.com.cba.omnia.maestro.core.codec.Encode
 object EncodeMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context): c.Expr[Encode[A]] = {
     import c.universe._
-    val optionConstructor = weakTypeOf[Option[_]].typeConstructor
-    val companion         = c.universe.weakTypeOf[A].typeSymbol.companionSymbol
-    val members           = Inspect.methods[A](c)
+
+    val companion = c.universe.weakTypeOf[A].typeSymbol.companionSymbol
+    val members   = Inspect.methods[A](c)
 
     def encode(xs: List[MethodSymbol]): List[Tree] = xs.map { x =>
-      if (x.returnType.typeConstructor == optionConstructor) {
-        val TypeRef(_, _, typParams) = x.returnType
-        val encoder = newTermName(typParams.head  + "Val")
+      MacroUtils.optional(c)(x.returnType).map { param =>
+        val encoder = newTermName(param  + "Val")
         q"a.${x}.map($encoder.apply).getOrElse(NoneVal)"
-      } else {
+      } getOrElse {
         val encoder = newTermName(x.returnType + "Val")
         q"""$encoder.apply(a.${x})"""
       }

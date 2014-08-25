@@ -138,8 +138,7 @@ object HumbugDecodeMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context): c.Expr[Decode[A]] = {
     import c.universe._
 
-    val stringType        = weakTypeOf[String]
-    val optionConstructor = weakTypeOf[Option[_]].typeConstructor
+    val stringType = weakTypeOf[String]
 
     val typ       = weakTypeOf[A]
     val typeName  = typ.toString
@@ -198,7 +197,7 @@ object HumbugDecodeMacro {
       val index  = i - 1
       val setter = newTermName("_" + i)
 
-      optional(x.returnType).map { param =>
+      MacroUtils.optional(c)(x.returnType).map { param =>
         val tag     = s"Option[$param]"
         val typeVal = newTypeName(param + "Val")
         q"""
@@ -225,7 +224,7 @@ object HumbugDecodeMacro {
       val index  = i - 1
       val setter = newTermName("_" + i)
 
-      optional(x.returnType).map { param =>
+      MacroUtils.optional(c)(x.returnType).map { param =>
         if (param == stringType) q"struct.$setter = Option(fields($index))"
         else {
           val method = newTermName("to" + param)
@@ -253,13 +252,6 @@ object HumbugDecodeMacro {
           }"""
         }
       }
-    }
-
-    def optional(o: Type): Option[Type] = {
-      if (o.typeConstructor == optionConstructor) {
-        val TypeRef(_, _, typParams) = o
-        Some(typParams.head)
-      } else None
     }
 
     val combined = q"""
