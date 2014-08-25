@@ -21,7 +21,7 @@ import au.com.cba.omnia.maestro.core.data.StringVal
 
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._
-import au.com.cba.omnia.maestro.test.thrift.scrooge.Customer
+import au.com.cba.omnia.maestro.test.thrift.scrooge.Types
 
 object ScroogeDecodeMacroSpec extends Spec { def is = s2"""
 
@@ -37,23 +37,26 @@ ScroogeDecodeMacro
 
 """
 
-  implicit val encode = Macros.mkEncode[Customer]
-  implicit val decode = Macros.mkDecode[Customer]
+  implicit val encodeTypes = Macros.mkEncode[Types]
+  implicit val decodeTypes = Macros.mkDecode[Types]
 
-  Macros.mkTag[Customer]
-
-  def valdecode = prop { (c: Customer) =>
-    decode.decode(ValDecodeSource(Encode.encode(c))) must_== DecodeOk(c)
+  def valdecode = prop { (types: Types) =>
+    decodeTypes.decode(ValDecodeSource(Encode.encode(types))) must_== DecodeOk(types)
   }
 
-  def unknown = prop { (c: Customer) =>
+  def unknown = prop { (types: Types) =>
+    val expected = types.copy(optStringField = Option(types.optStringField.getOrElse("")))
     val unknown = UnknownDecodeSource(List(
-      c.customerId, c. customerName, c.customerAcct, c.customerCat,
-      c.customerSubCat.getOrElse(""), c.customerBalance.cata(_.toString, ""), c.effectiveDate
+      expected.stringField,
+      expected.booleanField.toString,
+      expected.intField.toString,
+      expected.longField.toString,
+      expected.doubleField.toString,
+      expected.optIntField.cata(_.toString, ""),
+      expected.optStringField.get
     ))
 
-    val expected = c.copy(customerSubCat = Option(c.customerSubCat.getOrElse("")))
-    decode.decode(unknown) must_== DecodeOk(expected)
+    decodeTypes.decode(unknown) must_== DecodeOk(expected)
   }
 
   def typeErrorVal = {
@@ -61,37 +64,37 @@ ScroogeDecodeMacro
       StringVal("1"), StringVal("2"), StringVal("3"), StringVal("4"), StringVal("5"),
       StringVal("6"), StringVal("7")
     ))
-    decode.decode(encoded) must_== DecodeError(
-      ValDecodeSource(List(StringVal("6"), StringVal("7"))),
-      5,
-      ValTypeMismatch(StringVal("6"), "Option[Int]")
+    decodeTypes.decode(encoded) must_== DecodeError(
+      ValDecodeSource(List(StringVal("2"), StringVal("3"), StringVal("4"), StringVal("5"), StringVal("6"), StringVal("7"))),
+      1,
+      ValTypeMismatch(StringVal("2"), "Boolean")
     )
   }
 
   def sizeErrorVal = {
-    decode.decode(ValDecodeSource(List())) must_== DecodeError(
+    decodeTypes.decode(ValDecodeSource(List())) must_== DecodeError(
       ValDecodeSource(List()),
       0,
-      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.scrooge.Customer")
+      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.scrooge.Types")
     )
   }
 
   def typeErrorUnknown = {
     val encoded = UnknownDecodeSource(List(
-      "1", "2", "3", "4", "5", "not an int", "7"
+      "1", "2", "3", "4", "5", "6", "7"
     ))
-    decode.decode(encoded) must parseErrorMatcher[Customer](DecodeError(
-      UnknownDecodeSource(List("not an int", "7")),
-      5,
-      ParseError("not an int", "Option[Int]", null)
+    decodeTypes.decode(encoded) must parseErrorMatcher[Types](DecodeError(
+      UnknownDecodeSource(List("2", "3", "4", "5", "6", "7")),
+      1,
+      ParseError("2", "Boolean", null)
     ))
   }
 
   def sizeErrorUnknown = {
-    decode.decode(UnknownDecodeSource(List())) must_== DecodeError(
+    decodeTypes.decode(UnknownDecodeSource(List())) must_== DecodeError(
       UnknownDecodeSource(List()),
       0,
-      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.scrooge.Customer")
+      NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.scrooge.Types")
     )
   }
 

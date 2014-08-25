@@ -14,12 +14,12 @@
 
 #@namespace scala au.com.cba.omnia.maestro.test.thrift.scrooge
 
-struct Customer {
-  1  : string CUSTOMER_ID
-  2  : string CUSTOMER_NAME
-  3  : string CUSTOMER_ACCT
-  4  : string CUSTOMER_CAT
-  5  : optional string CUSTOMER_SUB_CAT
-  6  : optional i32 CUSTOMER_BALANCE
-  7  : string EFFECTIVE_DATE
- }
+struct Types {
+  1: string  stringField
+  2: bool    booleanField
+  3: i32     intField
+  4: i64     longField
+  5: double  doubleField
+  6: optional i32 optIntField
+  7: optional string optStringField
+}

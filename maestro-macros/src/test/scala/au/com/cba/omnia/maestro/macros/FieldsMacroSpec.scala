@@ -20,8 +20,8 @@ import au.com.cba.omnia.maestro.macros._
 
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._
-import au.com.cba.omnia.maestro.test.thrift.humbug._
-import au.com.cba.omnia.maestro.test.thrift.scrooge._
+import au.com.cba.omnia.maestro.test.thrift.humbug.{Types => HTypes}
+import au.com.cba.omnia.maestro.test.thrift.scrooge.{Types => STypes}
 
 object FieldsMacroSpec extends Spec { def is = s2"""
 
@@ -36,30 +36,30 @@ The fields macro creates fields
   that can extract a value for scrooge          $extractScrooge
 """
 
-  val typesFields    = Macros.mkFields[Types]
-  val customerFields = Macros.mkFields[Customer]
+  val humbugFields  = Macros.mkFields[HTypes]
+  val scroogeFields = Macros.mkFields[STypes]
 
   def nameHumbug = {
-    typesFields.StringField.name === "stringField"
-    typesFields.LongField.name   === "longField"
-    typesFields.DoubleField.name === "doubleField"
+    humbugFields.StringField.name === "stringField"
+    humbugFields.LongField.name   === "longField"
+    humbugFields.DoubleField.name === "doubleField"
   }
 
   def nameScrooge = {
-    customerFields.CustomerId.name    === "CUSTOMER_ID"
-    customerFields.CustomerCat.name   === "CUSTOMER_CAT"
-    customerFields.EffectiveDate.name === "EFFECTIVE_DATE"
+    scroogeFields.StringField.name === "stringField"
+    scroogeFields.LongField.name   === "longField"
+    scroogeFields.DoubleField.name === "doubleField"
   }
 
-  def extractHumbug = prop { (t: Types) =>
-    typesFields.StringField.get(t) === t.stringField
-    typesFields.LongField.get(t)   === t.longField
-    typesFields.DoubleField.get(t) === t.doubleField
+  def extractHumbug = prop { (t: HTypes) =>
+    humbugFields.StringField.get(t) === t.stringField
+    humbugFields.LongField.get(t)   === t.longField
+    humbugFields.DoubleField.get(t) === t.doubleField
   }
 
-  def extractScrooge = prop { (c: Customer) =>
-    customerFields.CustomerId.get(c)    === c.customerId
-    customerFields.CustomerCat.get(c)   === c.customerCat
-    customerFields.EffectiveDate.get(c) === c.effectiveDate
+  def extractScrooge = prop { (t: STypes) =>
+    scroogeFields.StringField.get(t) === t.stringField
+    scroogeFields.LongField.get(t)   === t.longField
+    scroogeFields.DoubleField.get(t) === t.doubleField
   }
 }

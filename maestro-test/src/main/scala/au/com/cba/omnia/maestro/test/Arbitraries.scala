@@ -21,20 +21,21 @@ import scalaz.scalacheck.ScalaCheckBinding._
 
 import org.scalacheck._, Arbitrary._
 
-import au.com.cba.omnia.maestro.test.thrift.scrooge._
-import au.com.cba.omnia.maestro.test.thrift.humbug._
+import au.com.cba.omnia.maestro.test.thrift.scrooge.{Types => STypes}
+import au.com.cba.omnia.maestro.test.thrift.humbug.{Types => HTypes, Large}
 
 object Arbitraries {
-  implicit def CustomerArbitrary: Arbitrary[Customer] = Arbitrary((
-    arbitrary[String]         |@|
-    arbitrary[String]         |@|
-    arbitrary[String]         |@|
-    arbitrary[String]         |@|
-    arbitrary[Option[String]] |@|
-    arbitrary[Option[Int]]    |@|
-    arbitrary[String])(Customer.apply))
+  implicit def ScroogeTypesArbitrary: Arbitrary[STypes] = Arbitrary((
+    arbitrary[String]      |@|
+      arbitrary[Boolean]     |@|
+      arbitrary[Int]         |@|
+      arbitrary[Long]        |@|
+      arbitrary[Double]      |@|
+      arbitrary[Option[Int]] |@|
+      arbitrary[Option[String]]
+  )(STypes.apply))
 
-  implicit def TypesArbitrary: Arbitrary[Types] = Arbitrary((
+  implicit def HumbugTypesArbitrary: Arbitrary[HTypes] = Arbitrary((
     arbitrary[String]      |@|
     arbitrary[Boolean]     |@|
     arbitrary[Int]         |@|
@@ -43,7 +44,7 @@ object Arbitraries {
     arbitrary[Option[Int]] |@|
     arbitrary[Option[String]]
   ){ case (string, boolean, int, long, double, optInt, optString) =>
-      val types = new Types()
+      val types = new HTypes()
       types.stringField    = string
       types.booleanField   = boolean
       types.intField       = int
