@@ -42,9 +42,9 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This Proxy trait allows you to extend the Customer trait with additional state or
 behavior and implement the read-only methods from Customer using an underlying
 instance.
-</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/0f096198d8cec035860d280940fe129d352abd14//maestro-example/target/scala-2.10/src_managed/main/au/com/cba/omnia/maestro/example/thrift/Customer.scala" target="_blank">Customer.scala</a></dd></dl><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/43029d0f0e8f1f24992401e6c255247ee1e3d343//maestro-example/target/scala-2.10/src_managed/main/au/com/cba/omnia/maestro/example/thrift/Customer.scala" target="_blank">Customer.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product7">Product7</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product7">Product7</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="com.twitter.scrooge.ThriftStruct">ThriftStruct</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -183,15 +183,15 @@ instance.
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a> → Product7</dd></dl></div>
     </li><li name="au.com.cba.omnia.maestro.example.thrift.Customer#_2" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="_2:String"></a>
-      <a id="_2:String"></a>
+      <a id="_2:Option[String]"></a>
+      <a id="_2:Option[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">_2</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">_2</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a> → Product7</dd></dl></div>
@@ -358,15 +358,15 @@ instance.
               
         </dd></dl></div>
     </li><li name="au.com.cba.omnia.maestro.example.thrift.Customer#copy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="copy(id:String,name:String,acct:String,cat:String,subCat:String,balance:Int,effectiveDate:String,_passthroughFields:scala.collection.immutable.Map[Short,com.twitter.scrooge.TFieldBlob]):au.com.cba.omnia.maestro.example.thrift.Customer"></a>
-      <a id="copy(String,String,String,String,String,Int,String,Map[Short,TFieldBlob]):Customer"></a>
+      <a id="copy(id:String,name:Option[String],acct:String,cat:String,subCat:String,balance:Int,effectiveDate:String,_passthroughFields:scala.collection.immutable.Map[Short,com.twitter.scrooge.TFieldBlob]):au.com.cba.omnia.maestro.example.thrift.Customer"></a>
+      <a id="copy(String,Option[String],String,String,String,Int,String,Map[Short,TFieldBlob]):Customer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">copy</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#id:String">this.id</a></span></span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#name:String">this.name</a></span></span></span>, <span name="acct">acct: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#acct:String">this.acct</a></span></span></span>, <span name="cat">cat: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#cat:String">this.cat</a></span></span></span>, <span name="subCat">subCat: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#subCat:String">this.subCat</a></span></span></span>, <span name="balance">balance: <span class="extype" name="scala.Int">Int</span> = <span class="symbol"><span class="name"><a href="Customer.html#balance:Int">this.balance</a></span></span></span>, <span name="effectiveDate">effectiveDate: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#effectiveDate:String">this.effectiveDate</a></span></span></span>, <span name="_passthroughFields">_passthroughFields: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="scala.Short">Short</span>, <span class="extype" name="com.twitter.scrooge.TFieldBlob">TFieldBlob</span>] = <span class="symbol"><span class="name"><a href="Customer.html#_passthroughFields:scala.collection.immutable.Map[Short,com.twitter.scrooge.TFieldBlob]">this._passthroughFields</a></span></span></span>)</span><span class="result">: <a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a></span>
+        <span class="name">copy</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#id:String">this.id</a></span></span></span>, <span name="name">name: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol"><span class="name"><a href="Customer.html#name:Option[String]">this.name</a></span></span></span>, <span name="acct">acct: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#acct:String">this.acct</a></span></span></span>, <span name="cat">cat: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#cat:String">this.cat</a></span></span></span>, <span name="subCat">subCat: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#subCat:String">this.subCat</a></span></span></span>, <span name="balance">balance: <span class="extype" name="scala.Int">Int</span> = <span class="symbol"><span class="name"><a href="Customer.html#balance:Int">this.balance</a></span></span></span>, <span name="effectiveDate">effectiveDate: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="Customer.html#effectiveDate:String">this.effectiveDate</a></span></span></span>, <span name="_passthroughFields">_passthroughFields: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="scala.Short">Short</span>, <span class="extype" name="com.twitter.scrooge.TFieldBlob">TFieldBlob</span>] = <span class="symbol"><span class="name"><a href="Customer.html#_passthroughFields:scala.collection.immutable.Map[Short,com.twitter.scrooge.TFieldBlob]">this._passthroughFields</a></span></span></span>)</span><span class="result">: <a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a></dd></dl></div>
@@ -511,15 +511,15 @@ is known and not optional and set to None, then the field is serialized and retu
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="au.com.cba.omnia.maestro.example.thrift.Customer.Proxy#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="name:String"></a>
-      <a id="name:String"></a>
+      <a id="name:Option[String]"></a>
+      <a id="name:Option[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">name</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">name</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer.Proxy">Proxy</a> → <a href="Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a></dd></dl></div>
@@ -864,7 +864,7 @@ from the passthroughFields map, if present.
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
             </div><div class="parent" name="scala.Product7">
-              <h3>Inherited from <span class="extype" name="scala.Product7">Product7</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Predef.String">String</span>]</h3>
+              <h3>Inherited from <span class="extype" name="scala.Product7">Product7</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Predef.String">String</span>]</h3>
             </div><div class="parent" name="scala.Product">
               <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
             </div><div class="parent" name="scala.Equals">
