@@ -33,11 +33,11 @@ TransformCustomer Cascade
 
   lazy val accountDecoder   = Macros.mkDecode[Account]
   def actualAccountReader   = ParquetThermometerRecordReader[Account]
-  def expectedAccountReader = delimitedThermometerRecordReader[Account]('|', accountDecoder)
+  def expectedAccountReader = delimitedThermometerRecordReader[Account]('|', "null", accountDecoder)
 
   lazy val customerDecoder   = Macros.mkDecode[Customer]
   def actualCustomerReader   = ParquetThermometerRecordReader[Customer]
-  def expectedCustomerReader = delimitedThermometerRecordReader[Customer]('|', customerDecoder)
+  def expectedCustomerReader = delimitedThermometerRecordReader[Customer]('|', "null", customerDecoder)
 
 
   def facts = withEnvironment(path(getClass.getResource("/transform-customer").toString)) {

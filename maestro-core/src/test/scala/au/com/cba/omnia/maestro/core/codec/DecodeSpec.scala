@@ -28,19 +28,22 @@ object DecodeSpec extends test.Spec { def is = s2"""
 Decode laws
 ===========
 
-  lawful monad                                             ${monad.laws[Decode]}
+  lawful monad                                                                                           ${monad.laws[Decode]}
 
 Decode properties
 =================
 
-  boolean decoding                                          ${primitive[Boolean](_.toString)}
-  int decoding                                              ${primitive[Int](_.toString)}
-  long decoding                                             ${primitive[Long](_.toString)}
-  double decoding                                           ${primitive[Double](_.toString)}
-  string decoding                                           ${primitive[String](_.toString)}
-  tuple decoding                                            ${tuples}
-  option decoding for non strings                           ${option}
-  option decoding for strings                               ${optionString}
+  boolean decoding                                                                                       ${primitive[Boolean]}
+  int decoding                                                                                           ${primitive[Int]}
+  long decoding                                                                                          ${primitive[Long]}
+  double decoding                                                                                        ${primitive[Double]}
+  string decoding                                                                                        ${primitive[String]}
+  tuple decoding                                                                                         ${tuples}
+  option decoding for non strings                                                                        ${option}
+  option decoding for strings                                                                            ${optionString}
+  empty values for optional string fields are decoded as empty string                                    ${emptyString}
+  otherwise empty values are decoded as None                                                             ${emptyOther}
+  Encoding and then decoding a string with the same value as the missing value indicator decodes to None ${exception}
 
 Decode witness
 ==============
@@ -49,28 +52,35 @@ Decode witness
 
 """
 
-  def primitive[A: Arbitrary: Decode: Encode](toString: A => String) = prop((v: A) => {
-    (Decode.decode(ValDecodeSource(Encode.encode(v))) must_== DecodeOk(v)) and
-      (Decode.decode(UnknownDecodeSource(toString(v) :: Nil)) must_== DecodeOk(v)) })
+  val noneVal = "\0"
 
-  def tuples = prop((b: Boolean, i: Int, l: Long, d: Double, s: String) => {
+  def primitive[A : Arbitrary : Decode : Encode] = prop { (v: A) =>
+    Decode.decode(noneVal, Encode.encode(noneVal, v)) must_== DecodeOk(v)
+  }
+
+  def tuples = prop { (b: Boolean, i: Int, l: Long, d: Double, s: String) =>
     val tuple = (b, i, l, d, s, (b, i, l, d, s))
     Decode.decode[(Boolean, Int, Long, Double, String, (Boolean, Int, Long, Double, String))](
-        ValDecodeSource(Encode.encode(tuple))) must_== DecodeOk(tuple) })
+      noneVal, Encode.encode(noneVal, tuple)
+    ) must_== DecodeOk(tuple)
+  }
 
   def option = prop { (v: Option[Int]) =>
-    (Decode.decode[Option[Int]](ValDecodeSource(Encode.encode(v))) must_== DecodeOk(v)) and
-    (Decode.decode[Option[Int]](UnknownDecodeSource(v.cata(_.toString, "") :: Nil)) must_== DecodeOk(v))
+    Decode.decode[Option[Int]](noneVal, Encode.encode(noneVal, v)) must_== DecodeOk(v)
   }
 
-  def optionString = prop { (v: Option[String]) =>
-    (Decode.decode[Option[String]](ValDecodeSource(Encode.encode(v))) must_== DecodeOk(v)) and
-    (Decode.decode[Option[String]](UnknownDecodeSource(v.cata(_.toString, "") :: Nil)) must_== DecodeOk(v.cata(Some(_), Some(""))))
+  def optionString = prop { (v: Option[String]) => (v != Some(noneVal)) ==>
+    (Decode.decode[Option[String]](noneVal, Encode.encode(noneVal, v)) must_== DecodeOk(v))
   }
 
+  def emptyString = Decode.decode[Option[String]](noneVal, List("")) must_== DecodeOk(Some(""))
+
+  def emptyOther = Decode.decode[Option[Int]](noneVal, List("")) must_== DecodeOk(None)
+
+  def exception =
+    Decode.decode[Option[String]](noneVal, Encode.encode(noneVal, Some(noneVal))) must_== DecodeOk(None)
 
   /* witness these codecs, compilation is the test */
-
   Decode.of[String]
   Decode.of[Int]
   Decode.of[Long]
@@ -91,11 +101,8 @@ Decode witness
   case class Example(s: String, l: Long, n: Nested)
 
   implicit def DecodeIntEqual: Equal[Decode[Int]] =
-    Equal.equal((a, b) => {
-      val starting = (1 to 100).toList
-      val unknown = UnknownDecodeSource(starting.map(_.toString))
-      val known = ValDecodeSource(starting.map(IntVal))
-      (a.run(unknown, 0) == a.run(unknown, 0)) &&
-        (a.run(known, 0) == b.run(known, 0))
-    })
+    Equal.equal { (a, b) =>
+      val ns = (1 to 100).toList.map(_.toString)
+      (a.run(noneVal, ns, 0) == a.run(noneVal, ns, 0))
+    }
 }

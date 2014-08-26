@@ -59,12 +59,13 @@ trait Load {
     *  1. Split each line into columns/fields using the provided delimiter.
     *  1. Apply the provided filter to each list of fields.
     *  1. Clean each field using the provided cleaner.
-    *  1. Convert the list of fields into the provided thrift struct.
+    *  1. Convert the list of fields into the provided thrift struct. Option fields with the `none`
+    *     value or empty strings (expect for optional string fields) are set to `None`.
     *  1. Validate each struct.
     */
   def load[A <: ThriftStruct : Decode : Tag : Manifest]
     (delimiter: String, sources: List[String], errors: String, timeSource: TimeSource, clean: Clean,
-      validator: Validator[A], filter: RowFilter)
+      validator: Validator[A], filter: RowFilter, none: String)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] =
     Load.loadProcess(
       MultipleTextLineFiles(sources: _*)
@@ -75,7 +76,8 @@ trait Load {
       errors,
       clean,
       validator,
-      filter
+      filter,
+      none
     )
 
   /**
@@ -92,7 +94,7 @@ trait Load {
     */
   def loadWithKey[A <: ThriftStruct : Decode : Tag : Manifest]
     (delimiter: String, sources: List[String], errors: String, timeSource: TimeSource, clean: Clean,
-      validator: Validator[A], filter: RowFilter)
+      validator: Validator[A], filter: RowFilter, none: String)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] = {
     val rnd    = new SecureRandom()
     val seed   = rnd.generateSeed(4)
@@ -111,17 +113,15 @@ trait Load {
       errors,
       clean,
       validator,
-      filter
+      filter,
+      none
     )
   }
 
-  /**
-    *  Same as `load` but uses a list of column lengths to split the string
-    *   rather than a delimeter.
-    */
+  /** Same as `load` but uses a list of column lengths to split the string rather than a delimeter. */
   def loadFixedLength[A <: ThriftStruct : Decode : Tag : Manifest]
     (lengths: List[Int], sources: List[String], errors: String, timeSource: TimeSource,
-      clean: Clean, validator: Validator[A], filter: RowFilter)
+      clean: Clean, validator: Validator[A], filter: RowFilter, none: String)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] =
     Load.loadProcess(
       sources
@@ -132,7 +132,8 @@ trait Load {
       errors,
       clean,
       validator,
-      filter
+      filter,
+      none
     )
 }
 
@@ -147,7 +148,7 @@ object Load {
   /** Implementation of `loadFoo` methods in `Load` trait */
   def loadProcess[A <: ThriftStruct : Decode : Tag : Manifest]
     (in: TypedPipe[RawRow], splitter: Splitter, errors: String, clean: Clean,
-       validator: Validator[A], filter: RowFilter)
+       validator: Validator[A], filter: RowFilter, none: String)
     (implicit flowDef: FlowDef, mode: Mode): TypedPipe[A] = {
     val pipe =
       in
@@ -155,14 +156,12 @@ object Load {
         .flatMap(filter.run(_).toList)
         .map(record =>
           Tag.tag[A](record).map { case (column, field) => clean.run(field, column) }
-        ).map(record => Decode.decode[A](UnknownDecodeSource(record)))
+        ).map(record => Decode.decode[A](none, record))
         .map {
           case DecodeOk(value) =>
             validator.run(value).disjunction.leftMap(errors => s"""The following errors occured: ${errors.toList.mkString(",")}""")
           case e @ DecodeError(remainder, counter, reason) =>
             reason match {
-              case ValTypeMismatch(value, expected) =>
-                s"unexpected type: $e".left
               case ParseError(value, expected, error) =>
                 s"unexpected type: $e".left
               case NotEnoughInput(required, expected) =>

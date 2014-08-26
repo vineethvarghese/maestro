@@ -27,67 +27,12 @@ import au.com.cba.omnia.maestro.core.codec.Decode
   * 
   * The Decode will look like this:
   * {{{
-  * Decode((source, position) => {
-  *   def decodeVals(vs: List[Val], position: Int): DecodeResult[(DecodeSource, Int, Types)] =
-  *     if (vs.length < 7)
-  *       DecodeError(ValDecodeSource(vs), position, NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.humbug.Types"))
-  *     else {
-  *       var index = -1
-  *       var tag = ""
-  *       val fields = vs.take(7).toArray
-  *       try {
-  *         val struct = new Types()
-  *         {
-  *           index = 0
-  *           tag = "String"
-  *           struct._1 = fields(0).asInstanceOf[StringVal].v
-  *         }
-  *         {
-  *           index = 1
-  *           tag = "Boolean"
-  *           struct._2 = fields(1).asInstanceOf[BooleanVal].v
-  *         }
-  *         {
-  *           index = 2
-  *           tag = "Int"
-  *           struct._3 = fields(2).asInstanceOf[IntVal].v
-  *         }
-  *         {
-  *           index = 3
-  *           tag = "Long"
-  *           struct._4 = fields(3).asInstanceOf[LongVal].v
-  *         }
-  *         {
-  *           index = 4
-  *           tag = "Double"
-  *           struct._5 = fields(4).asInstanceOf[DoubleVal].v
-  *         }
-  *         {
-  *           index = 5
-  *           tag = "Option[Int]"
-  *           struct._6 = if (fields(5).isInstanceOf[NoneVal.type])
-  *             Option.empty[Int]
-  *           else
-  *             Option(fields(5).asInstanceOf[IntVal].v)
-  *         }
-  *         {
-  *           index = 6
-  *           tag = "Option[String]"
-  *           struct._7 = if (fields(6).isInstanceOf[NoneVal.type])
-  *             Option.empty[String]
-  *           else
-  *             Option(fields(6).asInstanceOf[StringVal].v)
-  *         }
-  *         DecodeOk((ValDecodeSource(vs.drop(7)), position + 7, struct))
-  *       } catch {
-  *         case NonFatal((e @ _)) => DecodeError(ValDecodeSource(vs.drop(index - position)), position + index, ValTypeMismatch(fields(index), tag))
-  *       }
-  *     }
-  *   def decodeUnknowns(vs: List[String], position: Int): DecodeResult[(DecodeSource, Int, Types)] =
-  *     if (vs.length < 7)
-  *       DecodeError(UnknownDecodeSource(vs), position, NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.humbug.Types"))
-  *     else {
-  *       val fields = vs.take(7).toArray
+  * Decode((none, source, position) => {
+  *   if (source.length < 7)
+  *     DecodeError(source, position, NotEnoughInput(7, "au.com.cba.omnia.maestro.test.thrift.humbug.Types"))
+  *   else
+  *     {
+  *       val fields = source.take(7).toArray
   *       var index = -1
   *       var tag = ""
   *       try {
@@ -116,21 +61,20 @@ import au.com.cba.omnia.maestro.core.codec.Decode
   *         {
   *           tag = "Option[Int]"
   *           index = 5
-  *           struct._6 = if (fields(index).isEmpty)
+  *           struct._6 = if (fields(index).isEmpty || fields(index) == none)
   *             Option.empty[Int]
   *           else
   *             Option(fields(index).toInt)
   *         }
-  *         struct._7 = Option(fields(6))
-  *         DecodeOk(scala.Tuple3(UnknownDecodeSource(vs.drop(7)), position + 7, struct))
+  *         struct._7 = if (fields(6) == none)
+  *           Option.empty[String]
+  *         else
+  *           Option(fields(6))
+  *         DecodeOk(scala.Tuple3(source.drop(7), position + 7, struct))
   *       } catch {
-  *         case NonFatal((e @ _)) => DecodeError(UnknownDecodeSource(vs.drop(index - position)), position + index, ParseError(fields(index), tag, That(e)))
+  *         case NonFatal((e @ _)) => DecodeError(source.drop(index - position), position + index, ParseError(fields(index), tag, That(e)))
   *       }
   *     }
-  *   source match {
-  *     case ValDecodeSource((vs @ _)) => decodeVals(vs, position)
-  *     case UnknownDecodeSource((vs @ _)) => decodeUnknowns(vs, position)
-  *   }
   * })
   * }}}
   */
@@ -147,85 +91,37 @@ object HumbugDecodeMacro {
     val size      = members.length
     val termName  = newTermName(typeName)
 
-    def decodeValSource(xs: List[(MethodSymbol, Int)]) = q"""
-      def decodeVals(vs: List[Val], position: Int): DecodeResult[(DecodeSource, Int, $typ)] = {
-        if (vs.length < $size) {
-          DecodeError(ValDecodeSource(vs), position, NotEnoughInput($size, $typeName))
-        } else {
-          var index = -1
-          var tag   = ""
-          val fields = vs.take($size).toArray
-
-          try {
-          val struct = new $typ()
-          ..${decodeVals(xs)}
-          DecodeOk((ValDecodeSource(vs.drop($size)), position + $size, struct))
-          } catch {
-            case NonFatal(e) => DecodeError(
-              ValDecodeSource(vs.drop(index - position)),
-              position + index,
-              ValTypeMismatch(fields(index), tag))
-          }
-        }
-      }
-    """
-
     def decodeUnknownSource(xs: List[(MethodSymbol, Int)]) = q"""
-      def decodeUnknowns(vs: List[String], position: Int): DecodeResult[(DecodeSource, Int, $typ)] = {
-        if (vs.length < $size) {
-          DecodeError(UnknownDecodeSource(vs), position, NotEnoughInput($size, $typeName))
-        } else {
-          val fields = vs.take($size).toArray
-          var index = -1
-          var tag   = "" 
-          try {
-            val struct = new $typ()
-            ..${decodeUnknowns(xs)}
-            DecodeOk((UnknownDecodeSource(vs.drop($size)), position + $size, struct))
-          } catch {
-            case NonFatal(e) => DecodeError(
-              UnknownDecodeSource(vs.drop(index - position)),
-              position + index,
-              ParseError(fields(index), tag, That(e))
-            )
-          }
+      if (source.length < $size) {
+        DecodeError(source, position, NotEnoughInput($size, $typeName))
+      } else {
+        val fields = source.take($size).toArray
+        var index  = -1
+        var tag    = "" 
+        try {
+          val struct = new $typ()
+          ..${decodeUnknowns(xs)}
+          DecodeOk((source.drop($size), position + $size, struct))
+        } catch {
+          case NonFatal(e) => DecodeError(
+            source.drop(index - position),
+            position + index,
+            ParseError(fields(index), tag, That(e))
+          )
         }
       }
     """
-
-    def decodeVals(xs: List[(MethodSymbol, Int)]): List[Tree] = xs.map { case (x, i) =>
-      val index  = i - 1
-      val setter = newTermName("_" + i)
-
-      MacroUtils.optional(c)(x.returnType).map { param =>
-        val tag     = s"Option[$param]"
-        val typeVal = newTypeName(param + "Val")
-        q"""
-          index = $index
-          tag   = $tag
-
-          struct.$setter =
-            if (fields($index).isInstanceOf[NoneVal.type]) Option.empty[$param]
-            else Option(fields($index).asInstanceOf[$typeVal].v)
-        """
-      } getOrElse {
-        val tag     = x.returnType.toString
-        val typeVal = newTypeName(x.returnType + "Val")
-
-        q"""
-          index = $index
-          tag   = $tag
-          struct.$setter = fields($index).asInstanceOf[$typeVal].v
-        """
-      }
-    }
-
     def decodeUnknowns(xs: List[(MethodSymbol, Int)]): List[Tree] = xs.map { case (x, i) =>
       val index  = i - 1
       val setter = newTermName("_" + i)
 
       MacroUtils.optional(c)(x.returnType).map { param =>
-        if (param == stringType) q"struct.$setter = Option(fields($index))"
+        if (param == stringType)
+          q"""
+            struct.$setter = 
+              if (fields($index) == none) Option.empty[String]
+              else                        Option(fields($index))
+          """
         else {
           val method = newTermName("to" + param)
           val tag    = s"Option[$param]"
@@ -234,8 +130,10 @@ object HumbugDecodeMacro {
             index = $index
 
             struct.$setter = 
-            if (fields(index).isEmpty) Option.empty[$param]
-            else                       Option(fields(index).$method)
+            if (fields(index).isEmpty || fields(index) == none)
+              Option.empty[$param]
+            else
+              Option(fields(index).$method)
           }"""
         }
       } getOrElse {
@@ -256,19 +154,12 @@ object HumbugDecodeMacro {
 
     val combined = q"""
       import au.com.cba.omnia.maestro.core.codec.Decode
-      Decode((source, position) => {
+      Decode((none, source, position) => {
         import scala.util.control.NonFatal
         import scalaz.\&/.That
-        import au.com.cba.omnia.maestro.core.data.{Val, BooleanVal, IntVal, LongVal, DoubleVal, StringVal, NoneVal}
-        import au.com.cba.omnia.maestro.core.codec.{DecodeSource, ValDecodeSource, UnknownDecodeSource, DecodeOk, DecodeError, DecodeResult, ParseError, ValTypeMismatch, NotEnoughInput, Decode}
+        import au.com.cba.omnia.maestro.core.codec.{DecodeOk, DecodeError, DecodeResult, ParseError, NotEnoughInput, Decode}
   
-        ${decodeValSource(members)}
         ${decodeUnknownSource(members)}
-  
-        source match {
-          case ValDecodeSource(vs)     => decodeVals(vs, position)
-          case UnknownDecodeSource(vs) => decodeUnknowns(vs, position)
-        }
       })
     """
 

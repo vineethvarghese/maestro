@@ -123,7 +123,7 @@ class LoadProcessStringPairTestJob
 
   val in = ThermometerSource(input).map(l => RawRow(l, Nil))
 
-  Load.loadProcess[StringPair](in, splitter, errFile, clean, validator, filter)
+  Load.loadProcess[StringPair](in, splitter, errFile, clean, validator, filter, "\0")
     .map(pair =>
       if (!test(pair)) throw new FailureException(Failure(s"bad result: $pair"))
       else (pair.first, pair.second))

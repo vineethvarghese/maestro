@@ -19,46 +19,55 @@ import au.com.cba.omnia.maestro.core.data._
 import scalaz._, Scalaz._
 import shapeless._
 
-case class Encode[A](run: A => List[Val]) {
+/**
+  * Represents `A` as a list of string.
+  * 
+  * None values are encoded using the provided string.
+  */
+case class Encode[A](run: (String, A) => List[String]) {
+  /** Contramaps across the input.*/
   def contramap[B](f: B => A): Encode[B] =
-    Encode[B](f andThen run)
+    Encode[B]((none, a) => run(none, f(a)))
 }
 
+/** Encode companion object.*/
 object Encode extends TypeClassCompanion[Encode] {
-  def encode[A: Encode](a: A): List[Val] =
-    Encode.of[A].run(a)
+  /** Encodes `A` as a list of string. `None` are encoded as the supplied `none` string.*/
+  def encode[A : Encode](none: String, a: A): List[String] =
+    Encode.of[A].run(none, a)
 
-  def of[A: Encode]: Encode[A] =
+  /** Gets the encoder for `A` provided an implicit encoder for `A` is in scope.*/
+  def of[A : Encode]: Encode[A] =
     implicitly[Encode[A]]
 
-  def value[A](run: A => Val): Encode[A] =
-    Encode[A](run andThen (_ :: Nil))
+  def value[A](run: A => String): Encode[A] =
+    Encode[A]((none, a) => run(a) :: Nil)
 
   implicit val BooleanEncode: Encode[Boolean] =
-    value(BooleanVal)
+    value(_.toString)
 
   implicit val IntEncode: Encode[Int] =
-    value(IntVal)
+    value(_.toString)
 
   implicit val LongEncode: Encode[Long] =
-    value(LongVal)
+    value(_.toString)
 
   implicit val DoubleEncode: Encode[Double] =
-    value(DoubleVal)
+    value(_.toString)
 
   implicit val StringEncode: Encode[String] =
-    value(StringVal)
+    value(_.toString)
 
   implicit def OptionEncode[A : Encode]: Encode[Option[A]] =
-    Encode(_.cata(
-      of[A].run(_),
-      List(NoneVal)
+    Encode((none, a) => a.cata(
+      encode[A](none, _),
+      List(none)
     ))
 
-  implicit def ListEncode[A: Encode]: Encode[List[A]] =
-    Encode(_.flatMap(encode[A]))
+  implicit def ListEncode[A : Encode]: Encode[List[A]] =
+    Encode((none, as) => as.flatMap(encode[A](none, _)))
 
-  implicit def VectorEncode[A: Encode]: Encode[Vector[A]] =
+  implicit def VectorEncode[A : Encode]: Encode[Vector[A]] =
     Encode.of[List[A]].contramap(_.toList)
 
   implicit def ProductEncode[A]: Encode[A] =
@@ -66,10 +75,10 @@ object Encode extends TypeClassCompanion[Encode] {
 
   implicit def EncodeTypeClass: ProductTypeClass[Encode] = new ProductTypeClass[Encode] {
     def emptyProduct =
-      Encode(_ => List())
+      Encode((_, _) => List())
 
     def product[A, T <: HList](A: Encode[A], T: Encode[T]) =
-      Encode(a => A.run(a.head) ++ T.run(a.tail))
+      Encode((none, a) => A.run(none, a.head) ++ T.run(none, a.tail))
 
     def project[F, G](instance: => Encode[G], to : F => G, from : G => F) =
       instance.contramap(to)

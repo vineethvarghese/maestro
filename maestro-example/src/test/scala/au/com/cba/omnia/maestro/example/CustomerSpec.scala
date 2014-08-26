@@ -38,7 +38,7 @@ Customer Cascade
 
   def pipeline = {
     val actualReader   = ParquetThermometerRecordReader[Customer]
-    val expectedReader = delimitedThermometerRecordReader[Customer]('|', decoder)
+    val expectedReader = delimitedThermometerRecordReader[Customer]('|', "null", decoder)
 
     withEnvironment(path(getClass.getResource("/customer").toString)) {
       val cascade = withArgs(

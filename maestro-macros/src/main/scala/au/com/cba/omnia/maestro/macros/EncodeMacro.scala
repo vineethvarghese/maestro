@@ -29,25 +29,15 @@ object EncodeMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context): c.Expr[Encode[A]] = {
     import c.universe._
 
-    val companion = c.universe.weakTypeOf[A].typeSymbol.companionSymbol
+    val companion = weakTypeOf[A].typeSymbol.companionSymbol
     val members   = Inspect.methods[A](c)
 
     def encode(xs: List[MethodSymbol]): List[Tree] = xs.map { x =>
-      MacroUtils.optional(c)(x.returnType).map { param =>
-        val encoder = newTermName(param  + "Val")
-        q"a.${x}.map($encoder.apply).getOrElse(NoneVal)"
-      } getOrElse {
-        val encoder = newTermName(x.returnType + "Val")
-        q"""$encoder.apply(a.${x})"""
-      }
+      q"Encode.encode[${x.returnType}](none, a.${x})"
     }
 
-    val fields = q"""List(..${encode(members)})"""
+    val fields = q"""List(..${encode(members)}).flatten"""
 
-    c.Expr[Encode[A]](q"""Encode(a => {
-      import au.com.cba.omnia.maestro.core.data.{Val, BooleanVal, IntVal, LongVal, DoubleVal, StringVal, NoneVal}
-
-      $fields
-     })""")
+    c.Expr[Encode[A]](q"Encode((none, a) => { $fields })")
   }
 }

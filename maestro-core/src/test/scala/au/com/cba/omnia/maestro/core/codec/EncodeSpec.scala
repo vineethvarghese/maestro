@@ -33,11 +33,11 @@ Encode laws
 Encode properties
 =================
 
-  boolean encoding                                          ${primitive[Boolean](BooleanVal)}
-  int encoding                                              ${primitive[Int](IntVal)}
-  long encoding                                             ${primitive[Long](LongVal)}
-  double encoding                                           ${primitive[Double](DoubleVal)}
-  string encoding                                           ${primitive[String](StringVal)}
+  boolean encoding                                          ${primitive[Boolean](_.toString)}
+  int encoding                                              ${primitive[Int](_.toString)}
+  long encoding                                             ${primitive[Long](_.toString)}
+  double encoding                                           ${primitive[Double](_.toString)}
+  string encoding                                           ${primitive[String](identity)}
   option encoding                                           ${option}
   tuple encoding                                            ${tuples}
 
@@ -48,29 +48,31 @@ Encode witness
 
 """
 
-  def primitive[A: Arbitrary: Encode](f: A => Val) = prop((v: A) =>
-    Encode.encode(v) must_== List(f(v)))
+  def primitive[A : Arbitrary : Encode](f: A => String) = prop((v: A) =>
+    Encode.encode("\0", v) must_== List(f(v))
+  )
 
   def option = {
-    (Encode.encode(Option(3))         must_== List(IntVal(3))) and
-    (Encode.encode(Option.empty[Int]) must_== List(NoneVal))   and
-    (Encode.encode(Option("test"))    must_== List(StringVal("test")))
+    (Encode.encode("\0",   Option(3))            must_== List("3"))    and
+    (Encode.encode("\0",   Option.empty[Int])    must_== List("\0"))   and
+    (Encode.encode("\0",   Option("test"))       must_== List("test")) and
+    (Encode.encode("\0",   Option.empty[String]) must_== List("\0"))   and
+    (Encode.encode("null", Option.empty[String]) must_== List("null"))
   }
 
   def tuples = prop((b: Boolean, i: Int, l: Long, d: Double, s: String) =>
-    Encode.encode((b, i, l, d, s, (b, i, l, d, s))) must_== twice(List(
-        BooleanVal(b)
-      , IntVal(i)
-      , LongVal(l)
-      , DoubleVal(d)
-      , StringVal(s)
-      )))
+    Encode.encode("\0", (b, i, l, d, s, (b, i, l, d, s))) must_== twice(List(
+        b.toString
+      , i.toString
+      , l.toString
+      , d.toString
+      , s
+      ))
+  )
 
-  def twice[A](a: List[A]) =
-    a ++ a
+  def twice[A](a: List[A]) = a ++ a
 
   /* witness these codecs, compilation is the test */
-
   Encode.of[String]
   Encode.of[Int]
   Encode.of[Long]
@@ -91,5 +93,5 @@ Encode witness
   case class Example(s: String, l: Long, n: Nested)
 
   implicit def EncodeIntEqual: Equal[Encode[Int]] =
-    Equal.equal((a, b) => a.run(0) == b.run(0))
+    Equal.equal((a, b) => a.run("\0", 0) == b.run("\0", 0))
 }

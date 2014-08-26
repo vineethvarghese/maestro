@@ -60,7 +60,7 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
       load[Customer](
         "|", inputs, errors,
         Maestro.timeFromPath(".*/([0-9]{4})/([0-9]{2})/([0-9]{2}).*".r),
-        cleaners, validators, filter
+        cleaners, validators, filter, "null"
       ) |>
       (viewHive(dateTable) _ &&&
         viewHive(catTable)
@@ -106,7 +106,7 @@ class TransformCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val filter        = RowFilter.keep
   val timeSource    = Maestro.timeFromPath(""".*(\d{4})-(\d{2})-(\d{2}).*""".r)
 
-  val in = load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter)
+  val in = load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter, "null")
   
   view(Partition.byDate(Fields.EffectiveDate), customerView)(in)
 

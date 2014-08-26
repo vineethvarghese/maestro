@@ -24,87 +24,86 @@ import shapeless.{ProductTypeClass, TypeClassCompanion}
 
 import au.com.cba.omnia.maestro.core.data._
 
-sealed trait DecodeSource
-case class UnknownDecodeSource(source: List[String]) extends DecodeSource
-case class ValDecodeSource(source: List[Val]) extends DecodeSource
-
-case class Decode[A](run: (DecodeSource, Int) => DecodeResult[(DecodeSource, Int, A)]) {
-  def decode(source: DecodeSource): DecodeResult[A] =
-    run(source, 0).flatMap({
-      case (ValDecodeSource(Nil), _, a) =>
-        DecodeOk(a)
-      case (UnknownDecodeSource(Nil), _, a) =>
-        DecodeOk(a)
-      case (remainder, counter, a) =>
-        DecodeError(remainder, counter, TooMuchInput)
+/**
+  * Decoder for a list of strings.
+  *
+  * It also keeps track of the current position in the decode process.
+  * For optional fields if they have the supplied none value they are decoded as `None`.
+  * Empty strings are also decoded as None for optional fields except for optional string fields.
+  */
+case class Decode[A](run: (String, List[String], Int) => DecodeResult[(List[String], Int, A)]) {
+  /**
+    * Decodes the supplied list of strings.
+    *
+    * For optional fields if they have the supplied none value they are decoded as `None`.
+    * Empty strings are also decoded as None for optional fields except for optional string fields.
+    */
+  def decode(none: String, source: List[String]): DecodeResult[A] =
+    run(none, source, 0).flatMap({
+      case (Nil, _, a)             => DecodeOk(a)
+      case (remainder, counter, a) => DecodeError(remainder, counter, TooMuchInput)
     })
 
+  /** Maps across the decoded value.*/
   def map[B](f: A => B): Decode[B] =
     flatMap(f andThen Decode.strict[B])
 
+  /** Flat maps across the decoded value.*/
   def flatMap[B](f: A => Decode[B]): Decode[B] =
-    Decode((source, start) => run(source, start).flatMap({
-      case (remainder, counter, value) =>
-        f(value).run(remainder, counter)
+    Decode((none, source, start) => run(none, source, start).flatMap({
+      case (remainder, counter, value) => f(value).run(none, remainder, counter)
     }))
 }
 
+/** Encode companion object.*/
 object Decode extends TypeClassCompanion[Decode] {
-  def decode[A: Decode](source: DecodeSource): DecodeResult[A] =
-    Decode.of[A].decode(source)
+  /** Encodes `A` as a list of string. `None` are replaced with the supplied `none` string.*/
+  def decode[A: Decode](none: String, source: List[String]): DecodeResult[A] =
+    Decode.of[A].decode(none, source)
 
+  /** Gets the encoder for `A` provided an implicit encoder for `A` is in scope.*/
   def of[A: Decode]: Decode[A] =
     implicitly[Decode[A]]
 
+  /** Creates a Decode that will return `a`.*/
   def ok[A](a: => A): Decode[A] =
-    Decode((source, n) => DecodeOk((source, n, a)))
+    Decode((none, source, n) => DecodeOk((source, n, a)))
 
+  /**
+    * Creates a Decode that will return `a`
+    * 
+    * Unlike `ok` this does not use call by name.
+    */
   def strict[A](a: A): Decode[A] =
     ok(a)
 
+  /** Creates a Decode that will produce an error with the specified reason.*/
   def error[A](reason: Reason): Decode[A] =
-    Decode((source, n) => DecodeError(source, n, reason))
+    Decode((none, source, n) => DecodeError(source, n, reason))
 
   implicit val BooleanDecode: Decode[Boolean] =
-    one("Boolean",
-      { case BooleanVal(v) => v },
-      { s => unsafe { s.toBoolean } })
+    one("Boolean", s => unsafe(s.toBoolean))
 
   implicit val IntDecode: Decode[Int] =
-    one("Int",
-      { case IntVal(v) => v },
-      { s => unsafe { s.toInt } })
+    one("Int", s => unsafe(s.toInt))
 
   implicit val LongDecode: Decode[Long] =
-    one("Long",
-      { case LongVal(v) => v },
-      { s => unsafe { s.toLong } })
+    one("Long", s => unsafe(s.toLong))
 
   implicit val DoubleDecode: Decode[Double] =
-    one("Double",
-      { case DoubleVal(v) => v },
-      { s => unsafe { s.toDouble } })
+    one("Double", s => unsafe(s.toDouble))
 
   implicit val StringDecode: Decode[String] =
-    one("String",
-      { case StringVal(v) => v },
-      { s => s.right })
+    one("String", _.right)
 
   /** Decoder into Option[A]. '''NB: For strings "" is decoded as Some("")'''. */
   implicit def OptionDecode[A : WeakTypeTag](implicit decode: Decode[A]):Decode[Option[A]] =
-    Decode((source, n) => source match {
-      case ValDecodeSource(h :: remainder) => h match {
-        case NoneVal => DecodeOk((ValDecodeSource(remainder), n + 1, None))
-        case v: Val  =>
-          decode.map(Option(_)).run(source, n)
-        case _       =>
-          DecodeError(ValDecodeSource(remainder), n, ValTypeMismatch(h, "Option"))
-      }
-      case UnknownDecodeSource(s :: remainder) =>
-        if (!s.isEmpty || implicitly[WeakTypeTag[A]].tpe =:= typeOf[String])
-          decode.map(Option(_)).run(source, n)
+    Decode((none, source, n) => source match {
+      case s :: remainder =>
+        if ((s.isEmpty && !(implicitly[WeakTypeTag[A]].tpe =:= typeOf[String])) || s == none)
+          DecodeOk((remainder, n + 1, None))
         else
-          DecodeOk((UnknownDecodeSource(remainder), n + 1, None))
+          decode.map(Option(_)).run(none, source, n)
       case _ => DecodeError(source, n, NotEnoughInput(1, "option"))
     })
 
@@ -112,10 +111,10 @@ object Decode extends TypeClassCompanion[Decode] {
     VectorDecode[A].map(_.toList)
 
   implicit def VectorDecode[A: Decode]: Decode[Vector[A]] =
-    Decode((source, n) => {
-      def loop(acc: DecodeResult[Vector[A]], source: DecodeSource, n: Int): DecodeResult[(DecodeSource, Int, Vector[A])] =
+    Decode((none, source, n) => {
+      def loop(acc: DecodeResult[Vector[A]], source: List[String], n: Int): DecodeResult[(List[String], Int, Vector[A])] =
         acc.flatMap(xs =>
-          Decode.of[A].run(source, n) match {
+          Decode.of[A].run(none, source, n) match {
             case DecodeOk((remainder, counter, value)) =>
               loop(DecodeOk((xs :+ value)), remainder, counter)
             case DecodeError(_, _, _) =>
@@ -134,10 +133,10 @@ object Decode extends TypeClassCompanion[Decode] {
       strict(HNil)
 
     def product[A, T <: HList](A: Decode[A], T: Decode[T]) =
-      Decode((source, n) =>
-        A.run(source, n) match {
+      Decode((none, source, n) =>
+        A.run(none, source, n) match {
           case DecodeOk((remainder, counter, a)) =>
-            T.run(remainder, counter).map(_.map(a :: _))
+            T.run(none, remainder, counter).map(_.map(a :: _))
           case DecodeError(remainder, counter, reason) =>
             DecodeError(remainder, counter, reason)
         })
@@ -147,7 +146,7 @@ object Decode extends TypeClassCompanion[Decode] {
   }
 
   implicit def DecodeMonad: Monad[Decode] = new Monad[Decode] {
-    def point[A](a: => A) = Decode((source, n) => DecodeOk((source, n, a)))
+    def point[A](a: => A) = Decode((none, source, n) => DecodeOk((source, n, a)))
     def bind[A, B](m: Decode[A])(f: A => Decode[B]) = m flatMap f
   }
 
@@ -155,21 +154,14 @@ object Decode extends TypeClassCompanion[Decode] {
     try a.right
     catch { case NonFatal(e) => That(e).left[A] }
 
-  def one[A](tag: String, valDecode: PartialFunction[Val, A], unknownDecode: String => These[String, Throwable] \/ A): Decode[A] =
-    Decode((source, n) => source match {
-      case ValDecodeSource(v :: remainder) =>
-        valDecode.lift(v) match {
-          case None =>
-            DecodeError(ValDecodeSource(remainder), n, ValTypeMismatch(v, tag))
-          case Some(a) =>
-            DecodeOk((ValDecodeSource(remainder), n + 1, a))
-        }
-      case UnknownDecodeSource(s :: remainder) =>
-        unknownDecode(s) match {
+  def one[A](tag: String, decode: String => These[String, Throwable] \/ A): Decode[A] =
+    Decode((none, source, n) => source match {
+      case s :: remainder =>
+        decode(s) match {
           case -\/(err) =>
-            DecodeError(UnknownDecodeSource(remainder), n, ParseError(s, tag, err))
+            DecodeError(remainder, n, ParseError(s, tag, err))
           case \/-(a) =>
-            DecodeOk((UnknownDecodeSource(remainder), n + 1, a))
+            DecodeOk((remainder, n + 1, a))
         }
       case _ =>
         DecodeError(source, n, NotEnoughInput(1, tag))
