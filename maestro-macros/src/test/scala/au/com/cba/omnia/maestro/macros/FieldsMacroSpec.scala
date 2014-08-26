@@ -14,10 +14,6 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.core.data._
-import au.com.cba.omnia.maestro.macros._
-
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._
 import au.com.cba.omnia.maestro.test.thrift.humbug.{Types => HTypes}
