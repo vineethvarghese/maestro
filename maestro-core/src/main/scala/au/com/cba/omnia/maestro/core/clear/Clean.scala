@@ -28,4 +28,7 @@ object Clean {
 
   def removeNonPrintables: Clean =
     Clean((_, data) => data.replaceAll("[^\\p{Print}]", ""))
+
+  def default: Clean =
+    Clean((_, data) => data.trim.replaceAll("[^\\p{Print}]", ""))
 }
