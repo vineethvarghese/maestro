@@ -39,7 +39,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/43029d0f0e8f1f24992401e6c255247ee1e3d343//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/codec/Decode.scala" target="_blank">Decode.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Encode companion object.</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/d06d51bda85378b3c3ac30d5d7f6941472961056//maestro-core/src/main/scala/au/com/cba/omnia/maestro/core/codec/Decode.scala" target="_blank">Decode.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="shapeless.TypeClassCompanion">TypeClassCompanion</span>[<a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -331,19 +331,19 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.core.codec.Decode#decode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decode[A](source:au.com.cba.omnia.maestro.core.codec.DecodeSource)(implicitevidence$1:au.com.cba.omnia.maestro.core.codec.Decode[A]):au.com.cba.omnia.maestro.core.codec.DecodeResult[A]"></a>
-      <a id="decode[A](DecodeSource)(Decode[A]):DecodeResult[A]"></a>
+    </li><li name="au.com.cba.omnia.maestro.core.codec.Decode#decode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="decode[A](none:String,source:List[String])(implicitevidence$1:au.com.cba.omnia.maestro.core.codec.Decode[A]):au.com.cba.omnia.maestro.core.codec.DecodeResult[A]"></a>
+      <a id="decode[A](String,List[String])(Decode[A]):DecodeResult[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">decode</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="source">source: <a href="DecodeSource.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeSource">DecodeSource</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.decode.A">A</span>]</span>)</span><span class="result">: <a href="DecodeResult.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeResult">DecodeResult</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.decode.A">A</span>]</span>
+        <span class="name">decode</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="none">none: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="source">source: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.decode.A">A</span>]</span>)</span><span class="result">: <a href="DecodeResult.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeResult">DecodeResult</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.decode.A">A</span>]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Encodes <code>A</code> as a list of string.</p><div class="fullcomment"><div class="comment cmt"><p>Encodes <code>A</code> as a list of string. <code>None</code> are replaced with the supplied <code>none</code> string.</p></div></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -382,7 +382,7 @@
         <span class="name">error</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="reason">reason: <a href="Reason.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Reason">Reason</a></span>)</span><span class="result">: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.error.A">A</span>]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Creates a Decode that will produce an error with the specified reason.</p>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -492,7 +492,7 @@
         <span class="name">of</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.of.A">A</span>]</span>)</span><span class="result">: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.of.A">A</span>]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Gets the encoder for <code>A</code> provided an implicit encoder for <code>A</code> is in scope.</p>
     </li><li name="au.com.cba.omnia.maestro.core.codec.Decode#ok" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ok[A](a:=&gt;A):au.com.cba.omnia.maestro.core.codec.Decode[A]"></a>
       <a id="ok[A](⇒A):Decode[A]"></a>
@@ -505,21 +505,21 @@
         <span class="name">ok</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="a">a: ⇒ <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.ok.A">A</span></span>)</span><span class="result">: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.ok.A">A</span>]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Creates a Decode that will return <code>a</code>.</p>
     </li><li name="au.com.cba.omnia.maestro.core.codec.Decode#one" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="one[A](tag:String,valDecode:PartialFunction[au.com.cba.omnia.maestro.core.data.Val,A],unknownDecode:String=&gt;scalaz.\/[scalaz.\&amp;/.These[String,Throwable],A]):au.com.cba.omnia.maestro.core.codec.Decode[A]"></a>
-      <a id="one[A](String,PartialFunction[Val,A],(String)⇒\/[scalaz.\&amp;/.These[String,Throwable],A]):Decode[A]"></a>
+      <a id="one[A](tag:String,decode:String=&gt;scalaz.\/[scalaz.\&amp;/.These[String,Throwable],A]):au.com.cba.omnia.maestro.core.codec.Decode[A]"></a>
+      <a id="one[A](String,(String)⇒\/[scalaz.\&amp;/.These[String,Throwable],A]):Decode[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">one</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="valDecode">valDecode: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../data/Val.html" class="extype" name="au.com.cba.omnia.maestro.core.data.Val">Val</a>, <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.one.A">A</span>]</span>, <span name="unknownDecode">unknownDecode: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scalaz.TheseInstances.These">scalaz.\&amp;/.These</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Throwable">Throwable</span>], <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.one.A">A</span>]</span>)</span><span class="result">: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.one.A">A</span>]</span>
+        <span class="name">one</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="decode">decode: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scalaz.TheseInstances.These">scalaz.\&amp;/.These</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Throwable">Throwable</span>], <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.one.A">A</span>]</span>)</span><span class="result">: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.one.A">A</span>]</span>
       </span>
       </h4>
       
-    </li><li name="au.com.cba.omnia.maestro.core.codec.Decode#strict" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="au.com.cba.omnia.maestro.core.codec.Decode#strict" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="strict[A](a:A):au.com.cba.omnia.maestro.core.codec.Decode[A]"></a>
       <a id="strict[A](A):Decode[A]"></a>
       <h4 class="signature">
@@ -531,7 +531,8 @@
         <span class="name">strict</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="a">a: <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.strict.A">A</span></span>)</span><span class="result">: <a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.strict.A">A</span>]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Creates a Decode that will return <code>a</code></p><div class="fullcomment"><div class="comment cmt"><p>Creates a Decode that will return <code>a</code></p><p>Unlike <code>ok</code> this does not use call by name.
+</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>

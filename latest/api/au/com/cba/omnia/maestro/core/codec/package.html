@@ -67,10 +67,10 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Decode.html"><span class="name">Decode</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="run">run: (<a href="DecodeSource.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeSource">DecodeSource</a>, <span class="extype" name="scala.Int">Int</span>) ⇒ <a href="DecodeResult.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeResult">DecodeResult</a>[(<a href="DecodeSource.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeSource">DecodeSource</a>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.A">A</span>)]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Decode.html"><span class="name">Decode</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="run">run: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Int">Int</span>) ⇒ <a href="DecodeResult.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeResult">DecodeResult</a>[(<span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode.A">A</span>)]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      
+      <p class="comment cmt">Decoder for a list of strings.</p>
     </li><li name="au.com.cba.omnia.maestro.core.codec.DecodeError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DecodeError[A]extendsDecodeResult[A]withProductwithSerializable"></a>
       <a id="DecodeError[A]:DecodeError[A]"></a>
@@ -80,7 +80,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="DecodeError.html"><span class="name">DecodeError</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="remainder">remainder: <a href="DecodeSource.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeSource">DecodeSource</a></span>, <span name="counter">counter: <span class="extype" name="scala.Int">Int</span></span>, <span name="reason">reason: <a href="Reason.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Reason">Reason</a></span>)</span><span class="result"> extends <a href="DecodeResult.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeResult">DecodeResult</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeError.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="DecodeError.html"><span class="name">DecodeError</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="remainder">remainder: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="counter">counter: <span class="extype" name="scala.Int">Int</span></span>, <span name="reason">reason: <a href="Reason.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Reason">Reason</a></span>)</span><span class="result"> extends <a href="DecodeResult.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeResult">DecodeResult</a>[<span class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeError.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -110,19 +110,6 @@
       </span>
       </h4>
       
-    </li><li name="au.com.cba.omnia.maestro.core.codec.DecodeSource" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DecodeSourceextendsAnyRef"></a>
-      <a id="DecodeSource:DecodeSource"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed </span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="DecodeSource.html"><span class="name">DecodeSource</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
     </li><li name="au.com.cba.omnia.maestro.core.codec.Encode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Encode[A]extendsProductwithSerializable"></a>
       <a id="Encode[A]:Encode[A]"></a>
@@ -132,10 +119,10 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Encode.html"><span class="name">Encode</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="run">run: (<span class="extype" name="au.com.cba.omnia.maestro.core.codec.Encode.A">A</span>) ⇒ <span class="extype" name="scala.List">List</span>[<a href="../data/Val.html" class="extype" name="au.com.cba.omnia.maestro.core.data.Val">Val</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Encode.html"><span class="name">Encode</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="run">run: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="au.com.cba.omnia.maestro.core.codec.Encode.A">A</span>) ⇒ <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      
+      <p class="comment cmt">Represents <code>A</code> as a list of string.</p>
     </li><li name="au.com.cba.omnia.maestro.core.codec.NotEnoughInput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="NotEnoughInputextendsReasonwithProductwithSerializable"></a>
       <a id="NotEnoughInput:NotEnoughInput"></a>
@@ -188,45 +175,6 @@
       </span>
       </h4>
       
-    </li><li name="au.com.cba.omnia.maestro.core.codec.UnknownDecodeSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="UnknownDecodeSourceextendsDecodeSourcewithProductwithSerializable"></a>
-      <a id="UnknownDecodeSource:UnknownDecodeSource"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="UnknownDecodeSource.html"><span class="name">UnknownDecodeSource</span></a><span class="params">(<span name="source">source: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="DecodeSource.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeSource">DecodeSource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="au.com.cba.omnia.maestro.core.codec.ValDecodeSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ValDecodeSourceextendsDecodeSourcewithProductwithSerializable"></a>
-      <a id="ValDecodeSource:ValDecodeSource"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="ValDecodeSource.html"><span class="name">ValDecodeSource</span></a><span class="params">(<span name="source">source: <span class="extype" name="scala.List">List</span>[<a href="../data/Val.html" class="extype" name="au.com.cba.omnia.maestro.core.data.Val">Val</a>]</span>)</span><span class="result"> extends <a href="DecodeSource.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.DecodeSource">DecodeSource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="au.com.cba.omnia.maestro.core.codec.ValTypeMismatch" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ValTypeMismatchextendsReasonwithProductwithSerializable"></a>
-      <a id="ValTypeMismatch:ValTypeMismatch"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="ValTypeMismatch.html"><span class="name">ValTypeMismatch</span></a><span class="params">(<span name="value">value: <a href="../data/Val.html" class="extype" name="au.com.cba.omnia.maestro.core.data.Val">Val</a></span>, <span name="expected">expected: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Reason.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Reason">Reason</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
     </li></ol>
             </div>
 
@@ -246,7 +194,7 @@
         <a href="Decode$.html"><span class="name">Decode</span></a><span class="result"> extends <span class="extype" name="shapeless.TypeClassCompanion">TypeClassCompanion</span>[<a href="Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>] with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      
+      <p class="comment cmt">Encode companion object.</p>
     </li><li name="au.com.cba.omnia.maestro.core.codec.DecodeResult" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DecodeResult"></a>
       <a id="DecodeResult:DecodeResult"></a>
@@ -272,7 +220,7 @@
         <a href="Encode$.html"><span class="name">Encode</span></a><span class="result"> extends <span class="extype" name="shapeless.TypeClassCompanion">TypeClassCompanion</span>[<a href="Encode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Encode">Encode</a>] with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      
+      <p class="comment cmt">Encode companion object.</p>
     </li><li name="au.com.cba.omnia.maestro.core.codec.Tag" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Tag"></a>
       <a id="Tag:Tag"></a>
