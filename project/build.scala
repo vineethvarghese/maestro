@@ -50,7 +50,7 @@ object build extends Build {
          publishArtifact := false
        , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
     )
-  , aggregate = Seq(core, macros, api, test)
+  , aggregate = Seq(core, macros, api, test, schema)
   )
 
   lazy val api = Project(
@@ -112,6 +112,22 @@ object build extends Build {
   ).dependsOn(core)
    .dependsOn(test % "test")
 
+  lazy val schema = Project(
+    id = "schema"
+  , base = file("maestro-schema")
+  , settings =
+       standardSettings
+    ++ uniform.project("maestro-schema", "au.com.cba.omnia.maestro.schema")
+    ++ Seq[Sett](
+      sourceGenerators in Compile <+= sourceManaged in Compile map { outDir: File =>
+        GenUnravelPipes.gen(outDir)
+      },
+      libraryDependencies ++= Seq (
+        "com.quantifind"  %% "sumac"  % "0.3.0"
+      ) ++ depend.scalding() ++ depend.hadoop()
+    )
+  )
+
   lazy val example = Project(
     id = "example"
   , base = file("maestro-example")
@@ -129,6 +145,7 @@ object build extends Build {
   ).dependsOn(core)
    .dependsOn(macros)
    .dependsOn(api)
+   .dependsOn(schema)
    .dependsOn(test % "test")
 
   lazy val benchmark = Project(
