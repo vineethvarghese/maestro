@@ -16,22 +16,21 @@
 package au.com.cba.omnia.maestro.example
 
 import com.twitter.scalding.Args
-import au.com.cba.omnia.maestro.api.MaestroCascade
-import au.com.cba.omnia.maestro.core.filter.RowFilter
-import au.com.cba.omnia.maestro.core.validate.Validator
-import au.com.cba.omnia.maestro.example.thrift.Customer
-import au.com.cba.omnia.parlour.{ ExportSqoopConsoleJob, ExportSqoopJob, ImportSqoopConsoleJob }
-import au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourExportDsl
-import com.twitter.scalding.NullTap
-import au.com.cba.omnia.parlour.ImportSqoopJob
-import au.com.cba.omnia.parlour._
 
-class DummyTap(id: String) extends NullTap {
-  override def getIdentifier = id
-}
+import au.com.cba.omnia.maestro.api.MaestroCascade
+import au.com.cba.omnia.maestro.example.thrift.Customer
+import au.com.cba.omnia.parlour.{ExportSqoopJob, ImportSqoopConsoleJob}
+import au.com.cba.omnia.parlour.SqoopSyntax.ParlourExportDsl
 
 class SqoopExportCascade(args: Args) extends MaestroCascade[Customer](args) {
-  val jobs = Seq(new ExportSqoopConsoleJob(args))
+  val sqoopOptions = ParlourExportDsl()
+  .connectionString("adsfas")
+  .username("asdfadsf")
+  .exportDir("asdfasdf")
+  .tableName("")
+  .toSqoopOptions
+  
+  val jobs = Seq(new ExportSqoopJob(sqoopOptions)(args))
 }
 
 class SqoopImportCascade(args: Args) extends MaestroCascade[Customer](args) {

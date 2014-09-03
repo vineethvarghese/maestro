@@ -117,7 +117,7 @@ object build extends Build {
     ++ Seq[Sett](
          libraryDependencies ++= depend.hadoop() ++ Seq(
            "com.twitter" % "parquet-hive" % "1.2.5-cdh4.6.0" % "test"
-         ) ++ depend.omnia("parlour", "1.1.0-20140828020645-edeb802")
+         ) ++ depend.omnia("parlour", "1.2.0-20140903011557-d24439a")
        , parallelExecution in Test := false
     )
   ).dependsOn(core)
