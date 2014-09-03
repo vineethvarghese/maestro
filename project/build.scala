@@ -85,6 +85,7 @@ object build extends Build {
         ++ depend.omnia("humbug-core",   "0.3.0-20140821040938-609c881")
         ++ depend.omnia("omnitool-time", omnitoolVersion)
         ++ depend.omnia("omnitool-file", omnitoolVersion)
+        ++ depend.omnia("parlour", "1.2.0-20140903011557-d24439a")
         ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
     )
   )
@@ -117,7 +118,7 @@ object build extends Build {
     ++ Seq[Sett](
          libraryDependencies ++= depend.hadoop() ++ Seq(
            "com.twitter" % "parquet-hive" % "1.2.5-cdh4.6.0" % "test"
-         ) ++ depend.omnia("parlour", "1.2.0-20140903011557-d24439a")
+         )
        , parallelExecution in Test := false
     )
   ).dependsOn(core)
