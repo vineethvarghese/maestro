@@ -19,19 +19,7 @@ import com.twitter.scalding.Args
 
 import au.com.cba.omnia.maestro.api.MaestroCascade
 import au.com.cba.omnia.maestro.example.thrift.Customer
-import au.com.cba.omnia.parlour.{ExportSqoopJob, ImportSqoopConsoleJob}
-import au.com.cba.omnia.parlour.SqoopSyntax.ParlourExportDsl
-
-class SqoopExportCascade(args: Args) extends MaestroCascade[Customer](args) {
-  val sqoopOptions = ParlourExportDsl()
-  .connectionString("adsfas")
-  .username("asdfadsf")
-  .exportDir("asdfasdf")
-  .tableName("")
-  .toSqoopOptions
-  
-  val jobs = Seq(new ExportSqoopJob(sqoopOptions)(args))
-}
+import au.com.cba.omnia.parlour.ImportSqoopConsoleJob
 
 class SqoopImportCascade(args: Args) extends MaestroCascade[Customer](args) {
   val jobs = Seq(new ImportSqoopConsoleJob(args))
