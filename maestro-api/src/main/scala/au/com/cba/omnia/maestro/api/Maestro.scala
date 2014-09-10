@@ -63,6 +63,13 @@ object Maestro extends Load with View with Query with Upload {
     m.matches
     s"${m.group(1)}-${m.group(2)}-${m.group(3)}-${m.group(4)}"
   }
+
+  def timeFromPathSecond(regex: Regex): TimeSource = FromPath { (path: String) =>
+    val m = regex.pattern.matcher(path)
+    m.matches
+    s"${m.group(1)}-${m.group(2)}-${m.group(3)} ${m.group(4)}:${m.group(5)}:${m.group(6)}"
+  }
+
   /**
     * Creates the _PROCESSED flag to indicate completion of processing in given list of paths
     */

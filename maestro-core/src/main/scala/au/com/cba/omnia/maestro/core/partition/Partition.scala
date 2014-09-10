@@ -112,6 +112,15 @@ object HivePartition {
       case List(y, m, d, h) => (y, m, d, h)
     }, "year=%s/month=%s/day=%s/hour=%s")
 
+  /**
+    * Hive style partition by year, month, day, hour. Expects to the specified field to have data in 'yyyy-mm-dd hh:mm:ss' format.
+    * The extract time stamp field will show till seconds in the format 'yyyy-mm-dd hh:mm:ss' 
+    */
+  def byHourWithMinSec[A](date: Field[A, String]): Partition[A, (String, String, String, String)] =
+    Partition(List("year", "month", "day", "hour", "minute","second" ), v => date.get(v).split("\\:|\\-|\\s+").toList match {
+      case List(y, m, d, h, m, s) => (y, m, d, h)
+    }, "year=%s/month=%s/day=%s/hour=%s")
+
 
 }
 
