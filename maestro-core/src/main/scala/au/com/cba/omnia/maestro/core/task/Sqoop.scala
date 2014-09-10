@@ -1,16 +1,15 @@
 package au.com.cba.omnia.maestro.core.task
 
 import java.io.File
-
-import com.twitter.scalding.{Args, Job, Mode}
-
+import com.twitter.scalding._, TDsl._, Dsl._
 import org.apache.log4j.Logger
 import org.joda.time.{DateTime, DateTimeZone}
-
 import au.com.cba.omnia.parlour.{ExportSqoopJob, ImportSqoopJob, ParlourExportOptions, ParlourImportOptions}
 import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
-
 import cascading.flow.FlowDef
+import com.twitter.scalding.MultipleTextLineFiles
+import cascading.tap.Tap
+
 
 /**
   * Import and export data between a database and HDFS.
@@ -41,8 +40,23 @@ trait Sqoop {
     logger.info(s"connectionString = ${sqoopOptions.getConnectString}")
     logger.info(s"tableName        = ${sqoopOptions.getTableName}")
     logger.info(s"targetDir        = ${sqoopOptions.getTargetDir}")
+
     val job = new ImportSqoopJob(sqoopOptions)(args)
     (List(job), List(sqoopOptions.getTargetDir))
+  }
+  
+  def customSqoopImport2(
+    nextJob: Job, 
+    options: ParlourImportOptions[_]
+  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
+    val logger = Logger.getLogger("Sqoop")
+    val sqoopOptions = options.toSqoopOptions
+    logger.info("Start of sqoop import")
+    logger.info(s"connectionString = ${sqoopOptions.getConnectString}")
+    logger.info(s"tableName        = ${sqoopOptions.getTableName}")
+    logger.info(s"targetDir        = ${sqoopOptions.getTargetDir}")
+    val sink:Tap[_,_,_] = nextJob.buildFlow.getSourcesCollection().iterator().next()
+    new ImportSqoopJob(sqoopOptions, sink)(args)
   }
 
   /**

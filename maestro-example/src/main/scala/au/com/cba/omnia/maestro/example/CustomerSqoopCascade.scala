@@ -30,9 +30,9 @@ import au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl
 
 class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) with Sqoop {
   val hdfsRoot = args("hdfs-root")
-  val source = "teradata"
-  val domain = "marketing"
-  val tablename = "customer"
+  val source = args("source")
+  val domain = args("domain")
+  val tablename = args("tableName")
   val mappers = args("mappers").toInt
   val host = args("host")
   val database = domain
@@ -52,17 +52,31 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
    * In order for sqoop to work with Teradata, you will need to include the teradata drivers and cloudera connector 
    * in the maestro-example/lib folder when building the assembly. 
    */
-   val importOptions = TeradataParlourImportDsl()
+  
+  val sourceDir = "/data/things/bla"
+  val importOptions = TeradataParlourImportDsl()
     .numberOfMappers(mappers)
     .inputMethod(SplitByAmp)
     .tableName(tablename)
+    .targetDir(sourceDir)
+    .connectionString(connectionString)
+    .username(username)
+    .password(password)
+    .splitBy("id")
+  importOptions.options.setSkipDistCache(true)
 
-  val (sqoopJobs, imported) = sqoopImport(hdfsRoot, source, domain, tablename, connectionString, username, password, importOptions)(args)
+  //val (sqoopJobs, imported) = sqoopImport(hdfsRoot, source, domain, tablename, connectionString, username, password, importOptions)(args)
+  System.setProperty("sqoop.throwOnError", "true")
+  val doThings = new UniqueJob(args) {
+    load[Customer]("|", List(sourceDir), errors, now(), cleaners, validators, filter, "null") |>
+    view(Partition.byField(Fields.Cat), customerView)
+  }
+  val sqoopJob = customSqoopImport2(doThings, importOptions)(args)
 
-  val jobs = sqoopJobs ++ Seq(
-    new UniqueJob(args) {
-      load[Customer]("|", imported, errors, now(), cleaners, validators, filter, "null") |>
-      view(Partition.byField(Fields.Cat), customerView)
-    }
-  )
+  println(sqoopJob.buildFlow.getSinkNames())
+  println(doThings.buildFlow.getSourceNames())
+  
+  override val jobs = Seq(sqoopJob, doThings)
 }
+
+
