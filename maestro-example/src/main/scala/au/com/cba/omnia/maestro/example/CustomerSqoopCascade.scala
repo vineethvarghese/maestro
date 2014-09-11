@@ -15,6 +15,8 @@
 
 package au.com.cba.omnia.maestro.example
 
+import java.io.File
+
 import com.twitter.scalding.Args
 
 import scalaz.{Tag => _, _}, Scalaz._
@@ -32,7 +34,7 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
   val hdfsRoot = args("hdfs-root")
   val source = args("source")
   val domain = args("domain")
-  val tablename = args("tableName")
+  val tableName = args("tableName")
   val mappers = args("mappers").toInt
   val host = args("host")
   val database = domain
@@ -46,24 +48,26 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
     Clean.trim,
     Clean.removeNonPrintables)
   val validators = Validator.all[Customer]()
-  val customerView = s"${hdfsRoot}/view/warehouse/${domain}/${tablename}"
+  val customerView = s"${hdfsRoot}/view/warehouse/${domain}/${tableName}"
 
   /**
    * In order for sqoop to work with Teradata, you will need to include the teradata drivers and cloudera connector 
    * in the maestro-example/lib folder when building the assembly. 
    */
   
-  val sourceDir = "/data/things/bla"
+  val sourceDir = List(hdfsRoot, "source", source, domain, tableName) mkString File.separator
   val importOptions = TeradataParlourImportDsl()
     .numberOfMappers(mappers)
     .inputMethod(SplitByAmp)
-    .tableName(tablename)
+    .tableName(tableName)
     .targetDir(sourceDir)
     .connectionString(connectionString)
     .username(username)
     .password(password)
     .splitBy("id")
+    .fieldsTerminatedBy('|')
   importOptions.options.setSkipDistCache(true)
+
 
   //val (sqoopJobs, imported) = sqoopImport(hdfsRoot, source, domain, tablename, connectionString, username, password, importOptions)(args)
   System.setProperty("sqoop.throwOnError", "true")
@@ -73,9 +77,6 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
   }
   val sqoopJob = customSqoopImport2(doThings, importOptions)(args)
 
-  println(sqoopJob.buildFlow.getSinkNames())
-  println(doThings.buildFlow.getSourceNames())
-  
   override val jobs = Seq(sqoopJob, doThings)
 }
 
