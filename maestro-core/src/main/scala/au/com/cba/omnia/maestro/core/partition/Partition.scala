@@ -100,7 +100,7 @@ object HivePartition {
   def byYear[A](date: Field[A, String], dateFormat: String): Partition[A, String] =
     Partition(List("year"), v => {
       val dt = DateTimeFormat.forPattern(dateFormat).parseDateTime (date.get(v))
-      (dt.getYear.toString)
+      dt.getYear.toString
     }, "year=%s")
 
   /** Hive style partition by year, month for a given dateFormat.*/  
