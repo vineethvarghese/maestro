@@ -14,27 +14,36 @@ import cascading.tap.Tap
 /**
   * Import and export data between a database and HDFS.
   * 
-  * Methods return a list of jobs which can be added to a cascade.
+  * Methods return a Job that can be added to a cascade.
   * 
   * See the example at `au.com.cba.omnia.maestro.example.CustomerSqoopExample`.
   * 
-  * For a given `domain` and `tableName`, [[sqoopImport]] imports data files 
-  * to the standard HDFS location: `\$hdfsRoot/source/\$source/\$domain/\$tableName`.
   *
-  * Only use [[customSqoopImport]] if we are required to use non-standard target location.
-  * 
-  * [[sqoopExport]] assumes export dir data is in PSV format.
   */
 trait Sqoop {
 
-  case class SourcePath(hdfsRoot: String, source: String, domain: String, tableName: String) {
+  /**
+   * For a given `domain` and `tableName`, [[ImportPath]] creates a standard
+   * HDFS location: `\$hdfsRoot/source/\$source/\$domain/\$tableName/<year>/<month>/<day>`.
+   *
+   * Year, month and day are derived from the current date.
+   *
+   * @param hdfsRoot
+   * @param source
+   * @param domain
+   * @param tableName
+   */
+  case class ImportPath(hdfsRoot: String, source: String, domain: String, tableName: String) {
     def path = {
       val date = DateTime.now(DateTimeZone.UTC).toString(List("yyyy","MM", "dd") mkString File.separator)
       List(hdfsRoot, "source", source, domain, tableName, date) mkString File.separator
     }
   }
+
   /**
    * Run a sqoop import using parlour import options
+   *
+   * <b>Use this method ONLY if non-standard settings are required</b>
    * 
    * @param options: Parlor import options
    */
@@ -55,22 +64,20 @@ trait Sqoop {
   /**
     * Runs a sqoop import from a database to HDFS.
     *
-    * Data will be copied into HDFS at the following directory:
-    * `\$hdfsRoot/source/\$source/\$domain/\$tableName/<year>/<month>/<day>/`.
-    *
-    * Year, month and day are derived from the current date.
+    * Data will be copied to the provided [[ImportPath]]
     * 
-    * @param targetPath: Root directory of HDFS
+    * @param importPath: Path to import the data to
     * @param tableName: Table name or file name in database or project
     * @param connectionString: Jdbc url for connecting to the database
     * @param username: Username for connecting to the database
     * @param password: Password for connecting to the database
+    * @param outputFieldsTerminatedBy: Marker to terminate output fields with
     * @param options: Extra import options 
-    * @return Tuple of list of jobs for this import and list of imported directories
+    * @return Job for this import
     */
   def sqoopImport[T <: ParlourImportOptions[T]](
     nextJob: Job,
-    targetPath: SourcePath,
+    importPath: ImportPath,
     tableName: String,
     connectionString: String,
     username: String,
@@ -82,7 +89,7 @@ trait Sqoop {
       .username(username)
       .password(password)
       .tableName(tableName)
-      .targetDir(targetPath.path)
+      .targetDir(importPath.path)
       .fieldsTerminatedBy(outputFieldsTerminatedBy)
     sqoopImport(nextJob, options)(args)
   }
@@ -91,13 +98,13 @@ trait Sqoop {
     * Runs a sqoop export from HDFS to a database.
     *
     * @param options: Custom export options 
-    * @return List of jobs for this export
+    * @return Job for this export
     */
   def sqoopExport[T <: ParlourExportOptions[T]](
-    nextJob: Job,
+    previousJob: Job,
     options: ParlourExportOptions[T]
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
-    val source: Tap[_,_,_] = nextJob.buildFlow.getSinksCollection.iterator().next()
+    val source: Tap[_,_,_] = previousJob.buildFlow.getSinksCollection.iterator().next()
     new ExportSqoopJob(options.toSqoopOptions, source)(args)
   }
 
@@ -113,7 +120,7 @@ trait Sqoop {
     * @return List of jobs for this export
     */
   def sqoopExport[T <: ParlourExportOptions[T]](
-    nextJob: Job,
+    previousJob: Job,
     exportDir: String,
     tableName: String,
     connectionString: String,
@@ -128,6 +135,6 @@ trait Sqoop {
       .username(username)
       .password(password)
       .inputFieldsTerminatedBy(inputFieldsTerminatedBy)
-    sqoopExport(nextJob, options)(args)
+    sqoopExport(previousJob, options)(args)
   }
 }

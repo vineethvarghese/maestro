@@ -24,7 +24,7 @@ import scalaz.{Tag => _, _}, Scalaz._
 import au.com.cba.omnia.maestro.api.{MaestroCascade, Partition, RowFilter, UniqueJob, Validator}
 import au.com.cba.omnia.maestro.api.Clean
 import au.com.cba.omnia.maestro.api.Maestro.{load, now, view}
-import au.com.cba.omnia.maestro.core.task.Sqoop
+import au.com.cba.omnia.maestro.core.task.{FromPath, Sqoop}
 import au.com.cba.omnia.maestro.example.thrift.Customer
 import au.com.cba.omnia.parlour.SplitByAmp
 import au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl
@@ -55,20 +55,19 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
    * in the maestro-example/lib folder when building the assembly. 
    */
   
-  val targetPath = SourcePath(hdfsRoot, source, domain, tableName)
+  val targetPath = ImportPath(hdfsRoot, source, domain, tableName)
   val importOptions = TeradataParlourImportDsl()
     .numberOfMappers(mappers)
     .inputMethod(SplitByAmp)
     .splitBy("id")
 
-
   val loadView = new UniqueJob(args) {
-    load[Customer]("|", List(sourceDir), errors, now(), cleaners, validators, filter, "null") |>
-    view(Partition.byField(Fields.Cat), customerView)
+    load[Customer]("|", List(targetPath.path), errors, now(), cleaners, validators, filter, "null") |>
+    view(Partition.byDate(Fields.Cat), customerView)
   }
-  val sqoopJob = sqoopImport(loadView, targetPath, tableName, connectionString, username, password, '|', importOptions)(args)
+  val sqoopImportJob = sqoopImport(loadView, targetPath, tableName, connectionString, username, password, '|', importOptions)(args)
 
-  override val jobs = Seq(sqoopJob, loadView)
+  override val jobs = Seq(sqoopImportJob, loadView)
 }
 
 
