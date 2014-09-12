@@ -55,29 +55,20 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
    * in the maestro-example/lib folder when building the assembly. 
    */
   
-  val sourceDir = List(hdfsRoot, "source", source, domain, tableName) mkString File.separator
+  val targetPath = SourcePath(hdfsRoot, source, domain, tableName)
   val importOptions = TeradataParlourImportDsl()
     .numberOfMappers(mappers)
     .inputMethod(SplitByAmp)
-    .tableName(tableName)
-    .targetDir(sourceDir)
-    .connectionString(connectionString)
-    .username(username)
-    .password(password)
     .splitBy("id")
-    .fieldsTerminatedBy('|')
-  importOptions.options.setSkipDistCache(true)
 
 
-  //val (sqoopJobs, imported) = sqoopImport(hdfsRoot, source, domain, tablename, connectionString, username, password, importOptions)(args)
-  System.setProperty("sqoop.throwOnError", "true")
-  val doThings = new UniqueJob(args) {
+  val loadView = new UniqueJob(args) {
     load[Customer]("|", List(sourceDir), errors, now(), cleaners, validators, filter, "null") |>
     view(Partition.byField(Fields.Cat), customerView)
   }
-  val sqoopJob = customSqoopImport2(doThings, importOptions)(args)
+  val sqoopJob = sqoopImport(loadView, targetPath, tableName, connectionString, username, password, '|', importOptions)(args)
 
-  override val jobs = Seq(sqoopJob, doThings)
+  override val jobs = Seq(sqoopJob, loadView)
 }
 
 

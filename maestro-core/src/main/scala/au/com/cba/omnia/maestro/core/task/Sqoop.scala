@@ -26,26 +26,19 @@ import cascading.tap.Tap
   * [[sqoopExport]] assumes export dir data is in PSV format.
   */
 trait Sqoop {
-  /**
-   * Run a sqoop import using custom import options
-   * 
-   * @param options: Custom import options
-   */
-  def customSqoopImport(
-    options: ParlourImportOptions[_])(args: Args
-  )(implicit flowDef: FlowDef, mode: Mode): (List[Job], List[String]) = {
-    val logger = Logger.getLogger("Sqoop")
-    val sqoopOptions = options.toSqoopOptions
-    logger.info("Start of sqoop import")
-    logger.info(s"connectionString = ${sqoopOptions.getConnectString}")
-    logger.info(s"tableName        = ${sqoopOptions.getTableName}")
-    logger.info(s"targetDir        = ${sqoopOptions.getTargetDir}")
 
-    val job = new ImportSqoopJob(sqoopOptions)(args)
-    (List(job), List(sqoopOptions.getTargetDir))
+  case class SourcePath(hdfsRoot: String, source: String, domain: String, tableName: String) {
+    def path = {
+      val date = DateTime.now(DateTimeZone.UTC).toString(List("yyyy","MM", "dd") mkString File.separator)
+      List(hdfsRoot, "source", source, domain, tableName, date) mkString File.separator
+    }
   }
-  
-  def customSqoopImport2(
+  /**
+   * Run a sqoop import using parlour import options
+   * 
+   * @param options: Parlor import options
+   */
+  def sqoopImport(
     nextJob: Job, 
     options: ParlourImportOptions[_]
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
@@ -62,42 +55,12 @@ trait Sqoop {
   /**
     * Runs a sqoop import from a database to HDFS.
     *
-    * Data will be copied onto HDFS at the following directory:
-    * `\$hdfsRoot/source/\$source/\$domain/\$tableName/<year>/<month>/<day>/`.
-    *
-    * Year, month and day are derived from the current date.
-    * 
-    * @param hdfsRoot: Root directory of HDFS
-    * @param source: Source system
-    * @param domain: Database or project within source
-    * @param tableName: Table name or file name in database or project
-    * @param options: Extra import options
-    * @return Tuple of list of jobs for this import and list of imported directories.
-    */
-  def sqoopImport[T <: ParlourImportOptions[T]](
-    hdfsRoot: String,
-    source: String,
-    domain: String,
-    tableName: String,
-    options: ParlourImportOptions[T] = ParlourImportDsl()
-  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): (List[Job], List[String]) = {
-    val date = DateTime.now(DateTimeZone.UTC).toString(List("yyyy","MM", "dd") mkString File.separator)
-    val hdfsLandingDir = List(hdfsRoot, "source", source, domain, tableName, date) mkString File.separator
-    options.targetDir(hdfsLandingDir)
-    customSqoopImport(options)(args)
-  }
-
-  /**
-    * Runs a sqoop import from a database to HDFS.
-    *
     * Data will be copied into HDFS at the following directory:
     * `\$hdfsRoot/source/\$source/\$domain/\$tableName/<year>/<month>/<day>/`.
     *
     * Year, month and day are derived from the current date.
     * 
-    * @param hdfsRoot: Root directory of HDFS
-    * @param source: Source system
-    * @param domain: Database or project within source
+    * @param targetPath: Root directory of HDFS
     * @param tableName: Table name or file name in database or project
     * @param connectionString: Jdbc url for connecting to the database
     * @param username: Username for connecting to the database
@@ -106,20 +69,22 @@ trait Sqoop {
     * @return Tuple of list of jobs for this import and list of imported directories
     */
   def sqoopImport[T <: ParlourImportOptions[T]](
-    hdfsRoot: String,
-    source: String,
-    domain: String,
+    nextJob: Job,
+    targetPath: SourcePath,
     tableName: String,
     connectionString: String,
     username: String,
     password: String,
+    outputFieldsTerminatedBy: Char,
     options: ParlourImportOptions[T] = ParlourImportDsl()
-  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): (List[Job], List[String]) = {
+  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
     options.connectionString(connectionString)
       .username(username)
       .password(password)
       .tableName(tableName)
-    sqoopImport(hdfsRoot, source, domain, tableName, options)(args)
+      .targetDir(targetPath.path)
+      .fieldsTerminatedBy(outputFieldsTerminatedBy)
+    sqoopImport(nextJob, options)(args)
   }
 
   /**
@@ -128,10 +93,12 @@ trait Sqoop {
     * @param options: Custom export options 
     * @return List of jobs for this export
     */
-  def customSqoopExport[T <: ParlourExportOptions[T]](
+  def sqoopExport[T <: ParlourExportOptions[T]](
+    nextJob: Job,
     options: ParlourExportOptions[T]
-  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): List[Job] = {
-    List(new ExportSqoopJob(options.toSqoopOptions)(args))
+  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
+    val source: Tap[_,_,_] = nextJob.buildFlow.getSinksCollection.iterator().next()
+    new ExportSqoopJob(options.toSqoopOptions, source)(args)
   }
 
   /**
@@ -146,18 +113,21 @@ trait Sqoop {
     * @return List of jobs for this export
     */
   def sqoopExport[T <: ParlourExportOptions[T]](
+    nextJob: Job,
     exportDir: String,
     tableName: String,
     connectionString: String,
     username: String,
     password: String,
+    inputFieldsTerminatedBy: Char,
     options: ParlourExportOptions[T] = ParlourExportDsl()
-  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): List[Job] = {
+  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
     options.exportDir(exportDir)
       .tableName(tableName)
       .connectionString(connectionString)
       .username(username)
       .password(password)
-    customSqoopExport(options)(args)
+      .inputFieldsTerminatedBy(inputFieldsTerminatedBy)
+    sqoopExport(nextJob, options)(args)
   }
 }
