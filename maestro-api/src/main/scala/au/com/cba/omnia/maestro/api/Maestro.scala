@@ -58,12 +58,14 @@ object Maestro extends Load with View with Query with Upload {
     s"${m.group(1)}-${m.group(2)}-${m.group(3)}"
   }
 
+  /** Extracts time from path up to hour level using given Regex */
   def timeFromPathHour(regex: Regex): TimeSource = FromPath { (path: String) =>
     val m = regex.pattern.matcher(path)
     m.matches
     s"${m.group(1)}-${m.group(2)}-${m.group(3)}-${m.group(4)}"
   }
 
+  /** Extracts time from path up to seconds level using given Regex */
   def timeFromPathSecond(regex: Regex): TimeSource = FromPath { (path: String) =>
     val m = regex.pattern.matcher(path)
     m.matches
