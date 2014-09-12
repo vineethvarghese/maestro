@@ -63,7 +63,7 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
 
   val loadView = new UniqueJob(args) {
     load[Customer]("|", List(targetPath.path), errors, now(), cleaners, validators, filter, "null") |>
-    view(Partition.byDate(Fields.Cat), customerView)
+    view(Partition.byField(Fields.Cat), customerView)
   }
   val sqoopImportJob = sqoopImport(loadView, targetPath, tableName, connectionString, username, password, '|', importOptions)(args)
 
