@@ -15,6 +15,8 @@
 package au.com.cba.omnia.maestro.core
 package partition
 
+import org.joda.time.format.DateTimeFormat
+
 import au.com.cba.omnia.maestro.core.data._
 
 /**
@@ -94,33 +96,32 @@ object HivePartition {
       s"p${a.name}=%s/p${b.name}=%s/p${c.name}=%s"
     )
 
-  /**
-    * Hive style partition by year, month, day. Expects to the specified field to have data in the
-    * format `yyyy-mm-dd`.
-    */
-  def byDate[A](date: Field[A, String]): Partition[A, (String, String, String)] =
-    Partition(List("year", "month", "day"), v => date.get(v).split("-").toList match {
-      case List(y, m, d) => (y, m, d)
+  /** Hive style partition by year for a given dateFormat.*/
+  def byYear[A](date: Field[A, String], dateFormat: String): Partition[A, (String)] =
+    Partition(List("year"), v => {
+      val dt= DateTimeFormat.forPattern(dateFormat).parseDateTime (date.get(v))
+      (dt.getYear.toString)
+    }, "year=%s")
+
+  /** Hive style partition by year, month for a given dateFormat.*/  
+   def byMonth[A](date: Field[A, String], dateFormat: String): Partition[A, (String, String)] =
+    Partition(List("year", "month"), v => {
+      val dt= DateTimeFormat.forPattern(dateFormat).parseDateTime (date.get(v))
+      (dt.getYear.toString, f"${dt.getMonthOfYear}%02d".toString)
+    }, "year=%s/month=%s")
+
+  /** Hive style partition by year, month, day for a given dateFormat.*/ 
+   def byDay[A](date: Field[A, String], dateFormat: String): Partition[A, (String, String, String)] =
+    Partition(List("year", "month", "day"), v => {
+      val dt= DateTimeFormat.forPattern(dateFormat).parseDateTime (date.get(v))
+      (dt.getYear.toString, f"${dt.getMonthOfYear}%02d".toString, f"${dt.getDayOfMonth}%02d".toString)
     }, "year=%s/month=%s/day=%s")
-
-  /**
-    * Hive style partition by year, month, day, hour. Expects to the specified field to have data in
-    * the format `yyyy-mm-dd-hh`.
-    */
-  def byHour[A](date: Field[A, String]): Partition[A, (String, String, String, String)] =
-    Partition(List("year", "month", "day", "hour"), v => date.get(v).split("-").toList match {
-      case List(y, m, d, h) => (y, m, d, h)
+   
+  /** Hive style partition by year, month, day, hour for a given dateFormat.*/
+   def byHour[A](date: Field[A, String], dateFormat: String): Partition[A, (String, String, String, String)] =
+    Partition(List("year", "month", "day", "hour"), v => { 
+      val dt= DateTimeFormat.forPattern(dateFormat).parseDateTime (date.get(v))
+      (dt.getYear.toString, f"${dt.getMonthOfYear}%02d".toString, f"${dt.getDayOfMonth}%02d".toString, f"${dt.getHourOfDay}%02d".toString)
     }, "year=%s/month=%s/day=%s/hour=%s")
-
-  /**
-    * Hive style partition by year, month, day, hour. Expects to the specified field to have data in 'yyyy-mm-dd hh:mm:ss' format.
-    * The extract time stamp field will show till seconds in the format 'yyyy-mm-dd hh:mm:ss' 
-    */
-  def byHourWithMinSec[A](date: Field[A, String]): Partition[A, (String, String, String, String)] =
-    Partition(List("year", "month", "day", "hour", "minute","second" ), v => date.get(v).split("\\:|\\-|\\s+").toList match {
-      case List(y, m, d, h, m, s) => (y, m, d, h)
-    }, "year=%s/month=%s/day=%s/hour=%s")
-
 
 }
-
