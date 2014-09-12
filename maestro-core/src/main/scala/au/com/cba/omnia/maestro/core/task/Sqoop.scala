@@ -1,15 +1,17 @@
 package au.com.cba.omnia.maestro.core.task
 
 import java.io.File
-import com.twitter.scalding._, TDsl._, Dsl._
-import org.apache.log4j.Logger
-import org.joda.time.{DateTime, DateTimeZone}
-import au.com.cba.omnia.parlour.{ExportSqoopJob, ImportSqoopJob, ParlourExportOptions, ParlourImportOptions}
-import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
+
 import cascading.flow.FlowDef
-import com.twitter.scalding.MultipleTextLineFiles
 import cascading.tap.Tap
 
+import com.twitter.scalding._, TDsl._, Dsl._
+
+import org.apache.log4j.Logger
+import org.joda.time.{DateTime, DateTimeZone}
+
+import au.com.cba.omnia.parlour.{ExportSqoopJob, ImportSqoopJob, ParlourExportOptions, ParlourImportOptions}
+import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
 
 /**
   * Import and export data between a database and HDFS.
