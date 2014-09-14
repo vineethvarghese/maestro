@@ -16,7 +16,8 @@ package jobs
 
 import scala.collection._
 import org.apache.hadoop.fs._
-import com.twitter.scalding._, Dsl._, TDsl._
+import com.twitter.scalding._
+import TDsl._
 
 import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.hive.Input
@@ -35,42 +36,96 @@ class Taste(args: Args)
   val pipeInput   = MultipleTextLineFiles(filesInput.map{_.toString} :_*)
   val pipeOutput  = TextLine(fileOutput)
 
+  // Holds the counts of how many values match each classifier.
+  // This value is thread-local, and is initialises when the thread
+  // reads its first row.
+  val counts: Taste.Counts
+    = mutable.Map()
+
   // Read input files.
-  pipeInput.read
+  pipeInput.read.typed ('line -> 'l) { tpipe: TypedPipe[String] =>
 
-    // The TextLine reader adds a line number field when reading, 
-    // but we only want the line data.
-    .project('line)
+    tpipe
 
-    // Build a map of which types are matched by each line.
-    .map    ('line -> 'num)(Taste.classifyPSV) 
+      // Build a map of which types are matched by each line.
+      .flatMap {  line: String => 
+        Taste.classifyPSVmut(counts, line) }
 
-    // Aggregate the maps for each line on separate reducers.
-    .groupRandomly(16) { g : GroupBuilder 
-      => g.reduce ('num   -> 'count)(Taste.combineRowCounts)
-    }
+      // Sum up the counts from each node on a single reducer.
+      .groupAll
+      .reduce (Taste.combineRowCountMaps)
+      .values
 
-    // Sum up the final results on a single reducer.
-    .groupAll { g : GroupBuilder 
-      => g.reduce ('count -> 'total)(Taste.combineRowCounts)
-    }
+      // Show the classifications in a human readable format.
+      // TODO: hacks, we're only returning counts for the rows with the
+      // most fields. This won't work if the nodes get rows with diff number of fields.
+      // We need to combine counts for rows with the same number of fields.
+      .map {  counts : Taste.Counts => {
+        val lcounts   = counts.toList
+        val maxField  = lcounts .map { _._1 } .max
+        Schema.showCountsRow (Classifier.all, counts(maxField)) } }
 
-    // Show the classifications in a human readable format.
-    .map  ('total -> 'str) { counts : Array[Array[Int]]
-      => Schema.showCountsRow (Classifier.all, counts)}
-    .project('str)
-
-    // Write the counts out to file.
-    .write (pipeOutput)
+      // Write the counts out to file.
+  } .write (pipeOutput)
 }
 
 
 object Taste 
 { 
+  type Counts = mutable.Map[Int, Array[Array[Int]]]
+
+
   /** Get all the possible classifications for each field in a PSV. */
   def classifyPSV(s: String): Array[Array[Int]] 
-    = s .split('|')
-        .map (classifyField)
+    = s.split('|')
+       .map(classifyField)
+
+
+  /** Get all the possible classifications for each field in a PSV. */
+  def classifyPSVmut(counts: Counts, s: String)
+    : Option[Counts] = {
+
+    // Remember whether the initial map was empty.
+    // If it is then this is the first row that we're processing,
+    // so we want to pass on our (mutable) thread-local map to the reducer.
+    val init    = counts.size == 0
+
+    // Split the input row into individual fields.
+    val fields  = s.split('|')
+
+    // Get the array that that contains classifier counts for rows with this
+    // many fields, and add the classifier counts for this row to it.
+    counts.get(fields.length) match {
+
+      // We don't yet have an array of classifier counts for rows with this
+      // many fields, so make one now.
+      case None      => {
+
+        val ccounts = fields.map(classifyField)
+        counts  += ((fields.length, ccounts))
+      }
+
+      // We already have an array of classifier counts for rows with this
+      // many fields, so acumulate the new counts into it.
+      case Some(ccounts) => {
+        for (f <- 0 to fields.length - 1) {
+          for (c <- 0 to Classifier.all.length - 1) {
+            val field     = fields(f)
+            val clas      = Classifier.all(c)
+            val n: Int    = if (clas.likeness(field) >= 1.0) 1 else 0
+            
+            // Update the existing classifier count.
+            ccounts(f)(c) = ccounts(f)(c) + n
+          }
+        }
+      }
+    }
+
+    // If this was the first row we've seen on this thread
+    // then return our new map of counts to the reducer.
+    if(init)  Some(counts)
+    else      None
+  }
 
 
   /** Get all the possible classifications for a given field. */
@@ -79,6 +134,18 @@ object Taste
         .map {_.likeness(s)}
         .map {like => if (like >= 1.0) 1 else 0}
 
+
+  def combineRowCountMaps
+      (xs1: Counts, xs2: Counts): Counts = {
+
+    for((num, arr) <- xs1) {
+      if (xs2.isDefinedAt(num))
+            xs2(num) =  combineRowCounts(arr, xs2(num))
+      else  xs2      += ((num, arr))
+    }
+
+    xs2
+  }
 
   /** Combine the classification counts for two rows. */
   def combineRowCounts
