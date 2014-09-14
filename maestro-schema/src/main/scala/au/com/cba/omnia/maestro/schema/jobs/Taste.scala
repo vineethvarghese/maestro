@@ -20,6 +20,7 @@ import com.twitter.scalding._
 import TDsl._
 
 import au.com.cba.omnia.maestro.schema._
+import au.com.cba.omnia.maestro.schema.taste._
 import au.com.cba.omnia.maestro.schema.hive.Input
 
 
@@ -36,9 +37,11 @@ class Taste(args: Args)
   val pipeInput   = MultipleTextLineFiles(filesInput.map{_.toString} :_*)
   val pipeOutput  = TextLine(fileOutput)
 
+  // (thread local)
   // Holds the counts of how many values match each classifier.
-  // This value is thread-local, and is initialises when the thread
-  // reads its first row.
+  // Each mapper job updates its own mutable map with the classifier counts
+  // gained from its chunk of data. The maps from each job are then combined
+  // in a single reducer.
   val counts: Taste.Counts
     = mutable.Map()
 
@@ -48,6 +51,9 @@ class Taste(args: Args)
     tpipe
 
       // Build a map of which types are matched by each line.
+      // The first time the worker is called it passes on a reference to the
+      // mutable counts map. For each successive time, it destructively accumulates
+      // the new counts into the existing map.
       .flatMap {  line: String => 
         Taste.classifyPSVmut(counts, line) }
 
@@ -60,14 +66,15 @@ class Taste(args: Args)
       // TODO: hacks, we're only returning counts for the rows with the
       // most fields. This won't work if the nodes get rows with diff number of fields.
       // We need to combine counts for rows with the same number of fields.
-      .map {  counts : Taste.Counts => {
-        val lcounts   = counts.toList
+      .map {  ccounts : Taste.Counts => {
+        val lcounts   = ccounts.toList
         val maxField  = lcounts .map { _._1 } .max
-        Schema.showCountsRow (Classifier.all, counts(maxField)) } }
+        Schema.showCountsRow (Classifier.all, ccounts(maxField)) } }
 
       // Write the counts out to file.
   } .write (pipeOutput)
 }
+
 
 
 object Taste 
@@ -162,4 +169,5 @@ object Taste
     = xs1 .zip (xs2) .map { x12 => x12 match { 
         case (x1, x2) => (x1 + x2) } }
 }
+
 

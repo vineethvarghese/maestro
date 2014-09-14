@@ -190,7 +190,7 @@ object Schema {
     : String
     = counts
         .map { counts => showCountsField(classifications, counts) }
-        .map { s => s + "\n" }
+        .map { s => s + ";\n" }
         .mkString
 
 
