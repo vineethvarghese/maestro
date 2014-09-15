@@ -42,8 +42,8 @@ class Taste(args: Args)
   // Each mapper job updates its own mutable map with the classifier counts
   // gained from its chunk of data. The maps from each job are then combined
   // in a single reducer.
-  val counts: Taste.Counts
-    = mutable.Map()
+  val taste: TableTaste
+    = TableTaste.empty(100)
 
   // Read input files.
   pipeInput.read.typed ('line -> 'l) { tpipe: TypedPipe[String] =>
@@ -54,29 +54,32 @@ class Taste(args: Args)
       // The first time the worker is called it passes on a reference to the
       // mutable counts map. For each successive time, it destructively accumulates
       // the new counts into the existing map.
-      .flatMap {  line: String => 
-        Taste.classifyPSVmut(counts, line) }
+      .flatMap { line: String => 
+        TableTaste.accumulateRow(taste, line) }
 
       // Sum up the counts from each node on a single reducer.
       .groupAll
-      .reduce (Taste.combineRowCountMaps)
+      .reduce (TableTaste.combine)
       .values
 
       // Show the classifications in a human readable format.
       // TODO: hacks, we're only returning counts for the rows with the
       // most fields. This won't work if the nodes get rows with diff number of fields.
       // We need to combine counts for rows with the same number of fields.
-      .map {  ccounts : Taste.Counts => {
+      .map { tasteFinal : TableTaste => {
+
+        val ccounts   = tasteFinal.rowTastes
         val lcounts   = ccounts.toList
         val maxField  = lcounts .map { _._1 } .max
-        Schema.showCountsRow (Classifier.all, ccounts(maxField)) } }
+        val hist      = ccounts(maxField).fieldTastes.map { _.clasCounts }
+        Schema.showCountsRow (Classifier.all, hist) } }
 
       // Write the counts out to file.
   } .write (pipeOutput)
 }
 
 
-
+/*
 object Taste 
 { 
   type Counts = mutable.Map[Int, Array[Array[Int]]]
@@ -171,5 +174,5 @@ object Taste
     = xs1 .zip (xs2) .map { x12 => x12 match { 
         case (x1, x2) => (x1 + x2) } }
 }
-
+*/
 
