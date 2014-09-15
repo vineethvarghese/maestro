@@ -18,14 +18,15 @@ import scala.collection._
 import au.com.cba.omnia.maestro.schema.taste._
 
 
-// Classifier counts for a row sort, with some fixed number of fields.
+/** Classifier counts for a row sort, with some fixed number of fields. */
 case class RowTaste(
   fieldTastes: Array[FieldTaste])
 
+
 object RowTaste {
 
-  // Create a new, empty RowTaste.
-  def empty(maxHistSize: Int, fieldNum: Int) = {
+  /** Create a new, empty RowTaste. */
+  def empty(maxHistSize: Int, fieldNum: Int): RowTaste = {
 
     val fieldTastes: Array[FieldTaste] = 
       (for  { i <- 0 to fieldNum } 
@@ -36,10 +37,15 @@ object RowTaste {
   }
 
 
-  // Destructively accumulate field strings into the RowTaste.
-  // If the number of fields is different than the existing RowTaste
-  // then do nothing 
-  def accumulate(rt: RowTaste, strs: Array[String]) = {
+  /** Compute the possible classifications for the given fields. */
+  def classify(maxHistSize: Int, strs: Array[String]): RowTaste =
+    RowTaste(strs.map {str => FieldTaste.classify(maxHistSize, str)})
+
+
+  /** Destructively accumulate field strings into the RowTaste.
+   *  If the number of fields is different than the existing RowTaste
+   *  then do nothing  */
+  def accumulate(rt: RowTaste, strs: Array[String]): Unit = {
     if (strs.length != rt.fieldTastes.length) 
       ()
     else for (f <- 0 to strs.length) {
@@ -48,7 +54,7 @@ object RowTaste {
   }
 
 
-  // Combine the information in two RowTastes to produce a new one.
+  /** Combine the information in two RowTastes to produce a new one. */
   def combine(rt1: RowTaste, rt2: RowTaste): RowTaste = {
 
     val fieldTastesX: Array[FieldTaste] =

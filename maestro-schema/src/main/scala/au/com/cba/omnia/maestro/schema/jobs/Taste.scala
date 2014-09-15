@@ -87,6 +87,8 @@ object Taste
     = s.split('|')
        .map(classifyField)
 
+  // ********* TODO: shift this into TableTaste, and use that instead of Counts
+  // ********** THEN add per-field spill histograms to FieldTaste.
 
   /** Get all the possible classifications for each field in a PSV. */
   def classifyPSVmut(counts: Counts, s: String)
