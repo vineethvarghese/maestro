@@ -29,7 +29,7 @@ object RowTaste {
   def empty(maxHistSize: Int, fieldNum: Int): RowTaste = {
 
     val fieldTastes: Array[FieldTaste] = 
-      (for  { i <- 0 to fieldNum } 
+      (for  { i <- 0 to fieldNum - 1 } 
        yield FieldTaste.empty(maxHistSize))
         .toArray
 
@@ -46,9 +46,9 @@ object RowTaste {
    *  If the number of fields is different than the existing RowTaste
    *  then do nothing  */
   def accumulate(rt: RowTaste, strs: Array[String]): Unit = {
-    if (strs.length != rt.fieldTastes.length) 
+    if (rt.fieldTastes.length != strs.length) 
       ()
-    else for (f <- 0 to strs.length) {
+    else for (f <- 0 to strs.length - 1) {
       FieldTaste.accumulate(rt.fieldTastes(f), strs(f))
     }
   }

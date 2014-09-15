@@ -56,7 +56,7 @@ object FieldTaste {
     for (c <- 0 to Classifier.all.length - 1) {
       val clas    = Classifier.all(c)
       val n : Int = if (clas.likeness(str) >= 1.0) 1 else 0
-      ft.clasCounts(c) += ft.clasCounts(c) + n
+      ft.clasCounts(c) += n
     }
 
 
