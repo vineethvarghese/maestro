@@ -26,19 +26,33 @@ object FieldTaste {
 
   // Create a new, empty FieldTaste.
   def empty(maxHistSize: Int): FieldTaste = {
-    val clasCounts: Array[Int]
-      = Classifier.all.map { _ => 0 }
+    val clasCounts: Array[Int] = 
+      Classifier.all.map { _ => 0 }
 
-    val histField: SampleMap
-      = new SampleMap(maxHistSize)
+    val histField: SampleMap = 
+      new SampleMap(maxHistSize)
 
     FieldTaste(clasCounts, histField)
   } 
 
 
-  // Given a FieldTaste, and a new field value, destructively update
-  // the counters in the FieldTaste.
-  def accumulate(ft: FieldTaste, str: String) =
+  /** Compute the possible classifications for a given field. */
+  def classify(maxHistSize: Int, str: String): FieldTaste = {
+    val clasCounts: Array[Int]  = 
+      Classifier.all
+        .map {_.likeness(str)}
+        .map {like => if (like >= 1.0) 1 else 0}
+
+    val histField: SampleMap
+      = new SampleMap(maxHistSize)
+
+    FieldTaste(clasCounts, histField)
+  }
+
+
+  /** Given a FieldTaste, and a new field value, destructively update
+   * the counters in the FieldTaste. */
+  def accumulate(ft: FieldTaste, str: String): Unit =
     for (c <- 0 to Classifier.all.length - 1) {
       val clas    = Classifier.all(c)
       val n : Int = if (clas.likeness(str) >= 1.0) 1 else 0
@@ -46,7 +60,7 @@ object FieldTaste {
     }
 
 
-  // Combine the information in two FieldTastes to produce a new one.
+  /** Combine the information in two FieldTastes to produce a new one. */
   def combine(ft1: FieldTaste, ft2: FieldTaste): FieldTaste = {
 
     val clasCountsX =
