@@ -119,9 +119,10 @@ object build extends Build {
        standardSettings
     ++ uniform.project("maestro-schema", "au.com.cba.omnia.maestro.schema")
     ++ Seq[Sett](
-          libraryDependencies ++= Seq (
-            "com.quantifind"  %% "sumac"  % "0.3.0"
-          ) ++ depend.scalding() ++ depend.hadoop()
+          libraryDependencies <++= scalaVersion.apply(sv => Seq(
+            "com.quantifind"  %% "sumac"         % "0.3.0"
+          , "org.scala-lang"  %  "scala-reflect" % sv
+          ) ++ depend.scalding() ++ depend.hadoop())
        )
     )
 

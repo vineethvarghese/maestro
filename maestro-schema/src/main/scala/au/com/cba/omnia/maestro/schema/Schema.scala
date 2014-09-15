@@ -117,26 +117,24 @@ case class Histogram(
   def pretty: String = {
 
     // Make a sequence of the classification names and their counts.
-    val clasCounts
-      = counts .toSeq
-          .map { ci => ci match {
-            case (c, i) => (c, c.name, i) }}
+    val clasCounts = 
+      counts 
+        .toSeq
+        .map      { case (c, i) => (c, c.name, i) }
 
     // Pretty print classifications with their counts.
-    val strs
-      = clasCounts
-          // Drop classifications that didn't match.
-          .filter   { cni  => cni match {
-            case (c, n, i)   => i > 0 }}
+    val strs = 
+      clasCounts
+        // Drop classifications that didn't match.
+        .filter   { case (c, n, i)   => i > 0 }
 
-          // Sort classifications so we get a deterministic ordering
-          // between runs.
-          .sortWith { (x1, x2) => x1._1.name      < x2._1.name }
-          .sortWith { (x1, x2) => x1._1.sortOrder < x2._1.sortOrder }
+        // Sort classifications so we get a deterministic ordering
+        // between runs.
+        .sortWith { (x1, x2) => x1._1.name      < x2._1.name }
+        .sortWith { (x1, x2) => x1._1.sortOrder < x2._1.sortOrder }
 
-          // Pretty print with the count after the classifier name.
-          .map      { nc  => nc match {
-            case (c, n, i)   => n + ":" + i.toString }}
+        // Pretty print with the count after the classifier name.
+        .map      { case (c, n, i)   => n + ":" + i.toString }
 
     // If there aren't any classifications for this field then
     // just print "-" as a placeholder.
@@ -185,8 +183,8 @@ object Schema {
   /** Show the classification counts for row of the table.
    *  The counts for each field go on their own line. */
   def showCountsRow 
-    ( classifications : Array[Classifier]
-    , counts          : Array[Array[Int]]) 
+    ( classifications: Array[Classifier]
+    , counts:          Array[Array[Int]]) 
     : String
     = counts
         .map { counts => showCountsField(classifications, counts) }
@@ -197,16 +195,16 @@ object Schema {
   /** Show the classification counts for a single field,
    *  or '-' if there aren't any. */
   def showCountsField 
-    ( classifications : Array[Classifier]
-    , counts          : Array[Int]) 
-    : String = {
+    ( classifications: Array[Classifier]
+    , counts:          Array[Int]) : String =
+    Histogram(Classifier.all .zip (counts). toMap).pretty
 
-    // Squash the classification counts to eliminate classifiers that
-    // subsume more specific ones.
-    val hist : Histogram
-      = Histogram(Classifier.all .zip (counts). toMap)
 
-    hist.pretty
-  }
+  def toJsonCountsField
+    ( classifications: Array[Classifier]
+    , counts:          Array[Int])
+    : String =
+    Histogram(Classifier.all .zip (counts) .toMap).pretty
+
 }
 

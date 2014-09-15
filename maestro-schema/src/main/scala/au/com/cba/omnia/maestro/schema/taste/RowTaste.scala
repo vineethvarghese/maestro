@@ -16,11 +16,18 @@ package taste
 
 import scala.collection._
 import au.com.cba.omnia.maestro.schema.taste._
+import au.com.cba.omnia.maestro.schema.pretty._
 
 
 /** Classifier counts for a row sort, with some fixed number of fields. */
 case class RowTaste(
-  fieldTastes: Array[FieldTaste])
+  fieldTastes: Array[FieldTaste]) {
+
+  def toJson: JsonDoc = 
+    JsonMap(
+      fieldTastes.toList.map { ft => ("field", ft.toJson) },
+      true)
+}
 
 
 object RowTaste {
