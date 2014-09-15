@@ -15,31 +15,89 @@ package au.com.cba.omnia.maestro.schema
 package taste
 
 import scala.collection._
+import au.com.cba.omnia.maestro.schema.pretty._
 
-// A SampleMap is used to build a historgram of the number of times we've seen
-// each string in a set of strings. The number of strings we're prepared to track
-// is limited to some fixed amount.
-class SampleMap(maxSize: Int) {
 
-  // Histogram of how many times we've seen each string.
-  private val smap: mutable.Map[String, Int]  
-    = mutable.Map()
+/** A SampleMap is used to build a historgram of the number of times we've seen
+ * each string in a set of strings. The number of strings we're prepared to
+ * track is limited to some fixed amount. */
+case class SampleMap(
+    maxSize:   Int,           // Maximum size of the histogram.
+    spilled:   Array[Int],    // Count of strings that wouldn't fit in ths histogram.
+    histogram: mutable.Map[String, Int]) // Histogram of times we've seen each string.
+{
 
-  // Number of strings that we couldn't add to the histogram.
-  private var spilled: Int
-    = 0
+  /** Pretty print a column sample as JSON lines. */
+  def toJson: JsonDoc =
+    JsonMap(List(
+      ("maxSize",   JsonString(maxSize.toString)),
+      ("spilled",   JsonString(spilled(0).toString)),
+      ("histogram", toJsonHistogram)))
 
-  // Accumulate a string into the historgram.
-  def accumulate(str: String) = {
-    if (smap .isDefinedAt(str))
-      smap += ((str, smap(str) + 1))
-    else if (smap.size < maxSize)
-      smap +=  ((str, 1))
-    else 
-      spilled += 1
+
+  /** Pretty print the sample histogram.
+   *  We print it sorted, so the most frequently occurring strings are listed
+   *  first */
+  def toJsonHistogram: JsonDoc = 
+    JsonMap(
+      histogram
+        .toList
+        .sortBy { _._2 }
+        .reverse
+        .map    { case (k, v) => (k, JsonString(v.toString)) },
+      false)
+}
+
+
+object SampleMap {
+
+  /** Create a new, empty SampleMap */
+  def empty(maxSize: Int): SampleMap =
+    SampleMap(maxSize, Array(0), mutable.Map())
+
+  /** Accumulate a new string into a SampleMap */
+  def accumulate(smap: SampleMap, str: String): Unit = {
+
+    // If there is already an entry in the map for this string then
+    // we can increment that.
+    if (smap.histogram.isDefinedAt(str))
+      smap.histogram  += ((str, smap.histogram(str) + 1))
+
+    // If there is still space in the map then add a new entry.
+    else if (smap.histogram.size < smap.maxSize - 1)
+      smap.histogram  += ((str, 1))
+
+    // Otherwise remember that we had to spill this string.
+    else
+      smap.spilled(0) += 1
   }
 
-  // Extract the final historgram, along with how many string values we spilled.
-  def extract(): (Map[String, Int], Int)
-    = (smap.toMap, spilled)
+
+  /** Combine the information in two SampleMaps, to produce a new one. */
+  def combine(sm1: SampleMap, sm2: SampleMap): SampleMap = {
+
+    // Accumulate the result into this empty SampleMap.
+    val sm3: SampleMap
+      = empty(sm1.maxSize)
+
+    // Combine the histograms.
+    for ((str, count1) <- sm1.histogram) {
+      if (sm3.histogram.isDefinedAt(str))
+            sm3.histogram += ((str, sm3.histogram(str) + count1))
+      else  sm3.histogram += ((str, count1))
+    }
+
+    for ((str, count2) <- sm1.histogram) {
+      if (sm3.histogram.isDefinedAt(str))
+            sm3.histogram += ((str, sm3.histogram(str) + count2))
+      else  sm3.histogram += ((str, count2))
+    }
+
+    // Combine the spill counters.
+    sm3.spilled(0)  = sm1.spilled(0) + sm2.spilled(0)
+
+    sm3
+  }
+
 }
+

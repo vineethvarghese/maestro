@@ -17,19 +17,27 @@ package taste
 import scala.collection._
 import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.taste._
+import au.com.cba.omnia.maestro.schema.pretty._
 
 
 /** Accumulated taste information for an entire table. */
 case class TableTaste(
   maxHistSize: Int,
-  rowTastes:   mutable.Map[Int, RowTaste])
+  rowTastes:   mutable.Map[Int, RowTaste]) {
+
+  def toJson: JsonDoc =
+    JsonMap(
+      rowTastes.toList.map { case (_, rt) => ("row", rt.toJson) }, 
+      true)
+
+}
 
 /** Functions concerning TableTastes */
 object TableTaste {
 
   /** Create a new, empty TableTaste. */
-  def empty(maxHistSize: Int): TableTaste 
-    = TableTaste(maxHistSize, mutable.Map())
+  def empty(maxHistSize: Int): TableTaste =
+    TableTaste(maxHistSize, mutable.Map())
 
 
   /** Destructively accumulate a new row into the TableTaste.
@@ -83,9 +91,15 @@ object TableTaste {
       = empty(tt1.maxHistSize)
 
     for ((num, rt1) <- tt1.rowTastes) {
-      if (tt2.rowTastes.isDefinedAt(num))
-            tt3.rowTastes += ((num, RowTaste.combine(tt2.rowTastes(num), rt1)))
+      if (tt3.rowTastes.isDefinedAt(num))
+            tt3.rowTastes += ((num, RowTaste.combine(tt3.rowTastes(num), rt1)))
       else  tt3.rowTastes += ((num, rt1))
+    }
+
+    for ((num, rt2) <- tt2.rowTastes) {
+      if (tt3.rowTastes.isDefinedAt(num))
+            tt3.rowTastes += ((num, RowTaste.combine(tt3.rowTastes(num), rt2)))
+      else  tt3.rowTastes += ((num, rt2))
     }
 
     tt3
