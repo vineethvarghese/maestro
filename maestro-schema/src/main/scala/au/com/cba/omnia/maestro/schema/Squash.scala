@@ -13,7 +13,7 @@
 //   limitations under the License.
 package au.com.cba.omnia.maestro.schema
 
-import scala.collection.immutable._
+import scala.collection._
 
 import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.syntax._

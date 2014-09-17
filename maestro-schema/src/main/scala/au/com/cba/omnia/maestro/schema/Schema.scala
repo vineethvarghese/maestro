@@ -13,9 +13,10 @@
 //   limitations under the License.
 package au.com.cba.omnia.maestro.schema
 
-import scala.collection.immutable._
+import scala.collection._
 import au.com.cba.omnia.maestro.schema.hive._
 import au.com.cba.omnia.maestro.schema.syntax._
+import au.com.cba.omnia.maestro.schema.pretty._
 
 
 /** Table Specification.
@@ -108,7 +109,7 @@ case class Format(
 case class Histogram(
   counts      : Map[Classifier, Int])
 {
-  /** Yield the number of classifiers in the hisogram. */
+  /** Yield the number of classifiers in the histogram. */
   def size: Int
     = this.counts.size
 
@@ -116,25 +117,10 @@ case class Histogram(
   /** Pretty print the histogram as a String. */
   def pretty: String = {
 
-    // Make a sequence of the classification names and their counts.
-    val clasCounts = 
-      counts 
-        .toSeq
-        .map      { case (c, i) => (c, c.name, i) }
-
-    // Pretty print classifications with their counts.
-    val strs = 
-      clasCounts
-        // Drop classifications that didn't match.
-        .filter   { case (c, n, i)   => i > 0 }
-
-        // Sort classifications so we get a deterministic ordering
-        // between runs.
-        .sortWith { (x1, x2) => x1._1.name      < x2._1.name }
-        .sortWith { (x1, x2) => x1._1.sortOrder < x2._1.sortOrder }
-
+    val strs =
+      sorted
         // Pretty print with the count after the classifier name.
-        .map      { case (c, n, i)   => n + ":" + i.toString }
+        .map      { case (c, i)   => c.name + ":" + i.toString }
 
     // If there aren't any classifications for this field then
     // just print "-" as a placeholder.
@@ -142,6 +128,29 @@ case class Histogram(
          "-"
     else (strs.mkString(", "))
   }
+
+
+  /** Convert the histogram to JSON. */
+  def toJson: JsonDoc =
+    JsonMap(
+      sorted
+        .map  { case (c, i) => (c.name, JsonString(i.toString)) })
+
+
+  /** Extract the histogram with the classifiers in the standard sorted
+      order. Don't return classifiers with zero counts. */
+  def sorted: Seq[(Classifier, Int)] = 
+    counts
+      .toSeq
+
+      // Drop classifications that didn't match.
+      .filter   { case (c, i)   => i > 0 }
+
+      // Sort classifications so we get a deterministic ordering
+      // between runs.
+      .sortWith { (x1, x2) => x1._1.name      < x2._1.name }
+      .sortWith { (x1, x2) => x1._1.sortOrder < x2._1.sortOrder }
+
 }
 
 
