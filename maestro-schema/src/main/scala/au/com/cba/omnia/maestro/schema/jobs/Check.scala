@@ -27,19 +27,21 @@ import au.com.cba.omnia.maestro.schema.hive.Input
 class Check(args: Args) 
   extends Job(args) {
 
-  val nameSchema  = args("schema")
-  val nameInput   = args("input")
-  val nameOutput  = args("output")
+  // Local FS file containing schema to check against.
+  val fileSchema  = args("schema")
 
-  val filesInput  = Input.list(nameInput)
-  val pipeInput   = MultipleTextLineFiles(filesInput.map{_.toString} :_*)
-  val pipeOutput  = TextLine(nameOutput)
+  // Source HDFS path for input files.
+  val filesInput  = Input.list(args("input"))
+  val pipeInput: TypedPipe[String] =
+    TypedPipe.from(MultipleTextLineFiles(filesInput.map{_.toString} :_*))
 
+  // Output HDFS path for bad rows.
+  val pipeOutput  = TypedTsv[String](args("output"))
 
   // Read the schema definition.
   val strSchema = 
-    Source.fromFile(nameSchema)
-      .getLines .map { _ + "\n" } .reduceLeft(_+_)
+    Source.fromFile(fileSchema)
+      .getLines .mkString("\n")
 
   // Parse the schema definition.
   val schema = 
@@ -49,27 +51,22 @@ class Check(args: Args)
     }
 
   // Check the input files.
-  pipeInput.read
-
-    // The TextLine reader adds a line number field when reading,
-    // but we only want the line data.
-    .project ('line)
+  pipeInput
 
      // Check each row against the schema, producing a sequence of fields
      // that don't match.
-    .map     ('line -> 'errors)   { s : String => 
+    .map      { s: String =>
       Check.validRow(schema, '|', s).toSeq }
 
      // Only report on rows that have at least one error.
-    .filter  ('errors)            { r : Seq[(ColumnSpec, String)] =>
+    .filter   { r: Seq[(ColumnSpec, String)] =>
       r.size > 0 }
 
      // Pretty print the errors for each row.
-    .map     ('errors -> 'result) { r : Seq[(ColumnSpec, String)] =>
+    .map      { r: Seq[(ColumnSpec, String)] =>
       Pretty.prettyErrors(r) }
 
-    // Write out the bad rows to a file.
-    .project ('result)
+    // Write out the bad rows to HDFS.
     .write   (pipeOutput)
 }
 

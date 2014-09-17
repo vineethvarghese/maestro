@@ -41,14 +41,13 @@ class Taste(args: Args)
   val fileOutputTaste = args("output-taste")
   val pipeOutputTaste = TypedTsv[String](fileOutputTaste)
 
-
   // (thread local)
   // Holds the counts of how many values match each classifier.
   // Each mapper job updates its own mutable map with the classifier counts
   // gained from its chunk of data. The maps from each job are then combined
   // in a single reducer.
-  val taste: TableTaste
-    = TableTaste.empty(100)
+  val taste: TableTaste = 
+    TableTaste.empty(100)
 
   // Read lines from the input files and accumulate them into a TableTaste.
   val pTastes: TypedPipe[TableTaste] =
@@ -73,6 +72,5 @@ class Taste(args: Args)
 
       // Write the counts out to file.
       .write(pipeOutputTaste)
-
 }
 
