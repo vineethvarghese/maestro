@@ -22,12 +22,16 @@ case class FieldTaste(
   clasCounts: Array[Int],
   histField:  SampleMap) {
 
+  /** Convert the FieldTaste to JSON. */
   def toJson: JsonDoc = {
-    val sClas = Schema.showCountsField(Classifier.all, clasCounts)
+
+    // Histogram of how many values in the column matched each classifier.
+    val histClas: Histogram = 
+      Histogram(Classifier.all .zip (clasCounts) .toMap)
 
     JsonMap(
       List(
-        ("classifiers", JsonString(sClas)),
+        ("classifiers", histClas .toJson),
         ("sample",      histField.toJson)),
       true)
   }

@@ -17,7 +17,6 @@ package syntax
 import  au.com.cba.omnia.maestro.schema._
 
 
-// ----------------------------------------------------------------------------
 /** Three letter CBA financial system codes, like "SAP". */
 object CbaSystemCode extends Syntax
 {
@@ -48,7 +47,6 @@ object CbaSystemCode extends Syntax
 }
 
 
-// ----------------------------------------------------------------------------
 /** CBA Account codes, which start with a three letter system code.
  *  We assume anything with a system code followed by at least three
  *  five more charaters is an account code. */

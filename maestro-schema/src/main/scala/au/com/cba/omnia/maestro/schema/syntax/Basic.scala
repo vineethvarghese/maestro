@@ -19,7 +19,6 @@ package syntax
 import  au.com.cba.omnia.maestro.schema._
 
 
-// ----------------------------------------------------------------------------
 /** Matches everything. */
 object Any   extends Syntax
 {
@@ -33,7 +32,6 @@ object Any   extends Syntax
 }
 
 
-// ----------------------------------------------------------------------------
 /** Hive encoding of Null values. */
 object Null   extends Syntax
 {
@@ -96,7 +94,6 @@ object AlphaNum extends Syntax
 }
 
 
-// ----------------------------------------------------------------------------
 /** Alphabetic characters. */
 object Alpha extends Syntax
 {
@@ -143,7 +140,6 @@ object Lower extends Syntax
 }
 
 
-// ----------------------------------------------------------------------------
 /** An integer. */
 object Integer extends Syntax
 {
@@ -192,7 +188,6 @@ object NegInt extends Syntax
 }
 
 
-// ----------------------------------------------------------------------------  
 /** A real number,
     with floating-point notation like (12345.678) or (-12345.678). */
 object Real extends Syntax
@@ -255,7 +250,6 @@ object NegReal extends Syntax
 }
 
 
-// ----------------------------------------------------------------------------
 /** Matches this exact string. */
 case class Exact(str: String) extends Syntax
 {

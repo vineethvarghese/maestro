@@ -15,7 +15,7 @@ case class JsonString(
 
 /** A map of key-value pairs. */
 case class JsonMap(
-  list:   List[(String, JsonDoc)],
+  list:   Seq[(String, JsonDoc)],
   spread: Boolean = false)  
   extends JsonDoc
 
@@ -29,15 +29,15 @@ object JsonDoc {
 
 
   /** Render a Json doc as a list of strings, with one string per line. */
-  def linesJsonDoc(indent: Int, json: JsonDoc): List[String] = 
+  def linesJsonDoc(indent: Int, json: JsonDoc): Seq[String] = 
     json match { 
       case JsonString(s) =>
-        List(s)
+        Seq(s)
 
       case JsonMap (list, spread) => 
+        // Spreading the map across multiple lines.
         if (spread) {
-
-          val body: List[String] =
+          val body: Seq[String] =
             list 
               .zipWithIndex
               .map { case ((k, v), i) 
@@ -50,9 +50,9 @@ object JsonDoc {
             .map { s => " " * indent + s })
         }
 
+        // Packing the map onto a single line.
         else {
-
-          val body: List[String] =
+          val body: Seq[String] =
             list 
               .zipWithIndex
               .map { case ((k, v), i)
@@ -69,7 +69,7 @@ object JsonDoc {
 
   /** Add the first string to the end of the last string in the
    *  provided list. */
-  def injectOnLast(str: String, strs: List[String]): List[String] = 
+  def injectOnLast(str: String, strs: Seq[String]): Seq[String] = 
     if (strs.size == 0) strs
     else {
       val is  = strs.init
