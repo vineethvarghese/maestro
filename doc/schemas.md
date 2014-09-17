@@ -36,6 +36,7 @@ directly from the Hive metastore:
 hive -e "describe accounts" > accounts.names
 ```
 
+
 Step 2. Tasting
 ---------------
 
@@ -45,12 +46,20 @@ new file, eg `accounts.taste`. Use the following job to do this:
 
 ```
 java -cp ${MAESTRO_JAR} au.com.cba.omnia.maestro.schema.commands.Taste \
-    --input <hdfs_input_path> --output <hdfs_taste_file>
+    --hdfs \
+    --database     <database_name>   --table    <table_name> \
+    --input        <hdfs_input_path>
+    --output-taste <hdfs_taste_file>
 ```
 
+* `database_name`   name of the database this table is in. This information
+  is added to the output taste file for identification purposes, but not use
+  directly by the taste process.
+* `table_name`      name of the table. As with database_name, this is added
+  to the output taste file but not used directly.
 * `hdfs_input_path` hdfs path to either a single block of input data, or a
   directory that contains data blocks. 
-* `hdfs_taste_file` hdfs path where the output histogram should be written. 
+* `hdfs_taste_file` hdfs path where the output taste file should be written. 
 
 An example histogram is as follows:
 
