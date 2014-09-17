@@ -21,8 +21,8 @@ import scala.collection._
 /** Produce a pipe from the given input path.
  *  If the path is a single file we stream the file.
  *  If the path is a directory we stream all files contained within it. */
-object Input
-{
+object Input {
+
   /** List all input files associated with this name.
    *   If the name is a single file then just return that.
    *   If the name is a directory then return all non-directory files under it. */

@@ -23,12 +23,12 @@ import  au.com.cba.omnia.maestro.schema.syntax._
  *  The syntax recognisers are hard coded to only accept days in the year
  *  range 1800 through 2200, because we want to reject sential values
  *  like 0001-01-01 which do not refer to a real day. */
-object Day extends Tope
-{
+object Day extends Tope {
+  
   val name  = "Day"
 
-  def likeness(s: String): Array[Double] 
-    = syntaxes .map { _.likeness(s) }
+  def likeness(s: String): Array[Double] =
+    syntaxes .map { _.likeness(s) }
 
   val syntaxes: Array[Syntax] = Array(
     YYYYcMMcDD('-'),
@@ -58,10 +58,10 @@ object Day extends Tope
     if (leap) monthDays_leap else monthDays_noleap
 
   /** Check if this looks like a valid day descriptor. */
-  def validishYearMonthDay(year: Int, month: Int, day: Int): Boolean
-    = if (year  >= 1800 && year  <= 2200 &&
-          month >= 1    && month <= 12)
-         (day   >= 1    && day   <= monthDays(year % 4 == 0)(month))
-      else false
+  def validishYearMonthDay(year: Int, month: Int, day: Int): Boolean =
+    if (year  >= 1800 && year  <= 2200 &&
+        month >= 1    && month <= 12)
+       (day   >= 1    && day   <= monthDays(year % 4 == 0)(month))
+    else false
 }
 

@@ -15,6 +15,7 @@ package au.com.cba.omnia.maestro.schema
 package taste
 
 import scala.collection._
+
 import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.taste._
 import au.com.cba.omnia.maestro.schema.pretty._
@@ -29,10 +30,10 @@ case class TableTaste(
     JsonMap(
       rowTastes.toList.map { case (_, rt) => ("row", rt.toJson) }, 
       true)
-
 }
 
-/** Functions concerning TableTastes */
+
+/** Functions concerning TableTastes. */
 object TableTaste {
 
   /** Create a new, empty TableTaste. */
@@ -69,7 +70,6 @@ object TableTaste {
       case Some(rowTaste) => {
         RowTaste.accumulate(rowTaste, fields)
       }
-
     }
 
     if(init)  Some(tt)
@@ -78,17 +78,17 @@ object TableTaste {
 
 
   /** Get all the possible classifications for a given field. */
-  def classifyField(s: String): Array[Int] 
-    = Classifier.all
-        .map {_.likeness(s)}
-        .map {like => if (like >= 1.0) 1 else 0}
+  def classifyField(s: String): Array[Int] = 
+    Classifier.all
+      .map {_.likeness(s)}
+      .map {like => if (like >= 1.0) 1 else 0}
 
 
   /** Combine the information in two TableTastes to produce a new one. */
   def combine(tt1: TableTaste, tt2: TableTaste): TableTaste = {
 
-    val tt3: TableTaste 
-      = empty(tt1.maxHistSize)
+    val tt3: TableTaste = 
+      empty(tt1.maxHistSize)
 
     for ((num, rt1) <- tt1.rowTastes) {
       if (tt3.rowTastes.isDefinedAt(num))

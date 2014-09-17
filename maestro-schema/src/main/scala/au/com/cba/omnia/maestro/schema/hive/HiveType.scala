@@ -30,13 +30,13 @@ object HiveType extends Enumeration {
     HiveSmallInt  -> "smallint")
 
   /** Parse a string as a Hive type, using the Hive names. */
-  def parse(s: String): Option[HiveType]
-    = names 
-        .find { case (t, n) => n == s }
-        .map  { case (t, n) => t }
+  def parse(s: String): Option[HiveType] = 
+    names 
+      .find { case (t, n) => n == s }
+      .map  { case (t, n) => t }
 
   /** Pretty print a Hive type, using the Hive names. */
-  def pretty(h: HiveType): String
-    = names(h)
+  def pretty(h: HiveType): String = 
+    names(h)
 }
 

@@ -19,12 +19,12 @@ import  au.com.cba.omnia.maestro.schema._
 
 
 /* A monetary currency. */
-object Currency extends Tope
-{
-  val name  = "Currency"
+object Currency extends Tope {
 
-  def likeness(s: String): Array[Double]
-    = syntaxes .map { _.likeness (s) }
+  val name = "Currency"
+
+  def likeness(s: String): Array[Double] =
+    syntaxes .map { _.likeness (s) }
 
   val syntaxes: Array[Syntax] = Array(
     syntax.CurrencyCode)

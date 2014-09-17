@@ -19,8 +19,8 @@ import  au.com.cba.omnia.maestro.schema._
 
 /** A day in YYYYcMMcDD format with some separating character.
     Hard coded to only accept days in years 1800 through 2200. */
-case class YYYYcMMcDD(sep : Char) extends Syntax
-{
+case class YYYYcMMcDD(sep : Char) extends Syntax {
+
   val name  = s"YYYYcMMcDD(\'${sep}\')"
 
   def likeness(s: String) = 
@@ -50,8 +50,8 @@ case class YYYYcMMcDD(sep : Char) extends Syntax
 
 /** A day in DDcMMcYYYY format with some separating character.
     Hard coded to only accept days in years 1800 through 2200. */
-case class DDcMMcYYYY(sep: Char) extends Syntax
-{
+case class DDcMMcYYYY(sep: Char) extends Syntax {
+  
   val name  = s"DDcMMcYYYY(\'${sep}\')"
 
   def likeness (s : String) = 

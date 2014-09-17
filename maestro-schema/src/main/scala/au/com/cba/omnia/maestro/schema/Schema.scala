@@ -14,6 +14,7 @@
 package au.com.cba.omnia.maestro.schema
 
 import scala.collection._
+
 import au.com.cba.omnia.maestro.schema.hive._
 import au.com.cba.omnia.maestro.schema.syntax._
 import au.com.cba.omnia.maestro.schema.pretty._
@@ -30,8 +31,8 @@ case class TableSpec(
   database    : String,
   table       : String,
   ignore      : Seq[Schema.Ignore],
-  columnSpecs : Seq[ColumnSpec])
-{
+  columnSpecs : Seq[ColumnSpec]) {
+
   /** Pretty print a TableSpec as a String */
   def pretty: String
     = columnSpecs .map {c => c.pretty}
@@ -52,53 +53,52 @@ case class ColumnSpec(
   hivetype    : HiveType.HiveType,
   format      : Option[Format],
   histogram   : Histogram,
-  comment     : String)
-{
+  comment     : String) {
+
   /** Check if this value matches the column format. */
-  def matches(s: String): Boolean
-    = format match {
-        case None     => true
-        case Some(f)  => f.matches(s) }
+  def matches(s: String): Boolean =
+    format match {
+      case None     => true
+      case Some(f)  => f.matches(s) 
+    }
 
 
   /** Pretty print the ColumnSpec as a String. */
-  def pretty: String
-    = f"$name%-25s"               + " | "  + 
-      HiveType.pretty(hivetype)   + " | "  + 
-      prettyOptionFormat(format)  + "\n"   + 
-      " " * 25                    + " | "  + 
-      histogram.pretty + ";\n"
+  def pretty: String = 
+    f"$name%-25s"               + " | "  + 
+    HiveType.pretty(hivetype)   + " | "  + 
+    prettyOptionFormat(format)  + "\n"   + 
+    " " * 25                    + " | "  + 
+    histogram.pretty + ";\n"
 
 
   /** Pretty print a Format as String, or '-' for a missing format. */
-  def prettyOptionFormat(of: Option[Format]): String
-    = of match { 
-        case None     => "-"
-        case Some(f)  => f.pretty }
+  def prettyOptionFormat(of: Option[Format]): String = 
+    of match { 
+      case None     => "-"
+      case Some(f)  => f.pretty 
+    }
 }
 
 
 /** Data format / semantic type of a column.
  *  @param list All data values must match one of these classifiers.
  */
-case class Format(
-  list        : List[Classifier])
-{
+case class Format(list: List[Classifier]) {
+
   /** Append two formats. */
-  def ++(that: Format) : Format 
-    = Format(this.list ++ that.list)
+  def ++(that: Format): Format = 
+    Format(this.list ++ that.list)
 
   /** Check if this string matches any of the classifiers in the Format. */
-  def matches(s: String): Boolean
-    = list
-        .map    { cl => cl.matches(s) }
-        .reduce (_ || _)
+  def matches(s: String): Boolean = 
+    list .exists (_.matches(s))
 
   /** Pretty print a Format as a string. */
-  def pretty: String
-    = list 
-        .map {_.name}
-        .reduceLeft {(n, rest) => n ++ " + " ++ rest }
+  def pretty: String =
+    list 
+      .map {_.name}
+      .mkString (" + ")
 }
 
 
@@ -106,12 +106,11 @@ case class Format(
  *
  *  @param counts How many values match each classifier.
  */
-case class Histogram(
-  counts      : Map[Classifier, Int])
-{
+case class Histogram(counts: Map[Classifier, Int]) {
+
   /** Yield the number of classifiers in the histogram. */
-  def size: Int
-    = this.counts.size
+  def size: Int =
+    this.counts.size
 
 
   /** Pretty print the histogram as a String. */
@@ -124,8 +123,7 @@ case class Histogram(
 
     // If there aren't any classifications for this field then
     // just print "-" as a placeholder.
-    if (strs.length == 0) 
-         "-"
+    if (strs.length == 0) "-"
     else (strs.mkString(", "))
   }
 
@@ -148,9 +146,7 @@ case class Histogram(
 
       // Sort classifications so we get a deterministic ordering
       // between runs.
-      .sortWith { (x1, x2) => x1._1.name      < x2._1.name }
       .sortWith { (x1, x2) => x1._1.sortOrder < x2._1.sortOrder }
-
 }
 
 
@@ -191,28 +187,25 @@ object Schema {
 
   /** Show the classification counts for row of the table.
    *  The counts for each field go on their own line. */
-  def showCountsRow 
-    ( classifications: Array[Classifier]
-    , counts:          Array[Array[Int]]) 
-    : String
-    = counts
-        .map { counts => showCountsField(classifications, counts) }
-        .map { s => s + ";\n" }
-        .mkString
+  def showCountsRow(
+    classifications: Array[Classifier],
+    counts:          Array[Array[Int]]): String =
+    counts
+      .map { counts => showCountsField(classifications, counts) + ";\n" }
+      .mkString
 
 
   /** Show the classification counts for a single field,
    *  or '-' if there aren't any. */
-  def showCountsField 
-    ( classifications: Array[Classifier]
-    , counts:          Array[Int]) : String =
+  def showCountsField(
+    classifications: Array[Classifier],
+    counts:          Array[Int]): String =
     Histogram(Classifier.all .zip (counts). toMap).pretty
 
 
-  def toJsonCountsField
-    ( classifications: Array[Classifier]
-    , counts:          Array[Int])
-    : String =
+  def toJsonCountsField(
+    classifications: Array[Classifier],
+    counts:          Array[Int]): String =
     Histogram(Classifier.all .zip (counts) .toMap).pretty
 
 }
