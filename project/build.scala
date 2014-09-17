@@ -30,12 +30,12 @@ import au.com.cba.omnia.humbug.HumbugSBT._
 object build extends Build {
   type Sett = Def.Setting[_]
 
-  val thermometerVersion = "0.3.2-20140818231306-749dcce"
-  val ebenezerVersion    = "0.8.0-20140803225314-c0817fc"
-  val omnitoolVersion    = "1.2.0-20140821122038-cd14d22"
+  val thermometerVersion = "0.3.2-20140922073751-6b24890-CDH5"
+  val ebenezerVersion    = "0.8.1-20140922075559-2dd7fa7-CDH5"
+  val omnitoolVersion    = "1.3.0-20140916052759-ace2b96-CDH5"
 
   lazy val standardSettings: Seq[Sett] =
-    Defaults.defaultSettings ++
+    Defaults.coreDefaultSettings ++
     uniformDependencySettings ++
     uniform.docSettings("https://github.com/CommBank/maestro")
 
@@ -77,12 +77,13 @@ object build extends Build {
         (sourceDirectory) { _ / "test" / "thrift" / "scrooge" },
       libraryDependencies ++= Seq(
         "com.google.code.findbugs" % "jsr305"    % "2.0.3" // Needed for guava.
-      , "com.google.guava"         % "guava"     % "16.0.1"
+      // Can't be higher than this since there is a version incompatability with the version of bonecp (0.7.1) used by Hive
+      , "com.google.guava"         % "guava"     % "14.0.1"
       ) ++ depend.scalaz() ++ depend.scalding() ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing() ++ depend.time()
         ++ depend.omnia("ebenezer-hive", ebenezerVersion)
-        ++ depend.omnia("edge",          "2.1.0-20140817232646-c24b23c")
-        ++ depend.omnia("humbug-core",   "0.3.0-20140821040938-609c881")
+        ++ depend.omnia("edge",          "2.2.0-20140916233909-42745cc-CDH5")
+        ++ depend.omnia("humbug-core",   "0.3.0-20140916025213-f0a7e7f-CDH5")
         ++ depend.omnia("omnitool-time", omnitoolVersion)
         ++ depend.omnia("omnitool-file", omnitoolVersion)
         ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
@@ -115,9 +116,7 @@ object build extends Build {
     ++ uniformAssemblySettings
     ++ uniformThriftSettings
     ++ Seq[Sett](
-         libraryDependencies ++= depend.hadoop() ++ Seq(
-           "com.twitter" % "parquet-hive" % "1.2.5-cdh4.6.0" % "test"
-         )
+      libraryDependencies ++= depend.hadoop() ++ depend.parquet() ++  depend.omnia("thermometer-hive", thermometerVersion)
        , parallelExecution in Test := false
     )
   ).dependsOn(core)
