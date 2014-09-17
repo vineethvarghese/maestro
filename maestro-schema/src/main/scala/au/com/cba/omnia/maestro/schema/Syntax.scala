@@ -147,7 +147,7 @@ object Syntaxes {
   def ancestors(s: Syntax): Set[Syntax] = {
 
     def widen(ss: Set[Syntax]): Set[Syntax] = {
-      val ss2 = ss ++ ss.flatMap(ss => parents(s))
+      val ss2 = ss ++ ss.flatMap(s => parents(s))
       if (ss2.size == ss.size) ss
       else widen(ss2)
     }
@@ -168,7 +168,10 @@ object Syntaxes {
     ss .forall { s1 => ss .forall { s2 => areSiblings(s1, s2) } }
 
 
-  /** Get the direct children of a syntax. */
+  /** Get the direct children of a syntax. 
+   *  As each syntax only directly records its *parents*, when computing the
+   *  children of a given syntax we need to scan through the full set, looking
+   *  for for elements that have this syntax as their child. */
   def children(sParent: Syntax): Set[Syntax] =
     (syntaxes ++ topeSyntaxes)
       .filter { s => s.parents.contains(sParent) }

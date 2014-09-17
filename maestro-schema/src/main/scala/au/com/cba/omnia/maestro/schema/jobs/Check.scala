@@ -11,7 +11,6 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
-
 package au.com.cba.omnia.maestro.schema
 package jobs
 
@@ -22,10 +21,6 @@ import com.twitter.scalding._, Dsl._, TDsl._
 
 import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.hive.Input
-
-// TODO: limit the number of bad rows output by a flag.
-// TODO: report the primary key for rows that do not match.
-// We want to be able to find them again.
 
 
 /** Job to check a table against an existing schema. */
@@ -81,16 +76,18 @@ class Check(args: Args)
 
 object Check {
 
-  // Check if a row matches the associated table spec.
-  // Returns the column specs and field values that don't match.
+  /** Check if a row matches the associated table spec.
+   *  Returns the column specs and field values that don't match. */
   def validRow(spec: TableSpec, separator: Char, s: String)
-    : Seq[(ColumnSpec, String)] =
+    : List[(ColumnSpec, String)] =
     s .split(separator)
       .zip     (spec.columnSpecs)
       .flatMap { case (field, cspec) => checkField(cspec, field) }
+      .toList
 
-  // Check if a field value matches its associated column spec,
-  //   returning None if yes, or the original spec and string if no.
+
+  /** Check if a field value matches its associated column spec,
+   *  returning None if yes, or the original spec and string if no. */
   def checkField(spec: ColumnSpec, s: String)
     : Option[(ColumnSpec, String)] =
     if (spec.matches(s))
@@ -101,14 +98,15 @@ object Check {
 
 object Pretty {
   
-  // Pretty print an optional format, showing '-' for the None case.
+  /** Pretty print an optional format, showing '-' for the None case. */
   def prettyOptionFormat(op: Option[Format]): String = 
     op match { 
         case None    => "-"
         case Some(f) => f.pretty 
     }
 
-  // Pretty print a sequence of check errors.
+
+  /** Pretty print a sequence of check errors. */
   def prettyErrors(errors: Seq[(ColumnSpec, String)]): String = 
     errors
       .map { case (spec, s) =>

@@ -26,10 +26,7 @@ object Input {
   /** List all input files associated with this name.
    *   If the name is a single file then just return that.
    *   If the name is a directory then return all non-directory files under it. */
-  def list(name: String): Seq[Path] = {
-
-    // TODO: attach authority to the input path if there isn't one.
-    //       we need this before calling getFileStatus.
+  def list(name: String): List[Path] = {
 
     // File context represents the default HDFS file system.
     val context   = FileContext.getFileContext()
@@ -40,26 +37,24 @@ object Input {
   }
 
   /** Trace all the input files starting from the given path. */
-  def trace(context: FileContext, path: Path): Seq[Path] = {
+  def trace(context: FileContext, path: Path): List[Path] = {
 
     // Work out whether this is a single file or a directory.
     val statInput = context.getFileStatus(path)
 
     // For single files, return their names unharmed.
     if (path.getName.length == 0) {
-      Seq()
+      List()
     }
     else if (path.getName.substring(0, 1) == "_") {
-      Seq()
+      List()
     }
 
     else if (!statInput.isDirectory) {
-      println(path.toString)
-      Seq(path)
+      List(path)
     }
 
     // For directories, return all the regular files under them.
-    //  TODO: recursively decdend into directories.
     else {
       val iterFiles = context.listStatus(path)
       val arrFiles  = mutable.ArrayBuffer[Path]()
@@ -67,7 +62,7 @@ object Input {
         arrFiles += iterFiles.next.getPath
       }
 
-      arrFiles.result().toSeq
+      arrFiles.result().toList
         .flatMap{ n => trace(context, n) }
     }
   }

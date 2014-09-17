@@ -21,6 +21,7 @@ object HiveType extends Enumeration {
 
   val  HiveString, HiveDouble, HiveInt, HiveBigInt, HiveSmallInt = Value
 
+
   /** Maps Hive types to the names used by Hive. */
   val names: Map[HiveType, String] = Map(
     HiveString    -> "string",
@@ -29,11 +30,13 @@ object HiveType extends Enumeration {
     HiveBigInt    -> "bigint",
     HiveSmallInt  -> "smallint")
 
+
   /** Parse a string as a Hive type, using the Hive names. */
   def parse(s: String): Option[HiveType] = 
     names 
       .find { case (t, n) => n == s }
       .map  { case (t, n) => t }
+
 
   /** Pretty print a Hive type, using the Hive names. */
   def pretty(h: HiveType): String = 

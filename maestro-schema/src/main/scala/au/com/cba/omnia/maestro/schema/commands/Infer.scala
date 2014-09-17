@@ -21,7 +21,7 @@ import com.quantifind.sumac.ArgMain
 import com.quantifind.sumac.validation._
 import com.quantifind.sumac.FieldArgs
 
-import au.com.cba.omnia.maestro._
+import au.com.cba.omnia.maestro.schema
 import au.com.cba.omnia.maestro.schema._
 
 
@@ -63,15 +63,15 @@ object Infer extends ArgMain[InferArgs]
   def main(args: InferArgs): Unit = {
 
     // Read and parse the taste (histogram) file.
-    val strTaste =
+    val strTaste: String =
       Source.fromFile(args.taste)
-        .getLines .map { _ + "\n" } .reduceLeft (_+_)
+        .getLines .mkString ("\n")
 
-    val taste: Seq[Histogram] =
+    val taste: List[Histogram] =
       parser.Taste(strTaste) match {
         case Left(err)  
          => throw new Exception("taste parse error: " ++ err.toString())
-        case Right(s) => s
+        case Right(s) => s.toList
       }
 
     // Squash all the histograms, so that we retain just the most specific
@@ -79,10 +79,10 @@ object Infer extends ArgMain[InferArgs]
     val tasteSquashed =
       taste.map { h => schema.Squash.squash(h) }
 
-    val nameTypes: immutable.Seq[Seq[String]] =
+    val nameTypes: List[List[String]] =
       Source.fromFile(args.columns)
-        .getLines .map { w => w.split("\\s+").toSeq }
-        .to[collection.immutable.Seq]
+        .getLines .map { w => w.split("\\s+").toList }
+        .toList
         
     // Specs for all the columns.
     val colSpecs = 
@@ -100,7 +100,7 @@ object Infer extends ArgMain[InferArgs]
       TableSpec( 
         args.database,
         args.table,
-        (immutable.Seq() : immutable.Seq[Schema.Ignore]),
+        (immutable.Seq(): immutable.Seq[Schema.Ignore]),
         colSpecs)
 
     println(tableSpec.pretty)
