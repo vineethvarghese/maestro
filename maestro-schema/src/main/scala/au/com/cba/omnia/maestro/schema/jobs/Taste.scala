@@ -30,12 +30,14 @@ import au.com.cba.omnia.maestro.schema.pretty._
 class Taste(args: Args) 
   extends Job(args) {
 
-  // Get the list of files under this path.
+  // Source HDFS path for input files.
   val nameInput       = args("input")
   val filesInput      = Input.list(nameInput)
-  val pipeInput       = MultipleTextLineFiles(filesInput.map{_.toString} :_*)
 
-  // Destination for taste histogram.
+  val pipeInput: TypedPipe[String] =
+    TypedPipe.from(MultipleTextLineFiles(filesInput.map{_.toString} :_*))
+
+  // Destination HDFS path for taste output.
   val fileOutputTaste = args("output-taste")
   val pipeOutputTaste = TypedTsv[String](fileOutputTaste)
 
@@ -48,24 +50,21 @@ class Taste(args: Args)
   val taste: TableTaste
     = TableTaste.empty(100)
 
-  // Read input files.
-  pipeInput.read.typed ('line -> 'l) { tpipe: TypedPipe[String] => {
+  // Read lines from the input files and accumulate them into a TableTaste.
+  val pTastes: TypedPipe[TableTaste] =
+    pipeInput
 
-    val pTastes: TypedPipe[TableTaste] =
-      tpipe
+      // Build a map of which types are matched by each line.
+      // The first time the worker is called it passes on a reference to the
+      // mutable counts map. For each successive time, it destructively accumulates
+      // the new counts into the existing map.
+      .flatMap { line: String => 
+        TableTaste.accumulateRow(taste, line) }
 
-        // Build a map of which types are matched by each line.
-        // The first time the worker is called it passes on a reference to the
-        // mutable counts map. For each successive time, it destructively accumulates
-        // the new counts into the existing map.
-        .flatMap { line: String => 
-          TableTaste.accumulateRow(taste, line) }
-
-        // Sum up the counts from each node on a single reducer.
-        .groupAll
-        .reduce (TableTaste.combine)
-        .values
-
+      // Sum up the counts from each node on a single reducer.
+      .groupAll
+      .reduce (TableTaste.combine)
+      .values
 
     // Show the classifications in a human readable format.
     pTastes
@@ -75,6 +74,5 @@ class Taste(args: Args)
       // Write the counts out to file.
       .write(pipeOutputTaste)
 
-  } }
 }
 
