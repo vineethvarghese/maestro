@@ -86,7 +86,7 @@ object build extends Build {
         ++ depend.omnia("omnitool-time", omnitoolVersion)
         ++ depend.omnia("omnitool-file", omnitoolVersion)
         ++ Seq(
-          "au.com.cba.omnia" %% "parlour"         % "1.3.0-20140911042552-5b19de3" intransitive()
+          "au.com.cba.omnia" %% "parlour"         % "1.3.0-20140917035942-eef7938" intransitive()
         , "org.apache.sqoop" %% "sqoop"           % "1.4.3-cdh4.6.0" intransitive() from "https://repository.cloudera.com/artifactory/public/org/apache/sqoop/sqoop/1.4.3-cdh4.6.0/sqoop-1.4.3-cdh4.6.0.jar"
         , "commons-daemon"    % "commons-daemon"  % "1.0.13"
         )

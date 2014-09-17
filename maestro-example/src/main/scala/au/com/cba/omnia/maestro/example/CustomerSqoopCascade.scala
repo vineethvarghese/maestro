@@ -13,16 +13,13 @@
 //   limitations under the License.
 package au.com.cba.omnia.maestro.example
 
-import java.io.File
 
 import com.twitter.scalding.Args
 
 import scalaz.{Tag => _, _}, Scalaz._
 
-import au.com.cba.omnia.maestro.api.{MaestroCascade, Partition, RowFilter, UniqueJob, Validator}
-import au.com.cba.omnia.maestro.api.Clean
-import au.com.cba.omnia.maestro.api.Maestro.{load, now, view}
-import au.com.cba.omnia.maestro.core.task.{FromPath, Sqoop}
+import au.com.cba.omnia.maestro.api._, Maestro._
+import au.com.cba.omnia.maestro.core.task.Sqoop
 import au.com.cba.omnia.maestro.example.thrift.Customer
 
 import au.com.cba.omnia.parlour.SplitByAmp
@@ -30,27 +27,22 @@ import au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl
 
 
 class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) with Sqoop {
-  val hdfsRoot = args("hdfs-root")
-  val source = args("source")
-  val domain = args("domain")
-  val tableName = args("tableName")
-  val mappers = args("mappers").toInt
-  val host = args("host")
-  val database = domain
+  val hdfsRoot         = args("hdfs-root")
+  val source           = args("source")
+  val domain           = args("domain")
+  val tableName        = args("tableName")
+  val mappers          = args("mappers").toInt
+  val host             = args("host")
+  val database         = domain
   val connectionString = s"jdbc:teradata://${host}/MODE=ANSI,CHARSET=UTF8,DATABASE=${database}"
-  val username = args("username")
-  val password = args("password")
-
-  val errors = s"${hdfsRoot}/errors/${domain}"
-  val filter = RowFilter.keep
-  val cleaners = Clean.all(
-    Clean.trim,
-    Clean.removeNonPrintables
-  )
-  val validators = Validator.all[Customer]()
-  val customerView = s"${hdfsRoot}/view/warehouse/${domain}/${tableName}"
-
-  val importPath = ImportPath(hdfsRoot, source, domain, tableName)
+  val username         = args("username")
+  val password         = args("password")
+  val errors           = s"${hdfsRoot}/errors/${domain}"
+  val filter           = RowFilter.keep
+  val cleaners         = Clean.all(Clean.trim, Clean.removeNonPrintables)
+  val validators       = Validator.all[Customer]()
+  val customerView     = s"${hdfsRoot}/view/warehouse/${domain}/${tableName}"
+  val importPath       = ImportPath(hdfsRoot, source, domain, tableName)
 
   /**
    * In order for sqoop to work with Teradata, you will need to include the teradata drivers and cloudera connector 
@@ -61,11 +53,11 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) wi
     .inputMethod(SplitByAmp)
     .splitBy("id")
 
+  val sqoopImportJob = sqoopImport(importPath, tableName, connectionString, username, password, '|', Some("1=1"), importOptions)(args)
   val loadView = new UniqueJob(args) {
     load[Customer]("|", List(importPath.path), errors, now(), cleaners, validators, filter, "null") |>
     view(Partition.byField(Fields.Cat), customerView)
   }
-  val sqoopImportJob = sqoopImport(loadView, importPath, tableName, connectionString, username, password, '|', "1=1",importOptions)(args)
 
   override val jobs = Seq(sqoopImportJob, loadView)
 }

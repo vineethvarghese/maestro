@@ -3,7 +3,6 @@ package au.com.cba.omnia.maestro.core.task
 import java.io.File
 
 import cascading.flow.FlowDef
-import cascading.tap.Tap
 
 import com.twitter.scalding._, TDsl._, Dsl._
 
@@ -48,11 +47,9 @@ trait Sqoop {
    *
    * '''Use this method ONLY if non-standard settings are required'''
    *
-   * @param nextJob: The job meant to run after this sqoop job. '''This job should have ONLY one source'''
    * @param options: Parlor import options
    */
   def customSqoopImport(
-    nextJob: Job,
     options: ParlourImportOptions[_]
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
     val logger = Logger.getLogger("Sqoop")
@@ -61,11 +58,7 @@ trait Sqoop {
     logger.info(s"connectionString = ${sqoopOptions.getConnectString}")
     logger.info(s"tableName        = ${sqoopOptions.getTableName}")
     logger.info(s"targetDir        = ${sqoopOptions.getTargetDir}")
-    val sourceCount: Int = nextJob.buildFlow.getSourcesCollection.size()
-    require(sourceCount == 1,
-      { if (sourceCount > 1) s"Next Job can have only one source but found $sourceCount" else "No source found on Next Job. Needs one source" })
-    val sink:Tap[_,_,_] = nextJob.buildFlow.getSourcesCollection.iterator().next()
-    new ImportSqoopJob(sqoopOptions, sink)(args)
+    new ImportSqoopJob(sqoopOptions)(args)
   }
 
   /**
@@ -73,7 +66,6 @@ trait Sqoop {
    *
    * Data will be copied to the provided [[ImportPath]]
    *
-   * @param nextJob: The job meant to run after this sqoop job. '''This job should have ONLY one source'''
    * @param importPath: Path to import the data to
    * @param tableName: Table name in the database
    * @param connectionString: Jdbc url for connecting to the database
@@ -85,14 +77,13 @@ trait Sqoop {
    * @return Job for this import
    */
   def sqoopImport[T <: ParlourImportOptions[T]](
-    nextJob: Job,
     importPath: ImportPath,
     tableName: String,
     connectionString: String,
     username: String,
     password: String,
     outputFieldsTerminatedBy: Char,
-    whereCondition: String,
+    whereCondition: Option[String] = None,
     options: ParlourImportOptions[T] = ParlourImportDsl()
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
     options.connectionString(connectionString)
@@ -101,32 +92,28 @@ trait Sqoop {
       .tableName(tableName)
       .targetDir(importPath.path)
       .fieldsTerminatedBy(outputFieldsTerminatedBy)
-      .where(whereCondition)
-    customSqoopImport(nextJob, options)(args)
+    whereCondition match {
+      case Some(where) => options.where(where)
+      case _ =>
+    }
+    customSqoopImport(options)(args)
   }
 
   /**
    * Runs a sqoop export from HDFS to a database table.
    *
-   * @param previousJob: The job meant to run before this sqoop job. '''This job should have ONLY one sink'''
    * @param options: Custom export options
    * @return Job for this export
    */
   def customSqoopExport[T <: ParlourExportOptions[T]](
-    previousJob: Job,
     options: ParlourExportOptions[T]
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
-    val sinkCount: Int = previousJob.buildFlow.getSinksCollection.size()
-    require(sinkCount == 1,
-      { if (sinkCount > 1) s"Previous Job can have only one sink but found $sinkCount" else "No sink found on Previous Job. Needs one sink" })
-    val source: Tap[_,_,_] = previousJob.buildFlow.getSinksCollection.iterator().next()
-    new ExportSqoopJob(options.toSqoopOptions, source)(args)
+    new ExportSqoopJob(options.toSqoopOptions)(args)
   }
 
   /**
    * Runs a sqoop export from HDFS to a database table.
    *
-   * @param previousJob: The job meant to run before this sqoop job. '''This job should have ONLY one sink'''
    * @param exportDir: Directory containing data to be exported
    * @param tableName: Table name in the database 
    * @param connectionString: Jdbc url for connecting to the database
@@ -136,7 +123,6 @@ trait Sqoop {
    * @return List of jobs for this export
    */
   def sqoopExport[T <: ParlourExportOptions[T]](
-    previousJob: Job,
     exportDir: String,
     tableName: String,
     connectionString: String,
@@ -151,6 +137,6 @@ trait Sqoop {
       .username(username)
       .password(password)
       .inputFieldsTerminatedBy(inputFieldsTerminatedBy)
-    customSqoopExport(previousJob, options)(args)
+    customSqoopExport(options)(args)
   }
 }
