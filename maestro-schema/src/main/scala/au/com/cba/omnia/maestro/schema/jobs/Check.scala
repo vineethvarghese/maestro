@@ -30,8 +30,8 @@ import au.com.cba.omnia.maestro.schema.hive.Input
 
 /** Job to check a table against an existing schema. */
 class Check(args: Args) 
-  extends Job(args) 
-{
+  extends Job(args) {
+
   val nameSchema  = args("schema")
   val nameInput   = args("input")
   val nameOutput  = args("output")
@@ -79,47 +79,46 @@ class Check(args: Args)
 }
 
 
-object Check
-{
+object Check {
+
   // Check if a row matches the associated table spec.
   // Returns the column specs and field values that don't match.
   def validRow(spec: TableSpec, separator: Char, s: String)
-    : Seq[(ColumnSpec, String)]
-    = s .split(separator)
-        .zip     (spec.columnSpecs)
-        .flatMap (ss => ss match {
-          case (field, cspec) => checkField(cspec, field) })
+    : Seq[(ColumnSpec, String)] =
+    s .split(separator)
+      .zip     (spec.columnSpecs)
+      .flatMap { case (field, cspec) => checkField(cspec, field) }
 
   // Check if a field value matches its associated column spec,
   //   returning None if yes, or the original spec and string if no.
   def checkField(spec: ColumnSpec, s: String)
-    : Option[(ColumnSpec, String)]
-    = if (spec.matches(s))
-            None
-      else  Some((spec, s))
+    : Option[(ColumnSpec, String)] =
+    if (spec.matches(s))
+          None
+    else  Some((spec, s))
 }
 
 
-object Pretty
-{
+object Pretty {
+  
   // Pretty print an optional format, showing '-' for the None case.
-  def prettyOptionFormat(op: Option[Format]): String
-    = op match { 
+  def prettyOptionFormat(op: Option[Format]): String = 
+    op match { 
         case None    => "-"
         case Some(f) => f.pretty 
     }
 
   // Pretty print a sequence of check errors.
-  def prettyErrors(errors: Seq[(ColumnSpec, String)]): String
-    = errors
-        .map { xx => xx match {
-          case (spec, s)  
-            => spec.name ++ 
-                "("       ++ 
-                "\"" ++ escapeJava(s) ++ "\"" ++ 
-                " : "     ++ 
-                prettyOptionFormat(spec.format) ++ 
-                ")" }}
-        .mkString("; ")
+  def prettyErrors(errors: Seq[(ColumnSpec, String)]): String = 
+    errors
+      .map { case (spec, s) =>
+        spec.name ++ 
+        "("       ++ 
+        "\"" ++ escapeJava(s) ++ "\"" ++ 
+        " : "     ++ 
+        prettyOptionFormat(spec.format) ++ 
+        ")" 
+       }
+      .mkString("; ")
 }
 

@@ -18,12 +18,12 @@ import  au.com.cba.omnia.maestro.schema._
 
 
 /** Three letter curreny codes, like "AUD", "USD", "CHF". */
-object CurrencyCode extends Syntax
-{
+object CurrencyCode extends Syntax {
+  
   val name = "CurrencyCode"
 
-  def likeness(s: String): Double
-    = if (codesISO(s) || codesOther(s)) 1.0 else 0.0
+  def likeness(s: String): Double = 
+    if (codesISO(s) || codesOther(s)) 1.0 else 0.0
 
   // ISO standard currency codes.
   val codesISO = Set(

@@ -21,8 +21,8 @@ import au.com.cba.omnia.maestro.schema.tope._
 
 
 /** Histogram squasher */
-object Squash
-{
+object Squash {
+
   /** Given a histogram of how many values in a column match each classifier, 
    *  remove the counts that don't provide any extra type information.
    *
@@ -66,10 +66,10 @@ object Squash
   def squash(hist: Histogram): Histogram = {
 
     // Squash all the things.
-    val squashSet     
-      = squashParents(hist) ++ 
-        squashPartitioned(hist) ++
-        squashSeparate(hist)
+    val squashSet =    
+      squashParents(hist) ++ 
+      squashPartitioned(hist) ++
+      squashSeparate(hist)
 
     // Remove all the unneeded classifiers in one go.
     val histS = Histogram(hist.counts.filterKeys { k => ! squashSet.contains (k) })
@@ -83,40 +83,38 @@ object Squash
   // ----------------------------------------------------------------
   /** If we have a child count classifier that has the same count as the parent,
       then we remove the count for the parent. */
-  def squashParents(hist: Histogram): Set[Classifier] 
-    = hist.counts
-        .flatMap { tChild => squashSetOfParent(hist, tChild._1) }
-        .toSet
+  def squashParents(hist: Histogram): Set[Classifier] = 
+    hist.counts
+      .flatMap { tChild => squashSetOfParent(hist, tChild._1) }
+      .toSet
 
 
   /** Collect the set of parent classifiers to remove,
       given a single child classifier. */
-  def squashSetOfParent
-      (hist: Histogram, child: Classifier)
-      : Set[Classifier]
-   =  child match { 
-        case ClasSyntax(sChild) =>
-          sChild.parents
-            .flatMap { sParent => squashSetOfParentChild(hist, ClasSyntax(sParent), child) }
-            .toSet
+  def squashSetOfParent(hist: Histogram, child: Classifier): Set[Classifier] =
+    child match { 
+      case ClasSyntax(sChild) =>
+        sChild.parents
+          .flatMap { sParent => squashSetOfParentChild(hist, ClasSyntax(sParent), child) }
+          .toSet
 
-        case ClasTope  (_, sChild) =>
-          sChild.parents
-            .flatMap { sParent => squashSetOfParentChild(hist, ClasSyntax(sParent), child) }
-            .toSet
+      case ClasTope  (_, sChild) =>
+        sChild.parents
+          .flatMap { sParent => squashSetOfParentChild(hist, ClasSyntax(sParent), child) }
+          .toSet
       }
 
 
   /** Collect the set of parent classifiers to remove,
       given a single parent-child relationship. */
-  def squashSetOfParentChild
-      (hist: Histogram, parent: Classifier, child: Classifier)
-      : Set[Classifier]
-    = if   (hist.counts.isDefinedAt(parent) && hist.counts.isDefinedAt(child))
-        if (hist.counts(parent) == hist.counts(child))
-                Set(parent)
-          else  Set()
-      else Set()
+  def squashSetOfParentChild(
+      hist: Histogram, parent: Classifier, child: Classifier): Set[Classifier] =
+    if   (hist.counts.isDefinedAt(parent) && hist.counts.isDefinedAt(child)) {
+      if (hist.counts(parent) == hist.counts(child))
+            Set(parent)
+      else  Set()
+    }
+    else Set()
 
 
   // ----------------------------------------------------------------
@@ -124,72 +122,54 @@ object Squash
    *  partitions of the parent, all the partitions have counts, and the sum
    *  of those counts sum to N, then we can remove *all* child nodes reachable
    *  from the parent. */
-  def squashPartitioned(hist: Histogram): Set[Classifier] 
-    = hist.counts
-        .flatMap { tNode => squashPartitionedOfParent(hist, tNode._1) }
-        .toSet
+  def squashPartitioned(hist: Histogram): Set[Classifier] = 
+    hist.counts
+      .flatMap { tNode => squashPartitionedOfParent(hist, tNode._1) }
+      .toSet
 
   /** When squashing partitions, get the children to remove given a
       single parent classifier. */
-  def squashPartitionedOfParent(hist: Histogram, master: Classifier)
-    : Set[Classifier] = master match {
+  def squashPartitionedOfParent(hist: Histogram, master: Classifier): Set[Classifier] = 
+    master match {
+      case ClasTope(_, _) => 
+        Set.empty
 
-      case ClasTope(_, _)
-       => Set.empty
-
-      case ClasSyntax(sMaster)   
-       => {
+      case ClasSyntax(sMaster) => {
 
         // All the children of this master node.
-        val ssChildren: Set[Syntax]
-          = Syntaxes.children(sMaster)
+        val ssChildren: Set[Syntax] = 
+          Syntaxes.children(sMaster)
 
         // The children that are partitions of the master.
-        val ssPartitions: Set[Syntax]
-          = Syntaxes.partitions(sMaster)
+        val ssPartitions: Set[Syntax] = 
+          Syntaxes.partitions(sMaster)
 
-        val csPartitions: Set[(Syntax, Int)]
-          = ssPartitions.flatMap { s => 
-              if (hist.counts.isDefinedAt(ClasSyntax(s)))
-                    Seq((s, hist.counts(ClasSyntax(s))))
-              else  Seq((s, 0)) }
-              .toSet
+        val csPartitions: Set[(Syntax, Int)] = 
+          ssPartitions.flatMap { s => 
+            if (hist.counts.isDefinedAt(ClasSyntax(s)))
+                  Seq((s, hist.counts(ClasSyntax(s))))
+            else  Seq((s, 0)) 
+          }
 
         // Sum of counts of for all the partition nodes.
-        val countPartitions
-          = csPartitions.toSeq.map   { cn => cn._2 }.sum
+        val countPartitions =
+          csPartitions.toSeq.map   { cn => cn._2 }.sum
 
         // The total number of partitions.
-        val nPartitions
-          = csPartitions.size
+        val nPartitions =
+          csPartitions.size
 
         // Number of partition nodes that have counts associated with them.
-        val nPartitionsActive
-          = csPartitions.filter { cn => cn._2 > 0}.size
+        val nPartitionsActive =
+          csPartitions.filter { cn => cn._2 > 0}.size
 
         // Count for the master node.
-        val countMaster
-          = if (hist.counts.isDefinedAt(master))
-                  hist.counts(master)
-            else  0
+        val countMaster =
+          hist.counts.getOrElse(master, 0)
 
         // All the desendents of the master node.
-        val ssDescendants: Set[Syntax]
-          = Syntaxes.descendants(sMaster)
-
-/*      println(
-                "hist:   " + hist + "\n" +
-                "\n" +
-                "    master:            " + master            + "\n" +
-                "    children:          " + ssChildren        + "\n" +
-                "    descendants:       " + ssDescendants     + "\n" +
-                "    ssPartitions:      " + ssPartitions      + "\n" +
-                "    csPartitions:      " + csPartitions      + "\n" +
-                "    countMaster:       " + countMaster       + "\n" +
-                "    countPartitions:   " + countPartitions   + "\n" + 
-                "    nPartitions:       " + nPartitions       + "\n" +
-                "    nPartitionsActive: " + nPartitionsActive + "\n\n")
-*/
+        val ssDescendants: Set[Syntax] =
+          Syntaxes.descendants(sMaster)
 
         // If partitions have the same counts of the master then,
         // we want to remove all descendants.
@@ -206,71 +186,60 @@ object Squash
   /** For some parent node with count N, if there is a set of child nodes that
    *  are mutually separate, and the sum of all those nodes is N, then remove 
    *  the parent. */
-  def squashSeparate(hist: Histogram): Set[Classifier]
-    = hist.counts
-        .flatMap { tNode => squashSeparateOfParent(hist, tNode._1) }
-        .toSet
+  def squashSeparate(hist: Histogram): Set[Classifier] = 
+    hist.counts
+      .flatMap { tNode => squashSeparateOfParent(hist, tNode._1) }
+      .toSet
 
   /** When squashing separate, get the classifiers to remove given the
       starting parent classifier. */
-  def squashSeparateOfParent(hist: Histogram, parent: Classifier)
-    : Set[Classifier] = parent match {
+  def squashSeparateOfParent(hist: Histogram, parent: Classifier): Set[Classifier] = 
+    parent match {
+      case ClasTope(_, _) =>
+        Set.empty
 
-      case ClasTope(_, _)
-       => Set.empty
-
-      case ClasSyntax(sParent)
-       => {
+      case ClasSyntax(sParent) => {
 
         // All the children of the master node.
-        val ssDescendants: Set[Syntax]
-          = Syntaxes.descendants(sParent)
+        val ssDescendants: Set[Syntax] =
+          Syntaxes.descendants(sParent)
 
-        val histS: Map[Syntax, Int]
-          = hist.counts.map { ss => ss match {
-              case (ClasSyntax(s),  n)  => (s, n)
-              case (ClasTope(_, s), n)  => (s, n) }}
+        val histS: Map[Syntax, Int] =
+          hist.counts.map { ss => ss match {
+            case (ClasSyntax(s),  n)  => (s, n)
+            case (ClasTope(_, s), n)  => (s, n) }
+          }
 
         // The descendants along with their counts.
-        val snDescendants: Set[(Syntax, Int)]
-          = ssDescendants.flatMap { s =>
-              if (histS.isDefinedAt(s))
-                    Seq((s, histS(s)))
-              else  Seq((s, 0)) }
-              .toSet
+        val snDescendants: Set[(Syntax, Int)] = 
+          ssDescendants.flatMap { s =>
+            if (histS.isDefinedAt(s))
+                  Seq((s, histS(s)))
+            else  Seq((s, 0)) }
+            .toSet
 
         // The active descendants.
-        val snDescendantsActive: Set[(Syntax, Int)]
-          = snDescendants.filter { sn => sn._2 > 0 }.toSet
+        val snDescendantsActive: Set[(Syntax, Int)] =
+          snDescendants.filter { sn => sn._2 > 0 }.toSet
 
         // Sum of counts of all the active descendants.
-        val countDescendants: Int
-          = snDescendantsActive.map { sn => sn._2 }.sum
+        val countDescendants: Int =
+          snDescendantsActive.map { sn => sn._2 }.sum
 
         // Flags saying whether each active descendant is separate from all the others.
-        val fsSeparate: Set[Boolean]
-          = snDescendantsActive.flatMap { sn1 =>
-            snDescendantsActive.map     { sn2 => 
-              if   (sn1 == sn2) true
-              else (Syntaxes.separate(sn1._1, sn2._1))
-            }}
+        val fsSeparate: Set[Boolean] = 
+          snDescendantsActive.flatMap { sn1 =>
+          snDescendantsActive.map     { sn2 => 
+            if   (sn1 == sn2) true
+            else (Syntaxes.separate(sn1._1, sn2._1))
+          }}
 
         // Count for the parent node.
-        val countParent
-          = if (hist.counts.isDefinedAt(parent))
-                  hist.counts(parent)
-            else  0
+        val countParent = 
+          if (hist.counts.isDefinedAt(parent))
+                hist.counts(parent)
+          else  0
 
-/*        println(
-                "hist:   " + hist + "\n" +
-                "\n" +
-                "    node:              " + parent               + "\n" +
-                "    descendants:       " + snDescendants        + "\n" +
-                "    descendantsActive: " + snDescendantsActive  + "\n" +
-                "    fsSeparate:        " + fsSeparate           + "\n" +
-                "    countParent:       " + countParent          + "\n" +
-                "    countDescendants:  " + countDescendants     + "\n\n")
-*/
         // If there is at least one child, and all the children are separate, 
         // and the counts on the children sum to the counts on the parent,
         // then we can remove the parent. 

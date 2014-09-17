@@ -18,12 +18,12 @@ import  au.com.cba.omnia.maestro.schema._
 
 
 /** CBA Financial system. */
-object CbaSystem extends Tope
-{
+object CbaSystem extends Tope {
+
   val name = "CbaSystem"
 
-  def likeness(s: String): Array[Double]
-    = syntaxes .map { _.likeness (s) }
+  def likeness(s: String): Array[Double] =
+    syntaxes .map { _.likeness (s) }
 
   val syntaxes: Array[Syntax] = Array(
     syntax.CbaSystemCode)
@@ -31,12 +31,12 @@ object CbaSystem extends Tope
 
 
 /** CBA Account code. */
-object CbaAccount extends Tope
-{ 
+object CbaAccount extends Tope {
+ 
   val name = "CbaAccount"
 
-  def likeness(s: String): Array[Double]
-    = syntaxes .map { _.likeness (s) }
+  def likeness(s: String): Array[Double] =
+    syntaxes .map { _.likeness (s) }
 
   val syntaxes: Array[Syntax] = Array(
     syntax.CbaAccountCode)

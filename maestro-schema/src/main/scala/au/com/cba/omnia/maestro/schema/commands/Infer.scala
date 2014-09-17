@@ -14,14 +14,15 @@
 package au.com.cba.omnia.maestro.schema
 package commands
 
+import scala.io.Source
+import scala.collection._
+
 import com.quantifind.sumac.ArgMain
 import com.quantifind.sumac.validation._
 import com.quantifind.sumac.FieldArgs
 
 import au.com.cba.omnia.maestro._
 import au.com.cba.omnia.maestro.schema._
-import scala.io.Source
-import scala.collection._
 
 
 /** Arguments for `Infer` command. .*/
@@ -84,7 +85,7 @@ object Infer extends ArgMain[InferArgs]
         .to[collection.immutable.Seq]
         
     // Specs for all the columns.
-    val colSpecs  =
+    val colSpecs = 
       nameTypes .zip (tasteSquashed)
         .map { case (nt, h) => 
             ColumnSpec( 

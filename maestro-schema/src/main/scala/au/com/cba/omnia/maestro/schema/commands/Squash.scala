@@ -33,8 +33,8 @@ class SquashArgs extends FieldArgs {
 /** Squash a histogram.
  *  For example, if we have Real:100 and Digits:100 then we only need
  *  to keep Digits:100, because all strings of Digits are also Reals. */
-object Squash extends ArgMain[SquashArgs]
-{
+object Squash extends ArgMain[SquashArgs] {
+
   def main(args: SquashArgs): Unit = {
 
     // Read the histogram file.

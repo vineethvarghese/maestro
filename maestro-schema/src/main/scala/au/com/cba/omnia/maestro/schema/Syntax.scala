@@ -27,16 +27,15 @@ import au.com.cba.omnia.maestro.schema.syntax._
  *  always a collection of digits then we identify that as a specific syntax 
  *  without knowing what external entity it refers to.
  */
-abstract class Syntax 
-{
+abstract class Syntax {
+
   /** Printable name for a syntax.
       This can be displayed to the user, as well as used for a key for maps. */
   def name: String
 
   /** Sort order to use when printing schemas.
       Lower is earlier. */
-  def sortOrder: Int
-    = 0
+  def sortOrder: Int = 0
 
   /** Yield how well the syntax matches this String.
    *  In the range [0.0, 1.0].
@@ -44,8 +43,8 @@ abstract class Syntax
   def likeness(s: String): Double
 
   /** Check if this string completely matches the Tope, or not. */
-  def matches(s: String): Boolean
-    = likeness(s) >= 1.0
+  def matches(s: String): Boolean =
+    likeness(s) >= 1.0
 
   /** If this syntax matches the given string, then so do these parent syntaxes.
    *  This information is used in the squashParents process, to remove
@@ -60,15 +59,15 @@ abstract class Syntax
 
   /** Values that match this syntax are guaranteed not to match 
       with any other syntax. */
-  val isolate: Boolean
-    = false
+  val isIsolate: Boolean = 
+    false
 
 }
 
 
 /** All the syntaxes we support, and functions on them. */
-object Syntaxes
-{
+object Syntaxes {
+  
   /** All the generic syntaxes that we know about.
    *  These are standard formats and encodings, that we use when we can't
    *  identify what Tope a String refers to. */
@@ -130,18 +129,18 @@ object Syntaxes
   )
 
   /** The names of all the syntaxes. */
-  val names: Array[String]
-    = syntaxes .map {_.name}
+  val names: Array[String] = 
+    syntaxes .map {_.name}
 
 
   /** Get the partitions of a syntax. */
-  def partitions(sParent: Syntax): Set[Syntax]
-   = sParent.partitions
+  def partitions(sParent: Syntax): Set[Syntax] = 
+    sParent.partitions
 
 
   /** Get all the direct parents of a syntax. */
-  def parents(s: Syntax): Set[Syntax] 
-    = s.parents
+  def parents(s: Syntax): Set[Syntax] = 
+    s.parents
 
 
   /** Get all the ancestors of a syntax. */
@@ -159,19 +158,19 @@ object Syntaxes
 
   /** Check whether these two syntaxes are siblings, 
    *  meaning they share a parent. */
-  def areSiblings(s1: Syntax, s2: Syntax): Boolean 
-    = (parents(s1) .intersect (parents(s2))) .size > 0
+  def areSiblings(s1: Syntax, s2: Syntax): Boolean = 
+    (parents(s1) .intersect (parents(s2))) .size > 0
 
 
   /** Check whether all syntaxes in a set are siblings,
    *  meaning they share a parent. */
-  def areSiblings(ss: Set[Syntax]): Boolean
-    = ss .forall { s1 => ss .forall { s2 => areSiblings(s1, s2) } }
+  def areSiblings(ss: Set[Syntax]): Boolean =
+    ss .forall { s1 => ss .forall { s2 => areSiblings(s1, s2) } }
 
 
   /** Get the direct children of a syntax. */
-  def children(sParent: Syntax): Set[Syntax]
-   = (syntaxes ++ topeSyntaxes)
+  def children(sParent: Syntax): Set[Syntax] =
+    (syntaxes ++ topeSyntaxes)
       .filter { s => s.parents.contains(sParent) }
       .toSet
 
@@ -190,11 +189,11 @@ object Syntaxes
 
   /** Get whether these two syntaxes are separate, meaning that the sets of
       strings in each syntax are disjoint. */
-  def separate(s1: Syntax, s2: Syntax): Boolean
-   = (s1, s2) match { 
+  def separate(s1: Syntax, s2: Syntax): Boolean = 
+    (s1, s2) match { 
       case (Exact(str), _) => !s2.matches(str)
       case (_, Exact(str)) => !s1.matches(str)
-      case _               => (s1 != s2) && (s1.isolate || s2.isolate)
+      case _               => (s1 != s2) && (s1.isIsolate || s2.isIsolate)
    }
 }
 

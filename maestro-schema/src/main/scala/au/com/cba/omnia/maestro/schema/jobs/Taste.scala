@@ -28,8 +28,7 @@ import au.com.cba.omnia.maestro.schema.pretty._
 /** Job to scan through data from a input table and build a histogram
   * of how many values in each column match each possible classifier. */
 class Taste(args: Args) 
-  extends Job(args) 
-{
+  extends Job(args) {
 
   // Get the list of files under this path.
   val nameInput       = args("input")
@@ -69,23 +68,9 @@ class Taste(args: Args)
 
 
     // Show the classifications in a human readable format.
-    // TODO: hacks, we're only returning counts for the rows with the
-    // most fields. This won't work if the nodes get rows with diff number of fields.
-    // We need to combine counts for rows with the same number of fields.
     pTastes
-
-      .map { tasteFinal : TableTaste => {
-
-        JsonDoc.render(0, tasteFinal.toJson)
-
-/*        val ccounts   = tasteFinal.rowTastes
-        val lcounts   = ccounts.toList
-        val maxField  = lcounts .map { _._1 } .max
-        val hist      = ccounts(maxField).fieldTastes.map { _.clasCounts }
-        Schema.showCountsRow (Classifier.all, hist) 
-*/
-
-        } }
+      .map { tasteFinal: TableTaste => 
+        JsonDoc.render(0, tasteFinal.toJson) }
 
       // Write the counts out to file.
       .write(pipeOutputTaste)

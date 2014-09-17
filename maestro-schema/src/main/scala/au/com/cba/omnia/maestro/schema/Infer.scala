@@ -21,27 +21,20 @@ import au.com.cba.omnia.maestro.schema.tope._
 
 
 /** Top-level of the schema inferencer. */
-object Infer
-{
+object Infer {
+
   /** Given a squashed histogram for a column, 
-      try to in infer a suitable format / semantic type for it. */
+   *  try to infer a suitable format / semantic type for it. */
   def infer(hist: Histogram): Option[Format] = {
 
     // All the classifiers in the historgram.
-    val classifiers
-      = hist.counts.toSeq.map { _._1 }
+    val classifiers = hist.counts.keys.toList
 
     // All the syntax classifiers.
-    val syntaxes
-      = classifiers .flatMap { 
-          case ClasSyntax(s)  => Seq(s) 
-          case ClasTope(_, _) => Seq() }
+    val syntaxes    = classifiers .collect { case ClasSyntax(s)    => s }
 
     // All the tope classifiers.
-    val topes
-      = classifiers .filter {
-          case ClasSyntax(_)  => false
-          case ClasTope(_, _) => true }
+    val topes       = classifiers .collect { case a@ClasTope(_, _) => a }
 
     // If we have a single classifier that is not Any, then use that.
     // This is the best possible case, as all the data in the column
@@ -49,14 +42,14 @@ object Infer
     if (hist.counts.size == 1) {
       val clas  = classifiers(0)
       if (clas != ClasSyntax(Any))
-           Some (Format(List(hist.counts.toSeq(0)._1)))
+           Some (Format(List(hist.counts.toList(0)._1)))
       else None
     }
 
     // If all classifiers are syntaxes and siblings then we have a
     // union type.
     else if (topes.size == 0 && Syntaxes.areSiblings(syntaxes.toSet))
-      Some(Format(syntaxes.map { s => ClasSyntax(s) }.toList))
+      Some(Format(syntaxes.map(s => ClasSyntax(s))))
 
     // There isn't an obvious format to use for this column.
     else None

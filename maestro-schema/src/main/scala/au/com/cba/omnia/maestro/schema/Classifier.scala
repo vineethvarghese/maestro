@@ -16,9 +16,9 @@ package au.com.cba.omnia.maestro.schema
 import  au.com.cba.omnia.maestro.schema.syntax._
 
 
-/** A wrapper for raw syntaxes, and topes with their syntax. */
-abstract class Classifier
-{ 
+/** A wrapper for raw syntaxes, and topes with their syntax. 
+ */
+sealed trait Classifier { 
   /** Human readable name for the Classifier. */
   def name: String
 
@@ -33,8 +33,8 @@ abstract class Classifier
 
   /** Check if this string completely matches the classifier, 
       meaning the likeness is 1.0 */
-  def matches(s: String): Boolean
-    = likeness(s) >= 1.0
+  def matches(s: String): Boolean =
+    likeness(s) >= 1.0
 
   /** Yield the parent syntaxes of this classifier, if there are any. 
       If a string matches this syntax, then it also matches all the parents. */
@@ -42,63 +42,59 @@ abstract class Classifier
 }
 
 
-/** Wrap a Syntax as a Classifier.
- *  @param syntax syntax being wrapped
- */
+/** Wrap a Syntax as a Classifier. */
 case class ClasSyntax(syntax: Syntax)
-  extends Classifier
-{ 
-  val name: String
-    = syntax.name
+  extends Classifier { 
 
-  val sortOrder: Int
-    = syntax.sortOrder
+  val name: String =
+    syntax.name
 
-  def likeness(s: String): Double
-    = syntax.likeness(s)
+  val sortOrder: Int =
+    syntax.sortOrder
 
-  def parents: Set[Syntax]
-    = syntax.parents
+  def likeness(s: String): Double =
+    syntax.likeness(s)
+
+  def parents: Set[Syntax] =
+    syntax.parents
 }
 
 
-/** Wrap a Tope along with its representation Syntax as a Classifier. 
- *  @param tope tope being wrapped
- *  @param syntax being wrapped
- */
+/** Wrap a Tope along with its representation Syntax as a Classifier. */
 case class ClasTope(tope: Tope, syntax: Syntax)
-  extends Classifier
-{
-  val name: String
-    = tope.name + "." ++ syntax.name
+  extends Classifier {
 
-  val sortOrder: Int
-    = 100
+  val name: String =
+    tope.name + "." ++ syntax.name
 
-  def likeness(s: String): Double
-    = syntax.likeness(s)
+  val sortOrder: Int =
+    100
 
-  def parents: Set[Syntax]
-    = syntax.parents
+  def likeness(s: String): Double =
+    syntax.likeness(s)
+
+  def parents: Set[Syntax] =
+    syntax.parents
 }
 
 
 /** Companion object for Classifiers. */
-object Classifier
-{
-  /** Yield an array of all classifiers we know about. */
+object Classifier {
+
+  /** Yield an array of all classifiers we know about. 
+   *  We use an array for this to ensure all the counts are stored unboxed
+   *  at runtime. */
   val all: Array[Classifier] = {
 
     // Classifiers that wrap raw syntaxes.
-    def sx: Array[Classifier]
-      = Syntaxes.syntaxes     
-          .map { s  : Syntax => ClasSyntax(s) }.toArray
+    def sx: Array[Classifier] =
+      Syntaxes.syntaxes     
+        .map { s => ClasSyntax(s) }.toArray
 
     // Classifiers that wrap topes.
-    def st: Array[Classifier]
-      = Topes.topeSyntaxes
-          .map { ts : (Tope, Syntax) => ts match {
-            case (tope, syntax) => ClasTope (tope, syntax) }}
+    def st: Array[Classifier] =
+      Topes.topeSyntaxes
+        .map { case (tope, syntax) => ClasTope (tope, syntax) }
 
     sx ++ st
   }

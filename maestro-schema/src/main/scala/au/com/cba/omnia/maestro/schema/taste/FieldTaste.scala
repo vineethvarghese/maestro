@@ -15,7 +15,9 @@ package au.com.cba.omnia.maestro.schema
 package taste
 
 import scala.collection._
+
 import au.com.cba.omnia.maestro.schema.pretty._
+
 
 /** Classifier counts for a single field in a row. */
 case class FieldTaste(
@@ -54,7 +56,7 @@ object FieldTaste {
 
   /** Compute the possible classifications for a given field. */
   def classify(maxHistSize: Int, str: String): FieldTaste = {
-    val clasCounts: Array[Int]  = 
+    val clasCounts: Array[Int] = 
       Classifier.all
         .map {_.likeness(str)}
         .map {like => if (like >= 1.0) 1 else 0}
@@ -80,6 +82,7 @@ object FieldTaste {
     // Update the histogram.
     SampleMap.accumulate(ft.histField, str)
   }
+
 
   /** Combine the information in two FieldTastes to produce a new one. */
   def combine(ft1: FieldTaste, ft2: FieldTaste): FieldTaste = {

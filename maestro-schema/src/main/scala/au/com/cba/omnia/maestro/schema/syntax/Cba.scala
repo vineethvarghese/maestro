@@ -18,12 +18,12 @@ import  au.com.cba.omnia.maestro.schema._
 
 
 /** Three letter CBA financial system codes, like "SAP". */
-object CbaSystemCode extends Syntax
-{
+object CbaSystemCode extends Syntax {
+
   val name = "CbaSystemCode"
 
-  def likeness(s: String): Double
-    = if (codes(s)) 1.0 else 0.0
+  def likeness(s: String): Double = 
+    if (codes(s)) 1.0 else 0.0
 
   val codes = Set(
           "AFS"
@@ -50,17 +50,17 @@ object CbaSystemCode extends Syntax
 /** CBA Account codes, which start with a three letter system code.
  *  We assume anything with a system code followed by at least three
  *  five more charaters is an account code. */
-object CbaAccountCode extends Syntax
-{
+object CbaAccountCode extends Syntax {
+  
   val name = "CbaAccountCode"
 
-  def likeness(s: String): Double 
-    = if      (s.length < 3) 
-           0.0
-      else if (CbaSystemCode.codes(s.substring(0, 3)) 
-               && s.length >= 8)
-           1.0
-      else 0.0
+  def likeness(s: String): Double = 
+    if      (s.length < 3) 
+         0.0
+    else if (CbaSystemCode.codes(s.substring(0, 3)) 
+             && s.length >= 8)
+         1.0
+    else 0.0
 
   val parents:    Set[Syntax] = Set(Any)
   val partitions: Set[Syntax] = Set()
