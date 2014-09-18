@@ -13,7 +13,6 @@
 //   limitations under the License.
 package au.com.cba.omnia.maestro.example
 
-
 import com.twitter.scalding.Args
 import scalaz.{Tag => _, _}, Scalaz._
 
@@ -22,7 +21,6 @@ import au.com.cba.omnia.maestro.example.thrift.Customer
 
 import au.com.cba.omnia.parlour.SplitByAmp
 import au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl
-
 
 class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
   val hdfsRoot         = args("hdfs-root")

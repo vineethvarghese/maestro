@@ -97,17 +97,10 @@ trait Sqoop {
     whereCondition: Option[String] = None,
     options: ParlourImportOptions[T] = ParlourImportDsl()
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
-    options.connectionString(connectionString)
-      .username(username)
-      .password(password)
-      .tableName(tableName)
-      .targetDir(importPath.path)
-      .fieldsTerminatedBy(outputFieldsTerminatedBy)
-    whereCondition match {
-      case Some(where) => options.where(where)
-      case _ =>
-    }
-    customSqoopImport(options)(args)
+    val withConnection = options.connectionString(connectionString).username(username).password(password)
+    val withEntity = withConnection.tableName(tableName).targetDir(importPath.path).fieldsTerminatedBy(outputFieldsTerminatedBy)
+    val finalOptions = whereCondition.map(withEntity.where).getOrElse(withEntity)
+    customSqoopImport(finalOptions)(args)
   }
 
   /**
@@ -142,12 +135,8 @@ trait Sqoop {
     inputFieldsTerminatedBy: Char,
     options: ParlourExportOptions[T] = ParlourExportDsl()
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
-    options.exportDir(exportDir)
-      .tableName(tableName)
-      .connectionString(connectionString)
-      .username(username)
-      .password(password)
-      .inputFieldsTerminatedBy(inputFieldsTerminatedBy)
-    customSqoopExport(options)(args)
+    val withConnection = options.connectionString(connectionString).username(username).password(password)
+    val withEntity = withConnection.exportDir(exportDir).tableName(tableName).inputFieldsTerminatedBy(inputFieldsTerminatedBy)
+    customSqoopExport(withEntity)(args)
   }
 }
