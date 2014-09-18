@@ -1,11 +1,23 @@
+//   Copyright 2014 Commonwealth Bank of Australia
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+
 package au.com.cba.omnia.maestro.core.task
 
 import java.io.File
 
 import cascading.flow.FlowDef
-
-import com.twitter.scalding._, TDsl._, Dsl._
-
+import com.twitter.scalding._
 import org.apache.log4j.Logger
 import org.joda.time.{DateTime, DateTimeZone}
 
@@ -19,7 +31,6 @@ import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
  *
  * See the example at `au.com.cba.omnia.maestro.example.CustomerSqoopExample` to understand how to use
  * the [[Sqoop]] API
- *
  *
  */
 trait Sqoop {
@@ -47,7 +58,7 @@ trait Sqoop {
    *
    * '''Use this method ONLY if non-standard settings are required'''
    *
-   * @param options: Parlor import options
+   * @param options: Parlour import options
    */
   def customSqoopImport(
     options: ParlourImportOptions[_]

@@ -15,18 +15,16 @@ package au.com.cba.omnia.maestro.example
 
 
 import com.twitter.scalding.Args
-
 import scalaz.{Tag => _, _}, Scalaz._
 
 import au.com.cba.omnia.maestro.api._, Maestro._
-import au.com.cba.omnia.maestro.core.task.Sqoop
 import au.com.cba.omnia.maestro.example.thrift.Customer
 
 import au.com.cba.omnia.parlour.SplitByAmp
 import au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl
 
 
-class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) with Sqoop {
+class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
   val hdfsRoot         = args("hdfs-root")
   val source           = args("source")
   val domain           = args("domain")
