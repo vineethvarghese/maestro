@@ -31,7 +31,7 @@ object build extends Build {
   type Sett = Def.Setting[_]
 
   val thermometerVersion = "0.3.2-20140818231306-749dcce"
-  val ebenezerVersion    = "0.8.0-20140803225314-c0817fc"
+  val ebenezerVersion    = "0.8.1-20140922084421-96ca64c"
   val omnitoolVersion    = "1.2.0-20140821122038-cd14d22"
 
   lazy val standardSettings: Seq[Sett] =
@@ -82,7 +82,7 @@ object build extends Build {
         ++ depend.shapeless() ++ depend.testing() ++ depend.time()
         ++ depend.omnia("ebenezer-hive", ebenezerVersion)
         ++ depend.omnia("edge",          "2.1.0-20140817232646-c24b23c")
-        ++ depend.omnia("humbug-core",   "0.3.0-20140821040938-609c881")
+        ++ depend.omnia("humbug-core",   "0.3.0-20140918054014-3066286")
         ++ depend.omnia("omnitool-time", omnitoolVersion)
         ++ depend.omnia("omnitool-file", omnitoolVersion)
         ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
