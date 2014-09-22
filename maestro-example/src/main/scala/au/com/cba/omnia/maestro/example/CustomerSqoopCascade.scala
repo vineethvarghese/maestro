@@ -13,8 +13,12 @@
 //   limitations under the License.
 package au.com.cba.omnia.maestro.example
 
+import java.io.File
+
 import com.twitter.scalding.Args
 import scalaz.{Tag => _, _}, Scalaz._
+
+import org.joda.time.{DateTime, DateTimeZone}
 
 import au.com.cba.omnia.maestro.api._, Maestro._
 import au.com.cba.omnia.maestro.example.thrift.Customer
@@ -38,24 +42,22 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
   val cleaners         = Clean.all(Clean.trim, Clean.removeNonPrintables)
   val validators       = Validator.all[Customer]()
   val customerView     = s"${hdfsRoot}/view/warehouse/${domain}/${tableName}"
-  val importPath       = ImportPath(hdfsRoot, source, domain, tableName)
+  val timePath         = DateTime.now(DateTimeZone.UTC).toString(List("yyyy","MM", "dd") mkString File.separator)
 
   /**
    * In order for sqoop to work with Teradata, you will need to include the teradata drivers and cloudera connector 
    * in the maestro-example/lib folder when building the assembly. 
    */
-  val importOptions = TeradataParlourImportDsl()
-    .numberOfMappers(mappers)
-    .inputMethod(SplitByAmp)
-    .splitBy("id")
+  val initialOption = createOptions(tableName, connectionString, username, password, '|', Some("1=1"), TeradataParlourImportDsl())
+  val finalOption = initialOption.numberOfMappers(mappers).inputMethod(SplitByAmp).splitBy("id")
 
-  val sqoopImportJob = sqoopImport(importPath, tableName, connectionString, username, password, '|', Some("1=1"), importOptions)(args)
+  val importJobs = sqoopImport(hdfsRoot, source, domain, tableName, timePath, finalOption)(args)
   val loadView = new UniqueJob(args) {
-    load[Customer]("|", List(importPath.path), errors, now(), cleaners, validators, filter, "null") |>
+    load[Customer]("|", List(importJobs._2), errors, now(), cleaners, validators, filter, "null") |>
     view(Partition.byField(Fields.Cat), customerView)
   }
 
-  override val jobs = Seq(sqoopImportJob, loadView)
+  override val jobs = importJobs._1 :+ loadView
 }
 
 

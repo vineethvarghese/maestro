@@ -15,14 +15,21 @@
 package au.com.cba.omnia.maestro.core.task
 
 import java.io.File
+import java.util.{Collection => JCollection}
+
+import scala.collection.JavaConverters.seqAsJavaListConverter
 
 import cascading.flow.FlowDef
+import cascading.flow.hadoop.ProcessFlow
+import cascading.tap.Tap
 import com.twitter.scalding._
+import org.apache.hadoop.mapred.JobConf
+import org.apache.hadoop.tools.DistCp
 import org.apache.log4j.Logger
-import org.joda.time.{DateTime, DateTimeZone}
+import riffle.process._
 
-import au.com.cba.omnia.parlour.{ExportSqoopJob, ImportSqoopJob, ParlourExportOptions, ParlourImportOptions}
 import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
+import au.com.cba.omnia.parlour._
 
 /**
  * Import and export data between a database and HDFS.
@@ -36,21 +43,66 @@ import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
 trait Sqoop {
 
   /**
-   * For a given `domain` and `tableName`, [[ImportPath]] creates a standard
-   * HDFS location: `\$hdfsRoot/source/\$source/\$domain/\$tableName/<year>/<month>/<day>`.
-   *
-   * Year, month and day are derived from the current date.
-   *
-   * @param hdfsRoot
-   * @param source
-   * @param domain
-   * @param tableName
+   * Archive Job for data imported by sqoop
+   * @param source: Source pointing to the folder to archive
+   * @param sink: Source pointing to the archive location
    */
-  case class ImportPath(hdfsRoot: String, source: String, domain: String, tableName: String) {
-    def path = {
-      val date = DateTime.now(DateTimeZone.UTC).toString(List("yyyy","MM", "dd") mkString File.separator)
-      List(hdfsRoot, "source", source, domain, tableName, date) mkString File.separator
+  protected class ArchiveDirectoryJob(source: Source, sink: Source)(args: Args) extends Job(args) {
+
+    override def buildFlow =
+      new ProcessFlow[ArchiveDirectoryRiffle](s"$name [${uniqueId.get}]",
+        new ArchiveDirectoryRiffle(source.createTap(Read), sink.createTap(Write)))
+
+    override def validate = ()
+
+  }
+
+  @Process
+  protected class ArchiveDirectoryRiffle(source: Tap[_, _, _], sink: Tap[_, _, _]) {
+
+    @ProcessStop
+    def stop(): Unit = ()
+
+    @ProcessComplete
+    def complete(): Unit = {
+      val jobConf = new JobConf(classOf[DistCp])
+      val distcp = new DistCp(jobConf)
+      val outcome = distcp.run(Array(source.getIdentifier, sink.getIdentifier));
+      if (outcome != 0) 
+        throw new RuntimeException(s"Distributed Copy from ${source.getIdentifier} to ${sink.getIdentifier} failed.")
     }
+
+    @DependencyIncoming
+    def getIncoming(): JCollection[_] = List(source).asJava
+
+    @DependencyOutgoing
+    def getOutgoing(): JCollection[_] = List(sink).asJava
+
+  }
+
+  /**
+   * Convenience method to populate a parlour option instance
+   * @param tableName: table name
+   * @param connectionString: database connection string
+   * @param username: database username
+   * @param password: database password
+   * @param outputFieldsTerminatedBy: output field terminating character
+   * @param whereCondition: where condition if any
+   * @param options: parlour option to populate
+   * @return : Populated parlour option
+   */
+  def createOptions[T <: ParlourImportOptions[T]](
+    tableName: String,
+    connectionString: String,
+    username: String,
+    password: String,
+    outputFieldsTerminatedBy: Char,
+    whereCondition: Option[String] = None,
+    options: T = ParlourImportDsl()
+  ): T = {
+    val withConnection = options.connectionString(connectionString).username(username).password(password)
+    val withEntity = withConnection.tableName(tableName).fieldsTerminatedBy(outputFieldsTerminatedBy)
+    whereCondition.map(withEntity.where).getOrElse(withEntity)
   }
 
   /**
@@ -73,34 +125,32 @@ trait Sqoop {
   }
 
   /**
-   * Runs a sqoop import from a database to HDFS.
+   * Runs a sqoop import from a database table to HDFS.
    *
-   * Data will be copied to the provided [[ImportPath]]
+   * Data will be copied to a path that is generated. For a given `domain`,`tableName` and `timePath`, a path
+   * `\$hdfsRoot/source/\$source/\$domain/\$tableName/\$timePath` is generated.
    *
-   * @param importPath: Path to import the data to
-   * @param tableName: Table name in the database
-   * @param connectionString: Jdbc url for connecting to the database
-   * @param username: Username for connecting to the database
-   * @param password: Password for connecting to the database
-   * @param outputFieldsTerminatedBy: Marker to terminate output fields with
-   * @param whereCondition: Filter condition to be used on the table
-   * @param options: Extra import options
-   * @return Job for this import
+   * @param hdfsRoot: Root directory of HDFS
+   * @param source: Source system
+   * @param domain: Database within source
+   * @param tableName: Table name in database
+   * @param timePath: custom timepath to import data into
+   * @param options: Sqoop import options
+   * @return Tuple of Seq of jobs for this import and import directory.
    */
   def sqoopImport[T <: ParlourImportOptions[T]](
-    importPath: ImportPath,
+    hdfsRoot: String,
+    source: String,
+    domain: String,
     tableName: String,
-    connectionString: String,
-    username: String,
-    password: String,
-    outputFieldsTerminatedBy: Char,
-    whereCondition: Option[String] = None,
+    timePath: String,
     options: ParlourImportOptions[T] = ParlourImportDsl()
-  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
-    val withConnection = options.connectionString(connectionString).username(username).password(password)
-    val withEntity = withConnection.tableName(tableName).targetDir(importPath.path).fieldsTerminatedBy(outputFieldsTerminatedBy)
-    val finalOptions = whereCondition.map(withEntity.where).getOrElse(withEntity)
-    customSqoopImport(finalOptions)(args)
+  )(args: Args)(implicit flowDef: FlowDef, mode: Mode): (Seq[Job], String) = {
+    val importPath = List(hdfsRoot, "source", source, domain, tableName, timePath) mkString File.separator
+    val archivePath = List(hdfsRoot, "archive", source, domain, tableName, timePath) mkString File.separator
+    val finalOptions = options.tableName(tableName).targetDir(importPath)
+    (Seq(customSqoopImport(finalOptions)(args),
+      new ArchiveDirectoryJob(new DirSource(importPath), new DirSource(archivePath))(args)), importPath)
   }
 
   /**
