@@ -91,7 +91,7 @@ trait Sqoop {
    * @param options: parlour option to populate
    * @return : Populated parlour option
    */
-  def createOptions[T <: ParlourImportOptions[T]](
+  def createSqoopOptions[T <: ParlourImportOptions[T]](
     tableName: String,
     connectionString: String,
     username: String,
