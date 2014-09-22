@@ -14,12 +14,8 @@
 package au.com.cba.omnia.maestro.schema
 package jobs
 
-import scala.collection._
-import org.apache.hadoop.fs._
 import com.twitter.scalding._
-import TDsl._
 
-import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.taste._
 import au.com.cba.omnia.maestro.schema.hive.Input
 import au.com.cba.omnia.maestro.schema.pretty._

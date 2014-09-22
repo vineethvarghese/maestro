@@ -205,10 +205,9 @@ object Squash {
           Syntaxes.descendants(sParent)
 
         val histS: Map[Syntax, Int] =
-          hist.counts.map { ss => ss match {
+          hist.counts.map { 
             case (ClasSyntax(s),  n)  => (s, n)
             case (ClasTope(_, s), n)  => (s, n) }
-          }
 
         // The descendants along with their counts.
         val snDescendants: Set[(Syntax, Int)] = 

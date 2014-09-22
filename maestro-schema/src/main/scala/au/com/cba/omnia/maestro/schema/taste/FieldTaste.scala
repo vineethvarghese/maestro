@@ -14,8 +14,6 @@
 package au.com.cba.omnia.maestro.schema
 package taste
 
-import scala.collection._
-
 import au.com.cba.omnia.maestro.schema.pretty._
 
 

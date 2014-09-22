@@ -13,8 +13,6 @@
 //   limitations under the License.
 package au.com.cba.omnia.maestro.schema
 
-import scala.collection._
-
 import au.com.cba.omnia.maestro.schema.hive._
 import au.com.cba.omnia.maestro.schema.syntax._
 import au.com.cba.omnia.maestro.schema.pretty._
@@ -34,9 +32,9 @@ case class TableSpec(
   columnSpecs : Seq[ColumnSpec]) {
 
   /** Pretty print a TableSpec as a String */
-  def pretty: String
-    = columnSpecs .map {c => c.pretty}
-        .mkString("\n")
+  def pretty: String =
+    columnSpecs .map (c => c.pretty)
+      .mkString("\n")
 }
 
 
@@ -124,7 +122,7 @@ case class Histogram(counts: Map[Classifier, Int]) {
     // If there aren't any classifications for this field then
     // just print "-" as a placeholder.
     if (strs.length == 0) "-"
-    else (strs.mkString(", "))
+    else strs.mkString(", ")
   }
 
 

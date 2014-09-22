@@ -15,7 +15,6 @@
 package au.com.cba.omnia.maestro.schema
 package parser
 
-import scala.collection.immutable._
 import scala.util.parsing.combinator.Parsers
 import scala.util.parsing.input.{NoPosition, Position, Reader}
 
