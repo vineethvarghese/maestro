@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>UniqueJob - au.com.cba.omnia.maestro.api.UniqueJob</title>
-          <meta name="description" content="UniqueJob - au.com.cba.omnia.maestro.api.UniqueJob" />
-          <meta name="keywords" content="UniqueJob au.com.cba.omnia.maestro.api.UniqueJob" />
+          <title>CustomerSqoopCascade - au.com.cba.omnia.maestro.example.CustomerSqoopCascade</title>
+          <meta name="description" content="CustomerSqoopCascade - au.com.cba.omnia.maestro.example.CustomerSqoopCascade" />
+          <meta name="keywords" content="CustomerSqoopCascade au.com.cba.omnia.maestro.example.CustomerSqoopCascade" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../../../../index.html';
-            var hash = 'au.com.cba.omnia.maestro.api.UniqueJob';
+            var hash = 'au.com.cba.omnia.maestro.example.CustomerSqoopCascade';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -25,23 +25,23 @@
         <body class="type">
       <div id="definition">
         <img src="../../../../../../lib/class_big.png" />
-        <p id="owner"><a href="../../../../../package.html" class="extype" name="au">au</a>.<a href="../../../../package.html" class="extype" name="au.com">com</a>.<a href="../../../package.html" class="extype" name="au.com.cba">cba</a>.<a href="../../package.html" class="extype" name="au.com.cba.omnia">omnia</a>.<a href="../package.html" class="extype" name="au.com.cba.omnia.maestro">maestro</a>.<a href="package.html" class="extype" name="au.com.cba.omnia.maestro.api">api</a></p>
-        <h1>UniqueJob</h1>
+        <p id="owner"><a href="../../../../../package.html" class="extype" name="au">au</a>.<a href="../../../../package.html" class="extype" name="au.com">com</a>.<a href="../../../package.html" class="extype" name="au.com.cba">cba</a>.<a href="../../package.html" class="extype" name="au.com.cba.omnia">omnia</a>.<a href="../package.html" class="extype" name="au.com.cba.omnia.maestro">maestro</a>.<a href="package.html" class="extype" name="au.com.cba.omnia.maestro.example">example</a></p>
+        <h1>CustomerSqoopCascade</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
+        <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">UniqueJob</span><span class="result"> extends <span class="extype" name="com.twitter.scalding.Job">Job</span></span>
+        <span class="name">CustomerSqoopCascade</span><span class="result"> extends <a href="../api/MaestroCascade.html" class="extype" name="au.com.cba.omnia.maestro.api.MaestroCascade">MaestroCascade</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>]</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Ensures the scalding job has a unique name.</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/1e72b891fa0177915613c5872a3911d8bd105ef5//maestro-api/src/main/scala/au/com/cba/omnia/maestro/api/UniqueJob.scala" target="_blank">UniqueJob.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/CommBank/maestro/tree/1e72b891fa0177915613c5872a3911d8bd105ef5//maestro-example/src/main/scala/au/com/cba/omnia/maestro/example/CustomerSqoopCascade.scala" target="_blank">CustomerSqoopCascade.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="com.twitter.scalding.Job">Job</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="com.twitter.scalding.FieldConversions">FieldConversions</span>, <span class="extype" name="com.twitter.scalding.LowPriorityFieldConversions">LowPriorityFieldConversions</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../api/MaestroCascade.html" class="extype" name="au.com.cba.omnia.maestro.api.MaestroCascade">MaestroCascade</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>], <a href="../macros/MacroSupport.html" class="extype" name="au.com.cba.omnia.maestro.macros.MacroSupport">MacroSupport</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>], <span class="extype" name="com.twitter.scalding.CascadeJob">CascadeJob</span>, <span class="extype" name="com.twitter.scalding.Job">Job</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="com.twitter.scalding.FieldConversions">FieldConversions</span>, <span class="extype" name="com.twitter.scalding.LowPriorityFieldConversions">LowPriorityFieldConversions</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="au.com.cba.omnia.maestro.api.UniqueJob"><span>UniqueJob</span></li><li class="in" name="com.twitter.scalding.Job"><span>Job</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="com.twitter.scalding.FieldConversions"><span>FieldConversions</span></li><li class="in" name="com.twitter.scalding.LowPriorityFieldConversions"><span>LowPriorityFieldConversions</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade"><span>CustomerSqoopCascade</span></li><li class="in" name="au.com.cba.omnia.maestro.api.MaestroCascade"><span>MaestroCascade</span></li><li class="in" name="au.com.cba.omnia.maestro.macros.MacroSupport"><span>MacroSupport</span></li><li class="in" name="com.twitter.scalding.CascadeJob"><span>CascadeJob</span></li><li class="in" name="com.twitter.scalding.Job"><span>Job</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="com.twitter.scalding.FieldConversions"><span>FieldConversions</span></li><li class="in" name="com.twitter.scalding.LowPriorityFieldConversions"><span>LowPriorityFieldConversions</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -79,16 +79,16 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="au.com.cba.omnia.maestro.api.UniqueJob#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(args:com.twitter.scalding.Args):au.com.cba.omnia.maestro.api.UniqueJob"></a>
-      <a id="&lt;init&gt;:UniqueJob"></a>
+              <ol><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(args:com.twitter.scalding.Args):au.com.cba.omnia.maestro.example.CustomerSqoopCascade"></a>
+      <a id="&lt;init&gt;:CustomerSqoopCascade"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">UniqueJob</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>)</span>
+        <span class="name">CustomerSqoopCascade</span><span class="params">(<span name="args">args: <span class="extype" name="com.twitter.scalding.Args">Args</span></span>)</span>
       </span>
       </h4>
       
@@ -166,6 +166,82 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.macros.MacroSupport#DerivedDecode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DerivedDecode:au.com.cba.omnia.maestro.core.codec.Decode[A]"></a>
+      <a id="DerivedDecode:Decode[Customer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DerivedDecode</span><span class="result">: <a href="../core/codec/Decode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Decode">Decode</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../macros/MacroSupport.html" class="extype" name="au.com.cba.omnia.maestro.macros.MacroSupport">MacroSupport</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@macroImpl</span><span class="args">(<span>
+      
+      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;au.com.cba.omnia.maestro.macros.DecodeMacro&quot;, &quot;methodName&quot; = &quot;impl&quot;, &quot;signature&quot; = List(-1, 0))[A]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.macros.MacroSupport#DerivedEncode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DerivedEncode:au.com.cba.omnia.maestro.core.codec.Encode[A]"></a>
+      <a id="DerivedEncode:Encode[Customer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DerivedEncode</span><span class="result">: <a href="../core/codec/Encode.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Encode">Encode</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../macros/MacroSupport.html" class="extype" name="au.com.cba.omnia.maestro.macros.MacroSupport">MacroSupport</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@macroImpl</span><span class="args">(<span>
+      
+      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;au.com.cba.omnia.maestro.macros.EncodeMacro&quot;, &quot;methodName&quot; = &quot;impl&quot;, &quot;signature&quot; = List(-1, 0))[A]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.macros.MacroSupport#DerivedTag" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DerivedTag:au.com.cba.omnia.maestro.core.codec.Tag[A]"></a>
+      <a id="DerivedTag:Tag[Customer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DerivedTag</span><span class="result">: <a href="../core/codec/Tag.html" class="extype" name="au.com.cba.omnia.maestro.core.codec.Tag">Tag</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../macros/MacroSupport.html" class="extype" name="au.com.cba.omnia.maestro.macros.MacroSupport">MacroSupport</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@macroImpl</span><span class="args">(<span>
+      
+      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;au.com.cba.omnia.maestro.macros.TagMacro&quot;, &quot;methodName&quot; = &quot;impl&quot;, &quot;signature&quot; = List(-1, 0))[A]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.macros.MacroSupport#Fields" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Fields:Any"></a>
+      <a id="Fields:Any"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Fields</span><span class="result">: <span class="extype" name="scala.Any">Any</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../macros/MacroSupport.html" class="extype" name="au.com.cba.omnia.maestro.macros.MacroSupport">MacroSupport</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@macroImpl</span><span class="args">(<span>
+      
+      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;au.com.cba.omnia.maestro.macros.FieldsMacro&quot;, &quot;methodName&quot; = &quot;impl&quot;, &quot;signature&quot; = List(-1, 0))[A]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li><li name="com.twitter.scalding.LowPriorityFieldConversions#anyToFieldArg" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="anyToFieldArg(f:Any):Comparable[_]"></a>
       <a id="anyToFieldArg(Any):Comparable[_]"></a>
@@ -244,6 +320,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#cleaners" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cleaners:au.com.cba.omnia.maestro.core.clean.Clean"></a>
+      <a id="cleaners:Clean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cleaners</span><span class="result">: <a href="../core/clean/Clean.html" class="extype" name="au.com.cba.omnia.maestro.core.clean.Clean">Clean</a></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.Job#clear" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clear:Unit"></a>
       <a id="clear:Unit"></a>
@@ -302,6 +391,45 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#connectionString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="connectionString:String"></a>
+      <a id="connectionString:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">connectionString</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#customerView" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="customerView:String"></a>
+      <a id="customerView:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">customerView</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#database" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="database:String"></a>
+      <a id="database:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">database</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.Job#dateParser" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dateParser:com.twitter.scalding.DateParser"></a>
       <a id="dateParser:DateParser"></a>
@@ -354,6 +482,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#domain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="domain:String"></a>
+      <a id="domain:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">domain</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.FieldConversions#ensureUniqueFields" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensureUniqueFields(left:cascading.tuple.Fields,right:cascading.tuple.Fields,rightPipe:cascading.pipe.Pipe):(cascading.tuple.Fields,cascading.pipe.Pipe)"></a>
       <a id="ensureUniqueFields(Fields,Fields,Pipe):(Fields,Pipe)"></a>
@@ -406,6 +547,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#errors" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="errors:String"></a>
+      <a id="errors:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">errors</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.FieldConversions#fieldFields" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fieldFields[T&lt;:TraversableOnce[com.twitter.scalding.Field[_]]](f:T):com.twitter.scalding.RichFields"></a>
       <a id="fieldFields[T&lt;:TraversableOnce[Field[_]]](T):RichFields"></a>
@@ -458,6 +612,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>FieldConversions</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#filter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="filter:au.com.cba.omnia.maestro.core.filter.RowFilter"></a>
+      <a id="filter:RowFilter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">filter</span><span class="result">: <a href="../core/filter/RowFilter.html" class="extype" name="au.com.cba.omnia.maestro.core.filter.RowFilter">RowFilter</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#finalOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="finalOption:au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl"></a>
+      <a id="finalOption:TeradataParlourImportDsl"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalOption</span><span class="result">: <span class="extype" name="au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl">TeradataParlourImportDsl</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -581,6 +761,59 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#hdfsRoot" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hdfsRoot:String"></a>
+      <a id="hdfsRoot:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hdfsRoot</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#host" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="host:String"></a>
+      <a id="host:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">host</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#importJobs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="importJobs:(Seq[com.twitter.scalding.Job],String)"></a>
+      <a id="importJobs:(Seq[Job],String)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">importJobs</span><span class="result">: (<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.scalding.Job">Job</span>], <span class="extype" name="scala.Predef.String">String</span>)</span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#initialOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="initialOption:au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl"></a>
+      <a id="initialOption:TeradataParlourImportDsl"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">initialOption</span><span class="result">: <span class="extype" name="au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl">TeradataParlourImportDsl</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">In order for sqoop to work with Teradata, you will need to include the teradata drivers and cloudera connector
+in the maestro-example/lib folder when building the assembly.</p>
     </li><li name="com.twitter.scalding.FieldConversions#intFields" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="intFields[T&lt;:TraversableOnce[Int]](f:T):cascading.tuple.Fields"></a>
       <a id="intFields[T&lt;:TraversableOnce[Int]](T):Fields"></a>
@@ -659,6 +892,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#jobs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jobs:Seq[com.twitter.scalding.Job]"></a>
+      <a id="jobs:Seq[Job]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jobs</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[<span class="extype" name="com.twitter.scalding.Job">Job</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade">CustomerSqoopCascade</a> → CascadeJob</dd></dl></div>
     </li><li name="com.twitter.scalding.Job#keepAlive" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="keepAlive:Unit"></a>
       <a id="keepAlive:Unit"></a>
@@ -685,6 +931,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#loadView" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="loadView:au.com.cba.omnia.maestro.api.UniqueJob"></a>
+      <a id="loadView:UniqueJob"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">loadView</span><span class="result">: <a href="../api/UniqueJob.html" class="extype" name="au.com.cba.omnia.maestro.api.UniqueJob">UniqueJob</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#mappers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mappers:Int"></a>
+      <a id="mappers:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mappers</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.Job#md5Hex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="md5Hex(bytes:Array[Byte]):String"></a>
       <a id="md5Hex(Array[Byte]):String"></a>
@@ -711,7 +983,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.api.UniqueJob#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="com.twitter.scalding.Job#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="name:String"></a>
       <a id="name:String"></a>
       <h4 class="signature">
@@ -723,7 +995,7 @@
         <span class="name">name</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="au.com.cba.omnia.maestro.api.UniqueJob">UniqueJob</a> → Job</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -805,6 +1077,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>FieldConversions</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#password" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="password:String"></a>
+      <a id="password:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">password</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.Job#pipeToRichPipe" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="pipeToRichPipe(pipe:cascading.pipe.Pipe):com.twitter.scalding.RichPipe"></a>
       <a id="pipeToRichPipe(Pipe):RichPipe"></a>
@@ -818,6 +1103,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+    </li><li name="com.twitter.scalding.CascadeJob#postProcessCascade" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="postProcessCascade(cascade:&lt;?&gt;):Unit"></a>
+      <a id="postProcessCascade(Cascade):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">postProcessCascade</span><span class="params">(<span name="cascade">cascade: <span class="extype" name="cascading.cascade.Cascade">Cascade</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CascadeJob</dd></dl></div>
+    </li><li name="com.twitter.scalding.CascadeJob#preProcessCascade" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="preProcessCascade(cascade:&lt;?&gt;):Unit"></a>
+      <a id="preProcessCascade(Cascade):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">preProcessCascade</span><span class="params">(<span name="cascade">cascade: <span class="extype" name="cascading.cascade.Cascade">Cascade</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CascadeJob</dd></dl></div>
     </li><li name="com.twitter.scalding.LowPriorityFieldConversions#productToFields" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="productToFields(f:Product):cascading.tuple.Fields"></a>
       <a id="productToFields(Product):Fields"></a>
@@ -844,7 +1155,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
-    </li><li name="com.twitter.scalding.Job#run" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="com.twitter.scalding.CascadeJob#run" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="run:Boolean"></a>
       <a id="run:Boolean"></a>
       <h4 class="signature">
@@ -856,7 +1167,7 @@
         <span class="name">run</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CascadeJob → Job</dd></dl></div>
     </li><li name="com.twitter.scalding.Job#skipStrategy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="skipStrategy:Option[cascading.flow.FlowSkipStrategy]"></a>
       <a id="skipStrategy:Option[FlowSkipStrategy]"></a>
@@ -870,6 +1181,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#source" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="source:String"></a>
+      <a id="source:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">source</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.Job#sourceToRichPipe" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sourceToRichPipe(src:com.twitter.scalding.Source):com.twitter.scalding.RichPipe"></a>
       <a id="sourceToRichPipe(Source):RichPipe"></a>
@@ -948,6 +1272,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#tableName" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tableName:String"></a>
+      <a id="tableName:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tableName</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#timePath" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="timePath:String"></a>
+      <a id="timePath:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">timePath</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.twitter.scalding.Job#timeout" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="timeout[T](timeout:com.twitter.scalding.AbsoluteDuration)(t:=&gt;T):Option[T]"></a>
       <a id="timeout[T](AbsoluteDuration)(⇒T):Option[T]"></a>
@@ -1013,19 +1363,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>FieldConversions</dd></dl></div>
-    </li><li name="au.com.cba.omnia.maestro.api.UniqueJob#unique" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="unique:java.util.UUID"></a>
-      <a id="unique:UUID"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">unique</span><span class="result">: <span class="extype" name="java.util.UUID">UUID</span></span>
-      </span>
-      </h4>
-      
     </li><li name="com.twitter.scalding.Job#uniqueId" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="uniqueId:com.twitter.scalding.UniqueID"></a>
       <a id="uniqueId:UniqueID"></a>
@@ -1052,7 +1389,20 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>FieldConversions</dd></dl></div>
-    </li><li name="com.twitter.scalding.Job#validate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#username" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="username:String"></a>
+      <a id="username:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">username</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="au.com.cba.omnia.maestro.api.MaestroCascade#validate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="validate:Unit"></a>
       <a id="validate:Unit"></a>
       <h4 class="signature">
@@ -1064,7 +1414,20 @@
         <span class="name">validate</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Job</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../api/MaestroCascade.html" class="extype" name="au.com.cba.omnia.maestro.api.MaestroCascade">MaestroCascade</a> → CascadeJob → Job</dd></dl></div>
+    </li><li name="au.com.cba.omnia.maestro.example.CustomerSqoopCascade#validators" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="validators:au.com.cba.omnia.maestro.core.validate.Validator[au.com.cba.omnia.maestro.example.thrift.Customer]"></a>
+      <a id="validators:Validator[Customer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">validators</span><span class="result">: <a href="../core/validate/Validator.html" class="extype" name="au.com.cba.omnia.maestro.core.validate.Validator">Validator</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>]</span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -1144,7 +1507,13 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="com.twitter.scalding.Job">
+        <div class="parent" name="au.com.cba.omnia.maestro.api.MaestroCascade">
+              <h3>Inherited from <a href="../api/MaestroCascade.html" class="extype" name="au.com.cba.omnia.maestro.api.MaestroCascade">MaestroCascade</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>]</h3>
+            </div><div class="parent" name="au.com.cba.omnia.maestro.macros.MacroSupport">
+              <h3>Inherited from <a href="../macros/MacroSupport.html" class="extype" name="au.com.cba.omnia.maestro.macros.MacroSupport">MacroSupport</a>[<a href="thrift/Customer.html" class="extype" name="au.com.cba.omnia.maestro.example.thrift.Customer">Customer</a>]</h3>
+            </div><div class="parent" name="com.twitter.scalding.CascadeJob">
+              <h3>Inherited from <span class="extype" name="com.twitter.scalding.CascadeJob">CascadeJob</span></h3>
+            </div><div class="parent" name="com.twitter.scalding.Job">
               <h3>Inherited from <span class="extype" name="com.twitter.scalding.Job">Job</span></h3>
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
