@@ -24,15 +24,15 @@ import au.com.cba.omnia.maestro.schema.pretty._
  * track is limited to some fixed amount. */
 case class SampleMap(
     maxSize:   Int,           // Maximum size of the histogram.
-    spilled:   Array[Int],    // Count of strings that wouldn't fit in ths histogram.
+    spilled:   Array[Int],    // Count of strings that wouldn't fit in this histogram.
     histogram: mutable.Map[String, Int]) // Histogram of times we've seen each string.
 {
 
   /** Pretty print a column sample as JSON lines. */
   def toJson: JsonDoc =
     JsonMap(List(
-      ("maxSize",   JsonString(maxSize.toString)),
-      ("spilled",   JsonString(spilled(0).toString)),
+      ("maxSize",   JsonNum(maxSize)),
+      ("spilled",   JsonNum(spilled(0))),
       ("histogram", toJsonHistogram)))
 
 
@@ -45,7 +45,7 @@ case class SampleMap(
         .toList
         .sortBy { _._2 }
         .reverse
-        .map    { case (k, v) => (k, JsonString(v.toString)) },
+        .map    { case (k, v) => (k, JsonNum(v)) },
       false)
 }
 

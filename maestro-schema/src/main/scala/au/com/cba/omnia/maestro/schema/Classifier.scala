@@ -81,8 +81,9 @@ case class ClasTope(tope: Tope, syntax: Syntax)
 object Classifier {
 
   /** Yield an array of all classifiers we know about. 
-   *  We use an array for this to ensure all the counts are stored unboxed
-   *  at runtime. */
+   *  We keep classifier counts in an array to ensure they are stored unboxed at
+   *  runtime. The classifiers themselves are also stored in an array so we can
+   *  just map arrays to arrays when performing the count. */
   val all: Array[Classifier] = {
 
     // Classifiers that wrap raw syntaxes.

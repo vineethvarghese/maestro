@@ -26,10 +26,10 @@ import au.com.cba.omnia.maestro.schema.pretty._
  *  @param columnSpecs specifications for each column
  */
 case class TableSpec(
-  database    : String,
-  table       : String,
-  ignore      : Seq[Schema.Ignore],
-  columnSpecs : Seq[ColumnSpec]) {
+  database:    String,
+  table:       String,
+  ignore:      Seq[Schema.Ignore],
+  columnSpecs: Seq[ColumnSpec]) {
 
   /** Pretty print a TableSpec as a String */
   def pretty: String =
@@ -47,11 +47,11 @@ case class TableSpec(
  *  @param comment   comment associated with the column
  */
 case class ColumnSpec(
-  name        : String,
-  hivetype    : HiveType.HiveType,
-  format      : Option[Format],
-  histogram   : Histogram,
-  comment     : String) {
+  name:        String,
+  hivetype:    HiveType.HiveType,
+  format:      Option[Format],
+  histogram:   Histogram,
+  comment:     String) {
 
   /** Check if this value matches the column format. */
   def matches(s: String): Boolean =
@@ -130,7 +130,7 @@ case class Histogram(counts: Map[Classifier, Int]) {
   def toJson: JsonDoc =
     JsonMap(
       sorted
-        .map  { case (c, i) => (c.name, JsonString(i.toString)) })
+        .map  { case (c, i) => (c.name, JsonNum(i)) })
 
 
   /** Extract the histogram with the classifiers in the standard sorted
@@ -205,6 +205,5 @@ object Schema {
     classifications: Array[Classifier],
     counts:          Array[Int]): String =
     Histogram(Classifier.all .zip (counts) .toMap).pretty
-
 }
 

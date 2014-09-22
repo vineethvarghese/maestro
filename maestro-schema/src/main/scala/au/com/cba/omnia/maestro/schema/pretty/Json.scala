@@ -1,6 +1,7 @@
 
 package au.com.cba.omnia.maestro.schema
 package pretty
+import scala.util.parsing.json.{JSON}
 
 /** Abstract Json documents */
 sealed trait JsonDoc
@@ -10,6 +11,12 @@ sealed trait JsonDoc
  *  will be escaped properly */
 case class JsonString(
   str:    String)                   
+  extends JsonDoc
+
+
+/** A numeric value. JSON does not distinguish between integral and floating point */
+case class JsonNum(
+  num:    Double)
   extends JsonDoc
 
 
@@ -27,12 +34,31 @@ object JsonDoc {
     linesJsonDoc(indent, json)
       .mkString("\n")
 
+  /** Convert a string back to a Json doc. */
+  def parse(str: String): JsonDoc = {
+
+    def eat(tree: Any): List[JsonDoc] = 
+      List(Some(tree) .collect { case d: Double    => JsonNum(d) },
+           Some(tree) .collect { case s: String    => JsonString(s) },
+           Some(tree) .collect { case m: Map[_, _] => 
+              JsonMap(
+                  m .toSeq
+                    .map { case (k, v) => (
+                        k.asInstanceOf[String],
+                        eat(v).head)}, false) })
+        .flatten
+
+    eat(JSON.parseFull(str)).head
+  }
 
   /** Render a Json doc as a list of strings, with one string per line. */
   def linesJsonDoc(indent: Int, json: JsonDoc): Seq[String] = 
     json match { 
       case JsonString(s) =>
         Seq(escape(s))
+
+      case JsonNum(i) =>
+        Seq(i.toString)
 
       case JsonMap (list, spread) => 
         // Spreading the map across multiple lines.

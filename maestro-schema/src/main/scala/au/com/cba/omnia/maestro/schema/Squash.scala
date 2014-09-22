@@ -243,7 +243,7 @@ object Squash {
         // and the counts on the children sum to the counts on the parent,
         // then we can remove the parent. 
         if ( (snDescendantsActive.size > 0) &&
-             (fsSeparate.toSeq == Seq(true)) &&
+             (fsSeparate       == Set(true)) &&
              (countDescendants == countParent))
              Set(parent)
         else Set()

@@ -19,7 +19,7 @@ import au.com.cba.omnia.maestro.schema.tope._
 
 /** A Tope is a thing in the world that we're trying to describe with a
     String. Each Tope can have several possible syntaxes. */
-abstract class Tope  {
+abstract class Tope {
 
   /** Printable name for a Tope. */
   def name: String
