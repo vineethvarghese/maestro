@@ -13,8 +13,6 @@
 //   limitations under the License.
 package au.com.cba.omnia.maestro.schema
 
-import scala.collection.immutable._
-
 import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.syntax._
 import au.com.cba.omnia.maestro.schema.tope._
@@ -42,7 +40,7 @@ object Infer {
     if (hist.counts.size == 1) {
       val clas  = classifiers(0)
       if (clas != ClasSyntax(Any))
-           Some (Format(List(hist.counts.toList(0)._1)))
+           Some (Format(List(clas)))
       else None
     }
 

@@ -40,8 +40,8 @@ object Squash extends ArgMain[SquashArgs] {
     // Read the histogram file.
     val strTaste =
       Source.fromFile(args.taste)
-        .getLines .map { _ + "\n" } .reduceLeft (_+_)
-
+        .getLines .mkString ("", "\n", "\n")
+        
     // Parse the taste file, giving a histogram for each column.
     val taste: Seq[Histogram] =
       parser.Taste(strTaste) match {

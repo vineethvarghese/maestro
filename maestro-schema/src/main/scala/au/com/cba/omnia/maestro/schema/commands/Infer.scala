@@ -100,7 +100,7 @@ object Infer extends ArgMain[InferArgs]
       TableSpec( 
         args.database,
         args.table,
-        (immutable.Seq(): immutable.Seq[Schema.Ignore]),
+        Seq(),
         colSpecs)
 
     println(tableSpec.pretty)

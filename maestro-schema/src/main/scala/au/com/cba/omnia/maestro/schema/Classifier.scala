@@ -16,8 +16,7 @@ package au.com.cba.omnia.maestro.schema
 import  au.com.cba.omnia.maestro.schema.syntax._
 
 
-/** A wrapper for raw syntaxes, and topes with their syntax. 
- */
+/** A wrapper for raw syntaxes, and topes with their syntax. */
 sealed trait Classifier { 
   /** Human readable name for the Classifier. */
   def name: String
@@ -26,18 +25,18 @@ sealed trait Classifier {
   def sortOrder: Int
 
   /** Yield how well a string matches the classifier, in the range 0.0 to 1.0.
-      If 1.0 the string definately does match, if 0.0 it definately does not.
-      The meaning of scores in between 0.0 and 1.0 depends on the particular
-      classifier. */
+   *  If 1.0 the string definately does match, if 0.0 it definately does not.
+   *  The meaning of scores in between 0.0 and 1.0 depends on the particular
+   *  classifier. */
   def likeness(s: String): Double
 
   /** Check if this string completely matches the classifier, 
-      meaning the likeness is 1.0 */
+   *  meaning the likeness is 1.0 */
   def matches(s: String): Boolean =
     likeness(s) >= 1.0
 
   /** Yield the parent syntaxes of this classifier, if there are any. 
-      If a string matches this syntax, then it also matches all the parents. */
+   *  If a string matches this syntax, then it also matches all the parents. */
   def parents: Set[Syntax]
 }
 
