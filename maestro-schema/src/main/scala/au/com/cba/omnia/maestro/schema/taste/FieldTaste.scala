@@ -23,13 +23,19 @@ case class FieldTaste(
   histField:  SampleMap) {
 
   /** Convert the FieldTaste to JSON. */
-  def toJson: JsonDoc = {
+  def toJson(
+      name:    Option[String],
+      storage: Option[String]): JsonDoc = {
 
     // Histogram of how many values in the column matched each classifier.
     val histClas: Histogram = 
       Histogram(Classifier.all .zip (clasCounts) .toMap)
 
     JsonMap(
+      (name    match { case None => List(); case Some(s) => 
+        List(("name",    JsonString(s))) }) ++
+      (storage match { case None => List(); case Some(s) => 
+        List(("storage", JsonString(s))) }) ++
       List(
         ("classifiers", histClas .toJson),
         ("sample",      histField.toJson)),

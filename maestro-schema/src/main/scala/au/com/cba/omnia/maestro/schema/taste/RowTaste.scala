@@ -22,9 +22,15 @@ import au.com.cba.omnia.maestro.schema.pretty._
 case class RowTaste(
   fieldTastes: Array[FieldTaste]) {
 
-  def toJson: JsonDoc = 
+  /* Convert the Row Taste to JSON, attaching field names and storage
+   * types if we have them. */
+  def toJson(
+    fieldNames:   Option[List[String]],
+    storageTypes: Option[List[String]]): JsonDoc = 
     JsonMap(
-      fieldTastes.toList.map { ft => ("field", ft.toJson) },
+      fieldTastes.toList.zipWithIndex.map { case (ft: FieldTaste, ix: Int) => 
+        ("field", ft.toJson(fieldNames.map(_(ix)), storageTypes.map(_(ix))))
+      },
       true)
 }
 

@@ -32,16 +32,22 @@ object JsonDoc {
   def linesJsonDoc(indent: Int, json: JsonDoc): Seq[String] = 
     json match { 
       case JsonString(s) =>
-        Seq(s)
+        Seq(escape(s))
 
       case JsonMap (list, spread) => 
         // Spreading the map across multiple lines.
         if (spread) {
+
+          val keyWidth: Int = 
+            list.map { case (k, _) => k.length }. max
+
           val body: Seq[String] =
             list 
               .zipWithIndex
               .map { case ((k, v), i) 
-                => (escape(k) + ": " 
+                => (escape(k) 
+                      + (" " * (keyWidth - k.length))
+                      + ": " 
                       + render(indent + 2, v)
                       + (if (i != list.size - 1) ", " else "")) }
 

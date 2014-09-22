@@ -26,9 +26,27 @@ case class TableTaste(
   maxHistSize: Int,
   rowTastes:   mutable.Map[Int, RowTaste]) {
 
-  def toJson: JsonDoc =
+  /** Convert a TableTaste to JSON, attaching field names and storage types
+   *  if we have them. The maps contain the field names and types for rows
+   *  with the given number of fields. */
+  def toJson(
+    fieldNames:   Map[Int, List[String]],
+    storageTypes: Map[Int, List[String]])
+    : JsonDoc =
+
     JsonMap(
-      rowTastes.toList.map { case (_, rt) => ("row", rt.toJson) }, 
+      rowTastes.toList.map { case (_, rt) => {
+
+        // Get the field names for rows of this length, if we have them.
+        val oNames:   Option[List[String]] =
+          fieldNames  .get(rt.fieldTastes.length)
+
+        // Get the storage types for rows of this length, if we have them.
+        val oStorage: Option[List[String]] =
+          storageTypes.get(rt.fieldTastes.length)
+
+        ("row", rt.toJson(oNames, oStorage))
+      }}, 
       true)
 }
 
