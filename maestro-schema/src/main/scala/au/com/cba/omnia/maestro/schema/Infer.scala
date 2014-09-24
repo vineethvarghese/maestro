@@ -38,7 +38,7 @@ object Infer {
     // This is the best possible case, as all the data in the column
     // had the same uniform type.
     if (hist.counts.size == 1) {
-      val clas  = classifiers(0)
+      val clas  = classifiers.head
       if (clas != ClasSyntax(Any))
            Some (Format(List(clas)))
       else None

@@ -90,7 +90,7 @@ case class Format(list: List[Classifier]) {
 
   /** Check if this string matches any of the classifiers in the Format. */
   def matches(s: String): Boolean = 
-    list .exists (_.matches(s))
+    list.exists(_.matches(s))
 
   /** Pretty print a Format as a string. */
   def pretty: String =
@@ -198,7 +198,7 @@ object Schema {
   def showCountsField(
     classifications: Array[Classifier],
     counts:          Array[Int]): String =
-    Histogram(Classifier.all .zip (counts). toMap).pretty
+    Histogram(Classifier.all .zip (counts) .toMap).pretty
 
 
   def toJsonCountsField(

@@ -75,7 +75,7 @@ object Squash {
     val histS = Histogram(hist.counts.filterKeys { k => ! squashSet.contains (k) })
 
     // If we're making progress, then keep squashing.
-    if(hist.size == histS.size) hist
+    if (hist.size == histS.size) hist
     else squash(histS)
   }
 
