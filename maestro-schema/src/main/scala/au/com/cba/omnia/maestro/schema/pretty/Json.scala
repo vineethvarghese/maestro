@@ -104,10 +104,16 @@ object JsonDoc {
       case JsonString(s) =>
         Seq(escape(s))
 
-      case JsonNum(i) =>
-        Seq(i.toString)
+      // Json does not distinguish between integral and floating point values,
+      // but we pretty print whole numbers with no fractional part for niceness.
+      case JsonNum(i) => 
+        if (i % 1 == 0) Seq(i.longValue.toString)
+        else            Seq(i.toString)
 
-      case JsonMap (list, spread) => 
+      case JsonList(list) =>
+        Seq("[" + list.map(j => render(indent, j)).mkString(", ") + "]")
+
+      case JsonMap(list, spread) => 
         // Spreading the map across multiple lines.
         if (spread) {
 
