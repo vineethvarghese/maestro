@@ -187,7 +187,8 @@ object Schema {
    *  The counts for each field go on their own line. */
   def showCountsRow(
     classifications: Array[Classifier],
-    counts:          Array[Array[Int]]): String =
+    counts:          Array[Array[Int]])
+    : String =
     counts
       .map { counts => showCountsField(classifications, counts) + ";\n" }
       .mkString
@@ -197,13 +198,15 @@ object Schema {
    *  or '-' if there aren't any. */
   def showCountsField(
     classifications: Array[Classifier],
-    counts:          Array[Int]): String =
+    counts:          Array[Int])
+    : String =
     Histogram(Classifier.all .zip (counts) .toMap).pretty
 
 
   def toJsonCountsField(
     classifications: Array[Classifier],
-    counts:          Array[Int]): String =
+    counts:          Array[Int])
+    : String =
     Histogram(Classifier.all .zip (counts) .toMap).pretty
 }
 
