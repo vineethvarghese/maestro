@@ -66,8 +66,8 @@ trait Sqoop {
     @ProcessComplete
     def complete(): Unit = {
       val jobConf = new JobConf(classOf[DistCp])
-      val distcp = new DistCp(jobConf)
-      val outcome = distcp.run(Array(source.getIdentifier, sink.getIdentifier));
+      val distCp = new DistCp(jobConf)
+      val outcome = distCp.run(Array(source.getIdentifier, sink.getIdentifier));
       if (outcome != 0) 
         throw new RuntimeException(s"Distributed Copy from ${source.getIdentifier} to ${sink.getIdentifier} failed.")
     }
@@ -81,7 +81,7 @@ trait Sqoop {
   }
 
   /**
-   * Convenience method to populate a parlour option instance
+   * Convenience method to populate a parlour import option instance
    * @param tableName: table name
    * @param connectionString: database connection string
    * @param username: database username
@@ -91,7 +91,7 @@ trait Sqoop {
    * @param options: parlour option to populate
    * @return : Populated parlour option
    */
-  def createSqoopOptions[T <: ParlourImportOptions[T]](
+  def createSqoopImportOptions[T <: ParlourImportOptions[T]](
     tableName: String,
     connectionString: String,
     username: String,
@@ -174,7 +174,7 @@ trait Sqoop {
    * @param username: Username for connecting to the database
    * @param password: Password for connecting to the database
    * @param options: Extra export options
-   * @return List of jobs for this export
+   * @return Job for this export
    */
   def sqoopExport[T <: ParlourExportOptions[T]](
     exportDir: String,

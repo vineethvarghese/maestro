@@ -24,13 +24,14 @@ import au.com.cba.omnia.maestro.api._, Maestro._
 import au.com.cba.omnia.maestro.example.thrift.Customer
 
 import au.com.cba.omnia.parlour.SplitByAmp
-import au.com.cba.omnia.parlour.SqoopSyntax.TeradataParlourImportDsl
+import au.com.cba.omnia.parlour.SqoopSyntax.{TeradataParlourExportDsl, TeradataParlourImportDsl}
 
 class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
   val hdfsRoot         = args("hdfs-root")
   val source           = args("source")
   val domain           = args("domain")
-  val tableName        = args("tableName")
+  val importTableName  = args("importTableName")
+  val exportTableName  = args("exportTableName")
   val mappers          = args("mappers").toInt
   val host             = args("host")
   val database         = domain
@@ -41,23 +42,27 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
   val filter           = RowFilter.keep
   val cleaners         = Clean.all(Clean.trim, Clean.removeNonPrintables)
   val validators       = Validator.all[Customer]()
-  val customerView     = s"${hdfsRoot}/view/warehouse/${domain}/${tableName}"
+  val customerView     = s"${hdfsRoot}/view/warehouse/${domain}/${importTableName}"
   val timePath         = DateTime.now(DateTimeZone.UTC).toString(List("yyyy","MM", "dd") mkString File.separator)
 
   /**
    * In order for sqoop to work with Teradata, you will need to include the teradata drivers and cloudera connector 
    * in the maestro-example/lib folder when building the assembly. 
    */
-  val initialOption = createSqoopOptions(tableName, connectionString, username, password, '|', Some("1=1"), TeradataParlourImportDsl())
-  val finalOption = initialOption.numberOfMappers(mappers).inputMethod(SplitByAmp).splitBy("id")
+  val initialImportOptions = createSqoopImportOptions(importTableName, connectionString, username, password, '|', Some("1=1"), TeradataParlourImportDsl())
+  val finalImportOptions = initialImportOptions.numberOfMappers(mappers).inputMethod(SplitByAmp).splitBy("id").verbose()
 
-  val importJobs = sqoopImport(hdfsRoot, source, domain, tableName, timePath, finalOption)(args)
+  val importJobs = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, finalImportOptions)(args)
   val loadView = new UniqueJob(args) {
     load[Customer]("|", List(importJobs._2), errors, now(), cleaners, validators, filter, "null") |>
     view(Partition.byField(Fields.Cat), customerView)
   }
 
-  override val jobs = importJobs._1 :+ loadView
+  private val exportOptions = TeradataParlourExportDsl().verbose()
+
+  val exportJob = sqoopExport(importJobs._2, exportTableName, connectionString, username, password, '|', exportOptions)(args)
+
+  override val jobs = importJobs._1 :+ loadView :+ exportJob
 }
 
 
