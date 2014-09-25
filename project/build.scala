@@ -86,10 +86,8 @@ object build extends Build {
         ++ depend.omnia("omnitool-time", omnitoolVersion)
         ++ depend.omnia("omnitool-file", omnitoolVersion)
         ++ Seq(
-          "au.com.cba.omnia" %%  "parlour"         % "1.3.0-20140921141045-8aa6822" intransitive(),
-          "org.apache.sqoop"  %  "sqoop"           % "1.4.3-cdh4.6.0" intransitive(),
-          "commons-daemon"    %  "commons-daemon"  % "1.0.13",
-          "org.apache.hadoop" %  "hadoop-tools"    % depend.versions.hadoop intransitive()
+          "au.com.cba.omnia" %%  "parlour"         % "1.3.0-20140925002210-cac5c88",
+          "org.apache.hadoop" %  "hadoop-tools"    % depend.versions.hadoop % "provided"
         )
         ++ Seq("au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test")
     )
