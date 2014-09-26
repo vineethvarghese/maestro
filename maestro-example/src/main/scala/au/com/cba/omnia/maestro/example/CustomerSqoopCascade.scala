@@ -58,7 +58,7 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
     view(Partition.byField(Fields.Cat), customerView)
   }
 
-  private val exportOptions = TeradataParlourExportDsl().verbose()
+  val exportOptions = TeradataParlourExportDsl().verbose()
 
   val exportJob = sqoopExport(importJobs._2, exportTableName, connectionString, username, password, '|', exportOptions)(args)
 
