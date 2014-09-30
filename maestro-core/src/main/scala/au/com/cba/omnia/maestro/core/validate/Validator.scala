@@ -41,7 +41,7 @@ object Check {
   def nonempty: Validator[String] =
     Validator(s => if (!s.isEmpty) s.success else "Value can not be empty.".failNel)
 
-  def isDate(pattern: String, strict: Boolean=true): Validator[String]=
+  def isDate(pattern: String, strict: Boolean = true): Validator[String]=
     Validator(s => if (GenericValidator.isDate(s, pattern, strict)) s.success else s"Date $s is not in the format $pattern".failNel)
 
   def isEmail: Validator[String]=
