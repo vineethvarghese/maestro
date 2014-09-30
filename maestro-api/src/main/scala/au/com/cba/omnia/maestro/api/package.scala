@@ -21,6 +21,7 @@ package object api {
   type RowFilter       = au.com.cba.omnia.maestro.core.filter.RowFilter
   type Decode[A]       = au.com.cba.omnia.maestro.core.codec.Decode[A]
   type Tag[A]          = au.com.cba.omnia.maestro.core.codec.Tag[A]
+  type UniqueJob       = au.com.cba.omnia.maestro.core.scalding.UniqueJob
 
   val Partition     = au.com.cba.omnia.maestro.core.partition.Partition
   val HivePartition = au.com.cba.omnia.maestro.core.partition.HivePartition

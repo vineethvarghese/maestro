@@ -12,9 +12,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.api
+package au.com.cba.omnia.maestro.core.scalding
 
-import com.twitter.scalding._
+import com.twitter.scalding.{Args, Job}
 import java.util.UUID
 
 /** Ensures the scalding job has a unique name.*/
