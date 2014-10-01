@@ -23,6 +23,8 @@ import com.quantifind.sumac.FieldArgs
 
 import au.com.cba.omnia.maestro.schema
 import au.com.cba.omnia.maestro.schema._
+import au.com.cba.omnia.maestro.schema.pretty._
+import scala.util.parsing.json.{JSON}
 
 
 /** Arguments for `Infer` command. .*/
@@ -46,13 +48,7 @@ class InferArgs extends FieldArgs {
    */
   @Required var columns: String   = _
 
-  /** Taste file, containing histogram of what type of data is in the columns. 
-   *
-   *  Example:
-   *  Any:1000, AlphaNum:900,  Real:10;
-   *  Any:1000, AlphaNum:1000;
-   *  Any:1000, Real:800, Nat:120;
-   */
+  /** Taste file, containing histogram of what type of data is in the columns. */
   @Required var taste: String   = _
 }
 
@@ -60,25 +56,50 @@ class InferArgs extends FieldArgs {
 /** Infer a schema, based on the names file and histogram. */
 object Infer extends ArgMain[InferArgs]
 {
+  type JsonTaste
+    = Map[String,                              // "row"
+          List[Map[String, Map[String, _]]]]   // Meta-data about each column.
+
+
+  /** Taster toplevel */
   def main(args: InferArgs): Unit = {
 
-    // Read and parse the taste (histogram) file.
+    // Read the taste file.
     val strTaste: String =
       Source.fromFile(args.taste)
         .getLines .mkString ("\n")
 
+    // Do initial JSON parsing of taste file.
+    val jsonTaste: JsonTaste = 
+      JSON.parseFull(strTaste)
+          .getOrElse { throw new Exception("Taste file JSON parse error.") }
+          .asInstanceOf[JsonTaste]
+
+    // Get maps of classifier name to the value count for each column.
+    // This loads directly form the parsed JSON.
+    val rawTaste: List[List[(String, Int)]] =
+      // Get just the classifiers for each row.
+      (for {
+        rows  <- jsonTaste.get("row")
+        clas  <- sequence(rows.map { row => 
+          for { cl <- row.get("classifiers") } yield cl })
+       } yield clas)
+      .getOrElse { throw new Exception("Cannot get classifiers from taste file") }
+
+      // Truncate incoming classifier counts to integers.
+      .map ( m => m.toList.map { case (s, d) => (s, d.asInstanceOf[Double].toInt) })
+
+    // Parse the classifier strings and produce a real histogram for each row.
     val taste: List[Histogram] =
-      parser.Taste(strTaste) match {
-        case Left(err)  
-         => throw new Exception("taste parse error: " ++ err.toString())
-        case Right(s) => s.toList
-      }
+      rawTaste.map { counts => loadHistogram(counts) }
 
     // Squash all the histograms, so that we retain just the most specific
     // type for each column.
-    val tasteSquashed =
+    val tasteSquashed: List[Histogram] =
       taste.map { h => schema.Squash.squash(h) }
 
+    // TODO: get the names from the taste file if they're there,
+    //       otherwise allow them to be specified separately.
     val nameTypes: List[List[String]] =
       Source.fromFile(args.columns)
         .getLines .map { w => w.split("\\s+").toList }
@@ -105,5 +126,25 @@ object Infer extends ArgMain[InferArgs]
 
     println(tableSpec.pretty)
   }  
+
+  // Load a Histogram from the raw JSON.
+  def loadHistogram(counts: List[(String, Int)]): Histogram = {
+    val clas  = 
+      counts.map { case (s, d) => 
+        parser.Schema.parseString(parser.Schema.pClassifier, s) match {
+          case Left(err) => throw new Exception("Cannot parse classifier: " + s)
+          case Right(c)  => (c, d)
+        }
+      }
+    Histogram(clas.toMap)
+  }
+
+  /** ZipWith-style helper. */
+  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] =
+    a.flatMap { x => b.map { y => f(x, y) } }
+
+  /** Missing Haskell-esque sequence function. */
+  def sequence[A](a: List[Option[A]]): Option[List[A]] =
+    a.foldRight[Option[List[A]]](Some(Nil))((x,y) => map2(x,y)(_ :: _)) 
 }
 

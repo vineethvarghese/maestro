@@ -27,10 +27,9 @@ case class RowTaste(
   def toJson(
     fieldNames:   Option[List[String]],
     storageTypes: Option[List[String]]): JsonDoc = 
-    JsonMap(
+    JsonList(
       fieldTastes.toList.zipWithIndex.map { case (ft: FieldTaste, ix: Int) => 
-        ("field", ft.toJson(fieldNames.map(_(ix)), storageTypes.map(_(ix))))
-      },
+        ft.toJson(fieldNames.map(_(ix)), storageTypes.map(_(ix))) },
       true)
 }
 

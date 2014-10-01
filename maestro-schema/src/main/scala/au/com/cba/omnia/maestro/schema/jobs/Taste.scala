@@ -35,7 +35,6 @@ class Taste(args: Args)
   val pipeInput: TypedPipe[String] =
     TypedPipe.from(MultipleTextLineFiles(filesInputData.map{_.toString} :_*))
 
-
   // Optional Input names file. 
   // This is a text file with one line for each column in the table.
   // The first word on the line is the column name, and the second is the Hive
@@ -64,11 +63,9 @@ class Taste(args: Args)
     List((storage.length, storage)).toMap
   }
 
-
   // Output Destination HDFS path for taste result.
   val fileOutputTaste = args("out-hdfs-taste")
   val pipeOutputTaste = TypedTsv[String](fileOutputTaste)
-
 
   // (thread local)
   // Holds the counts of how many values match each classifier.
