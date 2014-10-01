@@ -45,7 +45,7 @@ case class TableTaste(
         val oStorage: Option[List[String]] =
           storageTypes.get(rt.fieldTastes.length)
 
-        ("row", rt.toJson(oNames, oStorage))
+        ("rows", rt.toJson(oNames, oStorage))
       }}, 
       true)
 }

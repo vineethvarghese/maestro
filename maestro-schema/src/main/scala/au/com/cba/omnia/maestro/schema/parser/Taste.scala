@@ -28,7 +28,7 @@ import au.com.cba.omnia.maestro.schema.Schema._
 /** Parser for taste files. */
 object Taste {
   def apply(input: String): Either[Schema.NoSuccess, Seq[Histogram]] = 
-    Schema.parseTaste(input)
+    Schema.parseString(Schema.pTaste, input)
 }
 
 

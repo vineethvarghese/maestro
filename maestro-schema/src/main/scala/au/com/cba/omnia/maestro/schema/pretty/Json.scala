@@ -2,9 +2,23 @@
 package au.com.cba.omnia.maestro.schema
 package pretty
 import scala.util.parsing.json.{JSON}
+import org.apache.commons.lang.StringEscapeUtils
 
 /** Abstract Json documents */
 sealed trait JsonDoc
+{
+  def fromNum:    Option[Double] =
+    Some(this) .collect { case JsonNum(n)     => n }
+
+  def fromString: Option[String] =
+    Some(this) .collect { case JsonString(s)  => s }
+
+  def fromList:   Option[Seq[JsonDoc]] =
+    Some(this) .collect { case JsonList(l, _) => l }
+
+  def fromMap:    Option[Seq[(String, JsonDoc)]] =
+    Some(this) .collect { case JsonMap(m, _)  => m } 
+}
 
 
 /** An uninterpreted string. When this is pretty printed special characters
@@ -23,7 +37,8 @@ case class JsonNum(
 
 /** A list of Json things. */
 case class JsonList(
-  list:   Seq[JsonDoc])
+  list:   Seq[JsonDoc],
+  spread: Boolean = false)
   extends JsonDoc
 
 
@@ -43,7 +58,6 @@ object JsonDoc {
   def render(indent: Int, json: JsonDoc): String =
     linesJsonDoc(indent, json)
       .mkString("\n")
-
 
   /** Convert a string back to a JsonDoc. 
    *  This uses the default Scala JSON parser, but we load it into our JsonDoc
@@ -102,7 +116,7 @@ object JsonDoc {
   def linesJsonDoc(indent: Int, json: JsonDoc): Seq[String] = 
     json match { 
       case JsonString(s) =>
-        Seq(escape(s))
+        Seq(showString(s))
 
       // Json does not distinguish between integral and floating point values,
       // but we pretty print whole numbers with no fractional part for niceness.
@@ -110,10 +124,10 @@ object JsonDoc {
         if (i % 1 == 0) Seq(i.longValue.toString)
         else            Seq(i.toString)
 
-      case JsonList(list) =>
-        Seq("[" + list.map(j => render(indent, j)).mkString(", ") + "]")
+      case JsonList(list, spread) =>
+        Seq("[" + list.map(j => render(indent, j)).mkString(",\n") + "]")
 
-      case JsonMap(list, spread) => 
+      case JsonMap (list, spread) => 
         // Spreading the map across multiple lines.
         if (spread) {
 
@@ -124,7 +138,7 @@ object JsonDoc {
             list 
               .zipWithIndex
               .map { case ((k, v), i) 
-                => (escape(k) 
+                => (showString(k) 
                       + (" " * (keyWidth - k.length))
                       + ": " 
                       + render(indent + 2, v)
@@ -141,7 +155,7 @@ object JsonDoc {
             list 
               .zipWithIndex
               .map { case ((k, v), i)
-                => (escape(k) + ": " 
+                => (showString(k) + ": " 
                       + render(indent + 2, v)
                       + (if (i != list.size - 1) ", " else "")) }
 
@@ -163,11 +177,13 @@ object JsonDoc {
       is ++ List(l + str)
     }
 
+  /** Show a string with outer double quotes, and escaped chars. */
+  def showString(raw: String): String =
+    "\"" + escape(raw) + "\""
+
 
   /** Escape special characters in a string */
-  def escape(raw: String): String = {
-    import scala.reflect.runtime.universe._
-    Literal(Constant(raw)).toString
-  }
+  def escape(raw: String): String =
+    StringEscapeUtils.escapeJava(raw)
 
 }

@@ -44,52 +44,24 @@ import Lexer._
  */
 object Schema extends Parsers {
 
-  /** Element type (we parse Lexer tokens). 
-   */
+  /** Element type (we parse Lexer tokens). */
   type Elem = PositionalToken[Token]
 
 
   // --------------------------------------------------------------------------
-  /** Invokes the parser on a string.
-   *
-   *  The string is first converted to a sequence of tokens using TableLexer.
-   *  The token sequence is then parsed by this parser.
-   *
-   *  @param  input string to parse
-   *  @return either no success, or the parsed schema table
-   */
+  /** Parse a SchemTable from a String. */
   def apply(input: String): Either[NoSuccess, TableSpec] =
-    Lexer(input) match {
-      case Left(Lexer.Error   (msg, nextChar)) 
-        => Left(Error  (msg, SequenceReader.empty))
+    parseString(pSchemaTable, input)
 
-      case Left(Lexer.Failure (msg, nextChar))
-        => Left(Failure(msg, SequenceReader.empty))
-
-      case Right(tokens) => apply(tokens)
-    }
-
-  /** Invokes the parser on a list of PositionalTokens.
-   *
-   *  @param  input sequence of positional tokens to parse
-   *  @return either no success, or the parsed schema table
-   */
+  /** Parse a SchemaTable from some tokens. */
   def apply(input: List[Elem]): Either[NoSuccess, TableSpec] =
-    phrase(pSchemaTable)(new SequenceReader(input)) match {
-      case Success(result, _)  => Right(result)
-      case failure : NoSuccess => Left (failure) }
+    parseElems(pSchemaTable, input)
 
 
   // --------------------------------------------------------------------------
-  /** Invokes the parser on a string.
-   *
-   *  The string is first converted to a sequence of tokens using TableLexer.
-   *  The token sequence is then parsed by this parser.
-   *
-   *  @param  input string to parse
-   *  @return either no success, or the parsed schema table
-   */
-  def parseTaste(input: String): Either[NoSuccess, Seq[Histogram]] =
+  /** Parse a thing from a string. */
+  def parseString[A](parser: Parser[A], input: String)
+    : Either[NoSuccess, A] =
     Lexer(input) match {
       case Left(Lexer.Error   (msg, nextChar)) 
         => Left(Error  (msg, SequenceReader.empty))
@@ -97,16 +69,13 @@ object Schema extends Parsers {
       case Left(Lexer.Failure (msg, nextChar))
         => Left(Failure(msg, SequenceReader.empty))
 
-      case Right(tokens) => parseTaste(tokens)
+      case Right(tokens) => parseElems(parser, tokens)
     }
 
-  /** Invokes the parser on a list of PositionalTokens.
-   *
-   *  @param  input sequence of positional tokens to parse
-   *  @return either no success, or the parsed schema table
-   */
-  def parseTaste(input: List[Elem]): Either[NoSuccess, Seq[Histogram]] = 
-    phrase(pTaste)(new SequenceReader(input)) match {
+  /** Parse a thing from some tokens */
+  def parseElems [A](parser: Parser[A], input: List[Elem])
+    : Either[NoSuccess, A] =
+    phrase(parser)(new SequenceReader(input)) match {
       case Success(result, _)  => Right(result)
       case failure : NoSuccess => Left (failure) }
 
