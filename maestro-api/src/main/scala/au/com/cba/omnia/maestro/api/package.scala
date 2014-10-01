@@ -32,4 +32,5 @@ package object api {
   val Guard         = au.com.cba.omnia.maestro.core.hdfs.Guard
   val HiveTable     = au.com.cba.omnia.maestro.core.hive.HiveTable
   val Macros        = au.com.cba.omnia.maestro.macros.Macros
+  val ModArgs       = au.com.cba.omnia.maestro.core.args.ModArgs
 }
