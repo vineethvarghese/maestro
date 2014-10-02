@@ -31,7 +31,7 @@ object build extends Build {
   type Sett = Def.Setting[_]
 
   val thermometerVersion = "0.4.0-20140925013601-d800eeb"
-  val ebenezerVersion    = "0.10.0-20140929061810-90aaaee"
+  val ebenezerVersion    = "0.10.0-20141002083428-d673392"
   val omnitoolVersion    = "1.2.0-20140929064622-26891b3"
 
   lazy val standardSettings: Seq[Sett] =
@@ -136,7 +136,8 @@ object build extends Build {
     ++ uniformThriftSettings
     ++ Seq[Sett](
          libraryDependencies ++= depend.hadoop() ++ Seq(
-           "com.twitter" % "parquet-hive" % "1.2.5-cdh4.6.0" % "test"
+           "com.twitter" % "parquet-hive"      % "1.2.5-cdh4.6.0"      % "test",
+           "com.twitter" % "parquet-cascading" % "1.2.5-cdh4.6.0-p337" % "provided"
          )
        , parallelExecution in Test := false
     )
