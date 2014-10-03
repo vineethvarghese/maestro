@@ -52,17 +52,17 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
   val initialImportOptions = createSqoopImportOptions(importTableName, connectionString, username, password, '|', Some("1=1"), TeradataParlourImportDsl())
   val finalImportOptions = initialImportOptions.numberOfMappers(mappers).inputMethod(SplitByAmp).splitBy("id").verbose()
 
-  val importJobs = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, finalImportOptions)(args)
+  val (importJobs, importPath) = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, finalImportOptions)(args)
   val loadView = new UniqueJob(args) {
-    load[Customer]("|", List(importJobs._2), errors, now(), cleaners, validators, filter, "null") |>
+    load[Customer]("|", List(importPath), errors, now(), cleaners, validators, filter, "null") |>
     view(Partition.byField(Fields.Cat), customerView)
   }
 
   val exportOptions = TeradataParlourExportDsl().verbose()
 
-  val exportJob = sqoopExport(importJobs._2, exportTableName, connectionString, username, password, '|', exportOptions)(args)
+  val exportJob = sqoopExport(importPath, exportTableName, connectionString, username, password, '|', exportOptions)(args)
 
-  override val jobs = importJobs._1 :+ loadView :+ exportJob
+  override val jobs = importJobs :+ loadView :+ exportJob
 }
 
 
