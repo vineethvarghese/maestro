@@ -19,13 +19,17 @@ import java.util.{Collection => JCollection}
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
 
+import org.apache.log4j.Logger
+
 import cascading.flow.FlowDef
 import cascading.flow.hadoop.ProcessFlow
 import cascading.tap.Tap
-import com.twitter.scalding._
+
+import com.twitter.scalding.{Args, Job, Mode, Read, Source, Write}
+
 import org.apache.hadoop.mapred.JobConf
 import org.apache.hadoop.tools.DistCp
-import org.apache.log4j.Logger
+
 import riffle.process._
 
 import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
@@ -34,11 +38,10 @@ import au.com.cba.omnia.parlour._
 /**
  * Import and export data between a database and HDFS.
  *
- * All methods return a Job that can be added to a cascade.
+ * All methods return Jobs that can be added to a cascade.
  *
  * See the example at `au.com.cba.omnia.maestro.example.CustomerSqoopExample` to understand how to use
  * the [[Sqoop]] API
- *
  */
 trait Sqoop {
 
@@ -82,6 +85,7 @@ trait Sqoop {
 
   /**
    * Convenience method to populate a parlour import option instance
+   *
    * @param tableName: table name
    * @param connectionString: database connection string
    * @param username: database username
