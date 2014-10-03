@@ -21,7 +21,7 @@ import scalaz._, Scalaz._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.io.compress.CompressionCodec
 
-import com.twitter.scalding.{Args, HadoopMode, Hdfs, Mode}
+import com.twitter.scalding.{Args, HadoopTest, Hdfs, Mode}
 
 /**
   * Represents a set of changes to Scalding arguments.
@@ -37,19 +37,15 @@ import com.twitter.scalding.{Args, HadoopMode, Hdfs, Mode}
 case class ModArgs(mutateConf: Option[Configuration => Unit], scaldingPairs: Map[String, Iterable[String]]) {
   /** Compress mapreduce output using specified codec */
   def compressOutput[C <: CompressionCodec : ClassManifest]: ModArgs =
-    than(ModArgs.compressOutput[C])
+    this |+| ModArgs.compressOutput[C]
 
   /** Set a key-value pair in the Scalding configuration */
   def set(key: String, value: String): ModArgs =
-    than(ModArgs.set(key, value))
+    this |+| ModArgs.set(key, value)
 
   /** Set a key-value pair in the underlying Hadoop configuration */
   def setHadoop(key: String, value: String): ModArgs =
-    than(ModArgs.setHadoop(key, value))
-
-  /** Run these modifications plus another set of modifications in sequence */
-  def than(next: ModArgs): ModArgs =
-    ModArgs(mutateConf |+| next.mutateConf, scaldingPairs ++ next.scaldingPairs)
+    this |+| ModArgs.setHadoop(key, value)
 
   /** Take scalding arguments and safely return a modified copy */
   def modify(args: Args): Args =
@@ -73,6 +69,13 @@ object ModArgs {
       conf.set("mapred.output.compression.type",  "BLOCK")
       conf.set("mapred.output.compression.codec", implicitly[ClassManifest[C]].erasure.getName)
     }), Map.empty)
+
+  implicit val monoidInstance: Monoid[ModArgs] = new Monoid[ModArgs] {
+    def zero =
+      ModArgs(None, Map.empty[String, Iterable[String]])
+    def append(m1: ModArgs, m2: => ModArgs) =
+      ModArgs(m1.mutateConf |+| m2.mutateConf, m1.scaldingPairs ++ m2.scaldingPairs)
+  }
 }
 
 /** Utility methods on ModArgs which the user should not call themselves */
@@ -86,23 +89,22 @@ object ModArgsImpl {
     }
   }
 
+
   /** Mutate a copy of the hadoop configuration and return new args with mutated conf */
   def safelyApply(mutateConf: Configuration => Unit, args: Args): Args = Mode.getMode(args) match {
-    // Scalding args by themselves are immutable. Only the Mode may have mutable parts
-    case None => args
-
-    // The Hadoop Configuration stored in a Hdfs mode is mutable and must be cloned
     case Some(hdfs : Hdfs) => {
       val newConf = new Configuration(hdfs.conf)
       mutateConf(newConf)
       Mode.putMode(hdfs.copy(conf = newConf), args)
     }
 
-    // Some other modes have mutable parts,
-    // but those parts are private and it's not trivial to access and clone them
-    // we don't currently use these Modes, so I won't worry about them for now
-    case Some(mode) => {
-      throw new Exception(s"ModArgs doesn't yet know how to safely modify this mode: $mode")
+    case Some(htest: HadoopTest) => {
+      val newConf = new Configuration(htest.conf)
+      mutateConf(newConf)
+      Mode.putMode(htest.copy(conf = newConf), args)
     }
+
+    case _ =>
+      throw new Exception("No hadoop configuration to modify")
   }
 }
