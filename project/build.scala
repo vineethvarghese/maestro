@@ -87,11 +87,12 @@ object build extends Build {
         ++ depend.omnia("omnitool-file", omnitoolVersion)
         ++ depend.omnia("parlour", "1.3.0-20141007050323-d0d32a5")
         ++ Seq(
-          "commons-validator" % "commons-validator" % "1.4.0",
-          "org.apache.hadoop" % "hadoop-tools"      % depend.versions.hadoop % "provided",
-          "au.com.cba.omnia" %% "thermometer-hive"  % thermometerVersion     % "test",
-          "org.scalikejdbc"  %% "scalikejdbc"       % "2.1.2"                % "test",
-          "org.hsqldb"        % "hsqldb"            % "1.8.0.10"             % "test"
+          "commons-validator"  % "commons-validator" % "1.4.0",
+          "org.apache.hadoop"  % "hadoop-tools"      % depend.versions.hadoop % "provided",
+          "au.com.cba.omnia"  %% "thermometer-hive"  % thermometerVersion     % "test",
+          "org.scalikejdbc"   %% "scalikejdbc"       % "2.1.2"                % "test",
+          "org.hsqldb"         % "hsqldb"            % "1.8.0.10"             % "test",
+          "org.apache.commons" % "commons-compress"  % "1.8.1"                % "test"
         )
     )
   )

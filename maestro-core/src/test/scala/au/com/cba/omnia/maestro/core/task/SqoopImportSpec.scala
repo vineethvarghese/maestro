@@ -14,7 +14,11 @@
 
 package au.com.cba.omnia.maestro.core.task
 
-import java.io.File
+import java.io.{File, InputStream}
+
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
+
+import scalaz.effect.IO
 
 import com.twitter.scalding.{Args, CascadeJob}
 
@@ -24,9 +28,11 @@ import scalikejdbc._
 
 import au.com.cba.omnia.parlour.SqoopSyntax.ParlourImportDsl
 
+import au.com.cba.omnia.thermometer.context.Context
 import au.com.cba.omnia.thermometer.core.Thermometer._
-import au.com.cba.omnia.thermometer.core.ThermometerSpec
+import au.com.cba.omnia.thermometer.core.{ThermometerRecordReader, ThermometerSpec}
 import au.com.cba.omnia.thermometer.fact.PathFactoids._
+import au.com.cba.omnia.thermometer.tools.Streams
 
 class SqoopImportSpec extends ThermometerSpec with BeforeExample { def is = s2"""
   Sqoop Import Cascade test
@@ -60,14 +66,24 @@ class SqoopImportSpec extends ThermometerSpec with BeforeExample { def is = s2""
     val dstDir = "source" </> tail
     val archiveDir = "archive" </> tail
     cascade.withFacts(
-      root </> dstDir </> "_SUCCESS"   ==> exists,
-      root </> dstDir </> "part-m-00000" ==> lines(CustomerImport.data),
-      root </> archiveDir </> "_SUCCESS"   ==> exists,
-      root </> archiveDir </> "part-m-00000" ==> lines(CustomerImport.data)
+      root </> dstDir     </> "_SUCCESS"       ==> exists,
+      root </> dstDir     </> "part-m-00000"   ==> lines(CustomerImport.data),
+      root </> archiveDir </> "_SUCCESS"       ==> exists,
+      root </> archiveDir </> "part-00000.bz2" ==> records(bzippedRecordReader, CustomerImport.data)
     )
   }
 
   override def before: Any = CustomerImport.tableSetup(connectionString, username, password)
+
+  val bzippedRecordReader =
+    ThermometerRecordReader[String]((conf, path) => IO {
+      val ctx = new Context(conf)
+      val in = new BZip2CompressorInputStream(
+        ctx.withFileSystem[InputStream](_.open(path))("bzippedRecordReader")
+      )
+      try Streams.read(in).lines.toList
+      finally in.close
+    })
 }
 
 class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
@@ -119,4 +135,3 @@ object CustomerImport {
         values (${row(0)}, ${row(1)}, ${row(2)}, ${row(3)}, ${row(4)}, ${row(5)})""".update().apply())
   }
 }
-

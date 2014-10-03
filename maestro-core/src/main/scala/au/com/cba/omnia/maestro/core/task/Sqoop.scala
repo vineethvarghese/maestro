@@ -15,25 +15,21 @@
 package au.com.cba.omnia.maestro.core.task
 
 import java.io.File
-import java.util.{Collection => JCollection}
-
-import scala.collection.JavaConverters.seqAsJavaListConverter
 
 import org.apache.log4j.Logger
 
 import cascading.flow.FlowDef
-import cascading.flow.hadoop.ProcessFlow
-import cascading.tap.Tap
 
-import com.twitter.scalding.{Args, Job, Mode, Read, Source, Write}
+import org.apache.hadoop.io.compress.BZip2Codec
 
-import org.apache.hadoop.mapred.JobConf
-import org.apache.hadoop.tools.DistCp
+import com.twitter.scalding.{Args, Job, Mode, TextLine, TypedPipe}
 
-import riffle.process._
+import com.cba.omnia.edge.source.compressible.CompressibleTypedTsv
 
 import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
 import au.com.cba.omnia.parlour._
+
+import au.com.cba.omnia.maestro.core.args.ModArgs
 
 /**
  * Import and export data between a database and HDFS.
@@ -47,40 +43,16 @@ trait Sqoop {
 
   /**
    * Archive Job for data imported by sqoop
-   * @param source: Source pointing to the folder to archive
-   * @param sink: Source pointing to the archive location
+   *
+   * @param importPath: Path pointing to the folder to archive
+   * @param archivePath: Path pointing to the archive location
    */
-  protected class ArchiveDirectoryJob(source: Source, sink: Source)(args: Args) extends Job(args) {
+  protected class ArchiveDirectoryJob(importPath: String, archivePath: String)(args: Args)
+      extends Job(ModArgs.compressOutput[BZip2Codec].modify(args)) {
 
-    override def buildFlow =
-      new ProcessFlow[ArchiveDirectoryRiffle](s"$name [${uniqueId.get}]",
-        new ArchiveDirectoryRiffle(source.createTap(Read), sink.createTap(Write)))
+    TypedPipe.from(TextLine(importPath)).write(CompressibleTypedTsv[String](archivePath))
 
-    override def validate = ()
-
-  }
-
-  @Process
-  protected class ArchiveDirectoryRiffle(source: Tap[_, _, _], sink: Tap[_, _, _]) {
-
-    @ProcessStop
-    def stop(): Unit = ()
-
-    @ProcessComplete
-    def complete(): Unit = {
-      val jobConf = new JobConf(classOf[DistCp])
-      val distCp = new DistCp(jobConf)
-      val outcome = distCp.run(Array(source.getIdentifier, sink.getIdentifier));
-      if (outcome != 0) 
-        throw new RuntimeException(s"Distributed Copy from ${source.getIdentifier} to ${sink.getIdentifier} failed.")
-    }
-
-    @DependencyIncoming
-    def getIncoming(): JCollection[_] = List(source).asJava
-
-    @DependencyOutgoing
-    def getOutgoing(): JCollection[_] = List(sink).asJava
-
+    override def validate = () // default scalding validate chokes with cascades
   }
 
   /**
@@ -154,7 +126,7 @@ trait Sqoop {
     val archivePath = List(hdfsRoot, "archive", source, domain, tableName, timePath) mkString File.separator
     val finalOptions = options.tableName(tableName).targetDir(importPath)
     (Seq(customSqoopImport(finalOptions)(args),
-      new ArchiveDirectoryJob(new DirSource(importPath), new DirSource(archivePath))(args)), importPath)
+      new ArchiveDirectoryJob(importPath, archivePath)(args)), importPath)
   }
 
   /**
@@ -173,7 +145,7 @@ trait Sqoop {
    * Runs a sqoop export from HDFS to a database table.
    *
    * @param exportDir: Directory containing data to be exported
-   * @param tableName: Table name in the database 
+   * @param tableName: Table name in the database
    * @param connectionString: Jdbc url for connecting to the database
    * @param username: Username for connecting to the database
    * @param password: Password for connecting to the database
