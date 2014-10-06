@@ -31,10 +31,18 @@ case class TableSpec(
   ignore:      Seq[Schema.Ignore],
   columnSpecs: Seq[ColumnSpec]) {
 
-  /** Pretty print a TableSpec as a String */
+  /** Pretty print a TableSpec as a String. */
   def pretty: String =
     columnSpecs .map (c => c.pretty)
       .mkString("\n")
+
+  /** Convert the TableSpec to JSON. */
+  def toJson: JsonDoc =
+    JsonMap(List(
+      ("database",  JsonString(database)),
+      ("table",     JsonString(table)),
+      ("columns",   JsonList(columnSpecs.map { _.toJson }, true))),
+      true)
 }
 
 
@@ -76,6 +84,17 @@ case class ColumnSpec(
       case None     => "-"
       case Some(f)  => f.pretty 
     }
+
+
+  /** Convert the ColumnSpec to JSON. */
+  def toJson: JsonDoc =
+    JsonMap(List(
+      ("name",      JsonString(name)),
+      ("storage",   JsonString(HiveType.pretty(hivetype))),
+      ("format",    JsonString(prettyOptionFormat(format))),
+      ("histogram", histogram.toJson),
+      ("comment",   JsonString(comment))),
+      true)
 }
 
 
@@ -97,6 +116,10 @@ case class Format(list: List[Classifier]) {
     list 
       .map {_.name}
       .mkString (" + ")
+
+  /** Convert the format to a JSON. */
+  def toJson: JsonDoc =
+    JsonString(pretty)
 }
 
 
@@ -126,13 +149,6 @@ case class Histogram(counts: Map[Classifier, Int]) {
   }
 
 
-  /** Convert the histogram to JSON. */
-  def toJson: JsonDoc =
-    JsonMap(
-      sorted
-        .map  { case (c, i) => (c.name, JsonNum(i)) })
-
-
   /** Extract the histogram with the classifiers in the standard sorted
       order. Don't return classifiers with zero counts. */
   def sorted: Seq[(Classifier, Int)] = 
@@ -145,6 +161,13 @@ case class Histogram(counts: Map[Classifier, Int]) {
       // Sort classifications so we get a deterministic ordering
       // between runs.
       .sortWith { (x1, x2) => x1._1.sortOrder < x2._1.sortOrder }
+
+
+  /** Convert the histogram to JSON. */
+  def toJson: JsonDoc =
+    JsonMap(
+      sorted
+        .map  { case (c, i) => (c.name, JsonNum(i)) })
 }
 
 
@@ -154,29 +177,27 @@ object Schema {
   /** Base trait for column entries that are ignored. */
   sealed trait Ignore
 
-  /**
-   * Ignore entries in a field that are equal to some value.
+  /** Ignore entries in a field that are equal to some value.
    *
-   * Encoded as
-   * {{{
-   *   name = "VALUE"
-   * }}}
-   * in the text format.
+   *  Encoded as
+   *  {{{
+   *    name = "VALUE"
+   *  }}}
+   *  in the text format.
    *
    *
-   * @param field field to check
-   * @param value value to ignore in this field
+   *  @param field field to check
+   *  @param value value to ignore in this field
    */
   case class IgnoreEq(field: String, value: String) extends Ignore
 
-  /**
-   * Ignore entries in a field that are equal to null.
+  /** Ignore entries in a field that are equal to null.
    *
-   * Encoded as
-   * {{{
-   *   name is null
-   * }}}
-   * in the text format.
+   *  Encoded as
+   *  {{{
+   *    name is null
+   *  }}}
+   *  in the text format.
    *
    * @param field field to ignore when it is null
    */
@@ -197,13 +218,6 @@ object Schema {
   /** Show the classification counts for a single field,
    *  or '-' if there aren't any. */
   def showCountsField(
-    classifications: Array[Classifier],
-    counts:          Array[Int])
-    : String =
-    Histogram(Classifier.all .zip (counts) .toMap).pretty
-
-
-  def toJsonCountsField(
     classifications: Array[Classifier],
     counts:          Array[Int])
     : String =
