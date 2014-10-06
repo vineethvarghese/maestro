@@ -34,7 +34,7 @@ class InferArgs extends FieldArgs {
   @Required var database: String = _
 
   /** Name of the table. */
-  @Required var table:    String    = _
+  @Required var table: String = _
 
   /** File containing names and storage types of columns.
    *  Each line is treated as a description of a single column, 
@@ -46,74 +46,36 @@ class InferArgs extends FieldArgs {
    *    acct_i   string
    *    balance  float
    */
-  @Required var columns: String   = _
+  var names: Option[String] = None
 
   /** Taste file, containing histogram of what type of data is in the columns. */
-  @Required var taste: String   = _
+  @Required var taste: String = _
 }
 
 
 /** Infer a schema, based on the names file and histogram. */
 object Infer extends ArgMain[InferArgs]
 {
-  type JsonTaste
-    = Map[String,                              // "row"
-          List[Map[String, Map[String, _]]]]   // Meta-data about each column.
 
 
   /** Taster toplevel */
   def main(args: InferArgs): Unit = {
 
-    // Read the taste file.
-    val strTaste: String =
-      Source.fromFile(args.taste)
-        .getLines .mkString ("\n")
-
-    // Do initial JSON parsing of taste file.
-    val jsonTaste: JsonTaste = 
-      JSON.parseFull(strTaste)
-          .getOrElse { throw new Exception("Taste file JSON parse error.") }
-          .asInstanceOf[JsonTaste]
-
-    // Get maps of classifier name to the value count for each column.
-    // This loads directly form the parsed JSON.
-    val rawTaste: List[List[(String, Int)]] =
-      // Get just the classifiers for each row.
-      (for {
-        rows  <- jsonTaste.get("row")
-        clas  <- sequence(rows.map { row => 
-          for { cl <- row.get("classifiers") } yield cl })
-       } yield clas)
-      .getOrElse { throw new Exception("Cannot get classifiers from taste file") }
-
-      // Truncate incoming classifier counts to integers.
-      .map ( m => m.toList.map { case (s, d) => (s, d.asInstanceOf[Double].toInt) })
-
-    // Parse the classifier strings and produce a real histogram for each row.
-    val taste: List[Histogram] =
-      rawTaste.map { counts => loadHistogram(counts) }
-
-    // Squash all the histograms, so that we retain just the most specific
-    // type for each column.
-    val tasteSquashed: List[Histogram] =
-      taste.map { h => schema.Squash.squash(h) }
-
-    // TODO: get the names from the taste file if they're there,
-    //       otherwise allow them to be specified separately.
-    val nameTypes: List[List[String]] =
-      Source.fromFile(args.columns)
-        .getLines .map { w => w.split("\\s+").toList }
-        .toList
+    // Load the names and histograms.
+    // Also squash the hisograms so we have just the most specific classifiers.
+    val taste = loadTaste(args.names, args.taste)
+    val names = taste .map { _._1 }
+    val hists = taste .map { _._2 } .map { h => schema.Squash.squash(h) }
         
     // Specs for all the columns.
     val colSpecs = 
-      nameTypes .zip (tasteSquashed)
-        .map { case (nt, h) => 
+      names .zip (hists)
+        .map { case (name, hist) => 
             ColumnSpec( 
-              nt(0), 
+              name, 
               hive.HiveType.HiveString, 
-              schema.Infer.infer(h), 
-              h,
+              schema.Infer.infer(hist), 
+              hist,
               "") }
 
     // Spec for the table.
@@ -127,7 +89,84 @@ object Infer extends ArgMain[InferArgs]
     println(tableSpec.pretty)
   }  
 
-  // Load a Histogram from the raw JSON.
+
+  /** Load histograms from the taste file at the given path. */
+  def loadTaste(fileNames: Option[String], fileTaste: String)
+    : (List[(String, Histogram)]) = {
+
+    // Type template for the taste file.
+    type JsonTaste
+      = Map[String,                 // "row"
+            List[Map[String, _]]]   // Meta-data about each column.
+
+    // Read the taste file.
+    val strTaste: String =
+      Source.fromFile(fileTaste)
+        .getLines .mkString ("\n")
+
+    // Do initial JSON parsing of taste file.
+    val jsonTaste: JsonTaste = 
+      JSON.parseFull(strTaste)
+          .getOrElse { throw new Exception("Taste file JSON parse error.") }
+          .asInstanceOf[JsonTaste]
+
+    // Get names from the taste file, if there are any.
+    val namesTaste: Option[List[String]] =
+      (for {
+        rows  <- jsonTaste.get("row")
+        name  <- sequence(rows.map { row =>
+            for { nm <- row.get("name") } 
+            yield nm.asInstanceOf[String] })
+      } yield name)
+
+    // Get names from the external names file, if we have one.
+    val namesExt: Option[List[String]] =
+      fileNames.map { file =>
+        sequence(Source.fromFile(file)
+          .getLines 
+          .map       { w  => w  .split("\\s+").toList }
+          .map       { ws => ws .lift (0) }
+          .toList)
+        .getOrElse { throw new Exception("Error parsing names files.") }
+        }
+
+    // Decide where the names come from.
+    val names: List[String] = 
+      namesExt match {
+        case Some(names)   => names
+        case None          => namesTaste match {
+          case Some(names) => names
+          case None        => 
+            throw new Exception(
+              "No column names in taste file.\n" +
+              "and an external names file was not provided.")
+          }
+        }
+
+    // Get a list of classifier names and counts for each column
+    // from the taste file.
+    val histsRaw: List[List[(String, Int)]] =
+      (for {
+        rows  <- jsonTaste.get("row")
+        clas  <- sequence(rows.map { row => 
+          for { cl <- row.get("classifiers") } 
+          yield cl.asInstanceOf[Map[String,_]] })
+       } yield clas)
+      .getOrElse { throw new Exception("Cannot get classifiers from taste file.") }
+
+      // Truncate incoming classifier counts to integers.
+      .map ( m => m.toList.map { case (s, d) => 
+        (s, d.asInstanceOf[Double].toInt) })
+
+    // Parse the classifier strings and produce a real histogram for each row.
+    val hists: List[Histogram] =
+      histsRaw.map { counts => loadHistogram(counts) }
+
+    names .zip (hists)
+  }
+
+
+  /** Load a Histogram from the raw JSON. */
   def loadHistogram(counts: List[(String, Int)]): Histogram = {
     val clas  = 
       counts.map { case (s, d) => 
