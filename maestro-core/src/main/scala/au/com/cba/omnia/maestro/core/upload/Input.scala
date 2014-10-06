@@ -17,6 +17,8 @@ package upload
 
 import java.io.File
 
+import scala.util.matching.Regex
+
 import scalaz._, Scalaz._
 
 import com.cba.omnia.edge.hdfs.{Hdfs, Result}
@@ -38,7 +40,7 @@ object Input {
     *
     * See the description of the file pattern at [[au.cba.com.omnia.meastro.core.task.Upload]]
     */
-  def findFiles(sourceDir: File, tableName: String, pattern: String): Result[List[Input]] =
+  def findFiles(sourceDir: File, tableName: String, pattern: String, controlPattern: Regex): Result[List[Input]] =
     Option(sourceDir.listFiles) match {
       case None        =>
         Result.fail(s"$sourceDir is not an existing directory")
@@ -54,17 +56,14 @@ object Input {
           case NoMatch     => List.empty[List[String]]
         }
         dirFile = new File(dirs mkString File.separator)
-        input   = if (isControl(file)) Control(file) else Data(file, dirFile)
+        input   = if (isControl(file, controlPattern)) Control(file) else Data(file, dirFile)
       } yield input
     }
 
   /** Convert a disjunction into a Result */
   def fromDisjunction[A](x: String \/ A) = x.fold(Result.fail(_), Result.ok(_))
 
-  /** Patterns for control files */
-  val controlFilePatterns = List("./S_*", "_CTR.*", "_CTR", "\\.CTR", "\\.CTL", "\\.ctl")
-
   /** check if file matches any of the control file patterns */
-  def isControl(file: File) =
-    controlFilePatterns.exists(_.r.findFirstIn(file.getName).isDefined)
+  def isControl(file: File, controlPattern: Regex) =
+    controlPattern.unapplySeq(file.getName).isDefined
 }

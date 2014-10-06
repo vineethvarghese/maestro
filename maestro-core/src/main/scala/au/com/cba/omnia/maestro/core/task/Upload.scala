@@ -17,6 +17,8 @@ package task
 
 import java.io.File
 
+import scala.util.matching.Regex
+
 import org.apache.hadoop.conf.Configuration
 
 import org.apache.log4j.Logger
@@ -110,7 +112,7 @@ trait Upload {
   def upload(
     source: String, domain: String, tableName: String, filePattern: String,
     sourceRoot: String, archiveRoot: String, hdfsRoot: String,
-    conf: Configuration
+    conf: Configuration, controlPattern: Regex = ControlPattern.default
   ): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
@@ -129,7 +131,7 @@ trait Upload {
     val hdfsLandingDir = List(hdfsRoot,    "source",   source, domain, tableName) mkString File.separator
 
     val result: Result[Unit] =
-      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsArchiveDir, hdfsLandingDir).safe.run(conf)
+      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsArchiveDir, hdfsLandingDir, controlPattern).safe.run(conf)
 
     val args = s"$source/$domain/$tableName"
     result match {
@@ -167,7 +169,7 @@ trait Upload {
   def customUpload(
     tableName: String, filePattern: String, locSourceDir: String,
     archiveDir: String, hdfsArchiveDir: String, hdfsLandingDir: String,
-    conf: Configuration
+    conf: Configuration, controlPattern: Regex = ControlPattern.default
   ): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
@@ -180,7 +182,7 @@ trait Upload {
     logger.info(s"hdfsLandingDir = $hdfsLandingDir")
 
     val result =
-      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsArchiveDir, hdfsLandingDir).safe.run(conf)
+      Upload.uploadImpl(tableName, filePattern, locSourceDir, archiveDir, hdfsArchiveDir, hdfsLandingDir, controlPattern).safe.run(conf)
 
     result match {
       case Ok(())                => logger.info(s"Custom upload ended from $locSourceDir")
@@ -206,10 +208,11 @@ object Upload {
   /** Implementation of `upload` methods in [[Upload]] trait */
   def uploadImpl(
     tableName: String, filePattern: String, locSourceDir: String,
-    archiveDir: String, hdfsArchiveDir: String, hdfsLandingDir: String
+    archiveDir: String, hdfsArchiveDir: String, hdfsLandingDir: String,
+    controlPattern: Regex
   ): Hdfs[Unit] =
     for {
-      inputFiles <- Hdfs.result(Input.findFiles(new File(locSourceDir), tableName, filePattern))
+      inputFiles <- Hdfs.result(Input.findFiles(new File(locSourceDir), tableName, filePattern, controlPattern))
 
       _ <- inputFiles traverse_ {
         case Control(file)   => Hdfs.value(logger.info(s"skipping control file ${file.getName}"))

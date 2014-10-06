@@ -12,8 +12,21 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-version in ThisBuild := "1.6.0"
+package au.com.cba.omnia.maestro.core.upload
 
-uniqueVersionSettings
+import java.util.regex.Pattern
 
-licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+import scala.util.matching.Regex
+
+/** Regular expressions for control files */
+object ControlPattern {
+
+  /** The default pattern used if the user does not specify their own pattern */
+  val default: Regex = """S_.*|.*[_\.][Cc][Tt][RrLl]""".r
+
+  /** Specify a control file pattern that matches files with given extensions */
+  def extensions(exts: String*): Regex = {
+    val extRegex  = exts.map(Pattern.quote(_).toString).mkString("(", "|", ")")
+    s".*\\.$extRegex".r
+  }
+}
