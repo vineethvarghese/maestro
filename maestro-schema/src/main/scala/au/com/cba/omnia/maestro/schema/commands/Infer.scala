@@ -56,8 +56,6 @@ class InferArgs extends FieldArgs {
 /** Infer a schema, based on the names file and histogram. */
 object Infer extends ArgMain[InferArgs]
 {
-
-
   /** Taster toplevel */
   def main(args: InferArgs): Unit = {
 
@@ -86,7 +84,7 @@ object Infer extends ArgMain[InferArgs]
         Seq(),
         colSpecs)
 
-    println(tableSpec.pretty)
+    println(JsonDoc.render(0, tableSpec.toJson))
   }  
 
 
@@ -107,7 +105,7 @@ object Infer extends ArgMain[InferArgs]
     // Do initial JSON parsing of taste file.
     val jsonTaste: JsonTaste = 
       JSON.parseFull(strTaste)
-          .getOrElse { throw new Exception("Taste file JSON parse error.") }
+          .getOrElse { throw new Exception("Cannot parse taste file as JSON.") }
           .asInstanceOf[JsonTaste]
 
     // Get names from the taste file, if there are any.
@@ -127,7 +125,7 @@ object Infer extends ArgMain[InferArgs]
           .map       { w  => w  .split("\\s+").toList }
           .map       { ws => ws .lift (0) }
           .toList)
-        .getOrElse { throw new Exception("Error parsing names files.") }
+        .getOrElse { throw new Exception("Cannot parse names file.") }
         }
 
     // Decide where the names come from.
@@ -152,7 +150,7 @@ object Infer extends ArgMain[InferArgs]
           for { cl <- row.get("classifiers") } 
           yield cl.asInstanceOf[Map[String,_]] })
        } yield clas)
-      .getOrElse { throw new Exception("Cannot get classifiers from taste file.") }
+      .getOrElse { throw new Exception("Cannot parse classifiers.") }
 
       // Truncate incoming classifier counts to integers.
       .map ( m => m.toList.map { case (s, d) => 
@@ -178,9 +176,11 @@ object Infer extends ArgMain[InferArgs]
     Histogram(clas.toMap)
   }
 
+
   /** ZipWith-style helper. */
   def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] =
     a.flatMap { x => b.map { y => f(x, y) } }
+
 
   /** Missing Haskell-esque sequence function. */
   def sequence[A](a: List[Option[A]]): Option[List[A]] =
