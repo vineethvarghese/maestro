@@ -53,63 +53,10 @@ case class JsonMap(
 
 object JsonDoc {
 
-
   /** Render a Json doc as a string. */
   def render(indent: Int, json: JsonDoc): String =
     linesJsonDoc(indent, json)
       .mkString("\n")
-
-  /** Convert a string back to a JsonDoc. 
-   *  This uses the default Scala JSON parser, but we load it into our JsonDoc
-   *  structure to make the parser's dynamically typed output easier to consume. 
-   */
-  def parse(str: String): Option[JsonDoc] = {
-
-    /** ZipWith-style helper. */
-    def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] =
-      a.flatMap { x => b.map { y => f(x, y) } }
-
-    /** Missing Haskell-esque sequence function. */
-    def sequence[A](a: List[Option[A]]): Option[List[A]] =
-      a.foldRight[Option[List[A]]](Some(Nil))((x,y) => map2(x,y)(_ :: _)) 
-
-    /** Load a parsed JSON double. */
-    def eatDouble(tree: Any): Option[JsonDoc] =
-      Some(tree) 
-        .collect { case d: Double  => d }
-        .map     (JsonNum(_))
-
-    /** Load a parsed JSON string. */
-    def eatString(tree: Any): Option[JsonDoc] =
-      Some(tree)
-        .collect { case s: String  => s }
-        .map     (JsonString(_))
-
-    /** Load a parsed JSON list. */
-    def eatList  (tree: Any): Option[JsonDoc] =
-      Some(tree)
-        .collect { case l: List[_] => 
-          sequence(l.map(eat(_))) }
-        .flatten
-        .map     (JsonList(_))
-
-    /** Load a parsed JSON map. */
-    def eatMap   (tree: Any): Option[JsonDoc] =
-      Some(tree)
-        .collect { case m: Map[_, _] =>
-          sequence(m .toList .map { case (k, v) =>
-            for { j <- eat(v) } yield (k.asInstanceOf[String], j) })}
-        .flatten
-        .map     (JsonMap(_, false))
-
-    /** Load a parsed JSON thing. */
-    def eat(tree: Any): Option[JsonDoc] = 
-      List(eatDouble(tree), eatString(tree), eatList(tree), eatMap(tree))
-        .flatten .headOption
-
-    JSON.parseFull(str)
-      .map (t => eat(t)) .flatten
-  }
 
 
   /** Render a Json doc as a list of strings, with one string per line. */
