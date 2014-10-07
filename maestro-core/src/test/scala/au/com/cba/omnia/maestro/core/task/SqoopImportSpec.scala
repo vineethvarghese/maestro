@@ -16,31 +16,43 @@ package au.com.cba.omnia.maestro.core.task
 
 import java.io.File
 
-import scalaz.{Tag => _}
 import com.twitter.scalding.{Args, CascadeJob}
-import org.specs2.specification.Before
+
+import org.specs2.specification.BeforeExample
+
+import scalikejdbc._
 
 import au.com.cba.omnia.parlour.SqoopSyntax.ParlourImportDsl
+
 import au.com.cba.omnia.thermometer.core.Thermometer._
 import au.com.cba.omnia.thermometer.core.ThermometerSpec
 import au.com.cba.omnia.thermometer.fact.PathFactoids._
 
-class SqoopImportSpec extends ThermometerSpec with Before { def is = s2"""
+class SqoopImportSpec extends ThermometerSpec with BeforeExample { def is = s2"""
   Sqoop Import Cascade test
-  ==================================
+  =========================
 
   Import/Upload data from DB to HDFS $endToEndImportTest
 
 """
+  val database = "jdbc:hsqldb:mem:sqoopdb"
+  val username = "sa"
+  val password = ""
+  val userHome = System.getProperty("user.home")
 
-  def endToEndImportTest = this {
-
+  def endToEndImportTest = {
     val cascade = withArgs(
       Map(
-        "hdfs-root" -> s"$dir/user/hdfs",
-        "source" -> "sales",
-        "domain" -> "books",
-        "importTableName" -> "customer_import")
+        "hdfs-root"       -> s"$dir/user/hdfs",
+        "source"          -> "sales",
+        "domain"          -> "books",
+        "importTableName" -> "customer_import",
+        "timePath"        -> (List("2014", "10", "10") mkString File.separator),
+        "mapRedHome"      -> s"$userHome/.ivy2/cache",
+        "database"        -> database,
+        "username"        -> username,
+        "password"        -> password
+      )
     )(new SqoopImportCascade(_))
 
     val root = dir </> "user" </> "hdfs"
@@ -49,13 +61,13 @@ class SqoopImportSpec extends ThermometerSpec with Before { def is = s2"""
     val archiveDir = "archive" </> tail
     cascade.withFacts(
       root </> dstDir </> "_SUCCESS"   ==> exists,
-      root </> dstDir </> "part-m-00000" ==> (exists, count(3)),
+      root </> dstDir </> "part-m-00000" ==> lines(Customer.data),
       root </> archiveDir </> "_SUCCESS"   ==> exists,
-      root </> archiveDir </> "part-m-00000" ==> (exists, count(3))
+      root </> archiveDir </> "part-m-00000" ==> lines(Customer.data)
     )
   }
 
-  override def before: Any = CustomerDb.setup;
+  override def before: Any = Customer.dbSetup(database, username, password)
 }
 
 class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
@@ -65,34 +77,32 @@ class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
   val importTableName  = args("importTableName")
   val mappers          = 1
   val database         = domain
-  val connectionString = "jdbc:hsqldb:mem:sqoopdb"
-  val username         = "sa"
-  val password         = ""
-  val timePath         = List("2014", "10", "10") mkString File.separator
-  val userHome         = System.getProperty("user.home")
+  val connectionString = args("database")
+  val username         = args("username")
+  val password         = args("password")
+  val timePath         = args("timePath")
+  val mapRedHome       = args("mapRedHome")
 
   /**
    * hadoopMapRedHome is set for Sqoop to find the hadoop jars. This hack would be necessary ONLY in a
    * test case.
    */
   val importOptions: ParlourImportDsl = createSqoopImportOptions(importTableName, connectionString, username,
-    password, '|', Some("1=1")).splitBy("id").hadoopMapRedHome(s"$userHome/.ivy2/cache")
-  val importJobs = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, importOptions)(args)
+    password, '|', Some("1=1")).splitBy("id").hadoopMapRedHome(mapRedHome)
 
-  override val jobs = importJobs._1 
+  override val jobs = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, importOptions)(args)._1
 }
 
-object CustomerDb {
+object Customer {
 
-  import scalikejdbc._
   Class.forName("org.hsqldb.jdbcDriver")
-  ConnectionPool.singleton("jdbc:hsqldb:mem:sqoopdb", "sa", "")
 
-  implicit val session = AutoSession
+  val data = List("1|Fred|001|D|M|259", "2|Betty|005|D|M|205", "3|Bart|002|F|M|225")
 
-  val importData = List("1|Fred|001|D|M|259", "2|Betty|005|D|M|205", "3|Bart|002|F|M|225")
+  def dbSetup(database: String, username: String, password: String): Unit = {
+    ConnectionPool.singleton(database, username, password)
+    implicit val session = AutoSession
 
-  def setup: Unit = {
     sql"""
       create table customer_import (
         id integer,
@@ -104,7 +114,7 @@ object CustomerDb {
       )
     """.execute.apply()
 
-    importData.map(line => line.split('|')).foreach(
+    data.map(line => line.split('|')).foreach(
       row => sql"""insert into customer_import(id, name, accr, cat, sub_cat, balance)
         values (${row(0)}, ${row(1)}, ${row(2)}, ${row(3)}, ${row(4)}, ${row(5)})""".update().apply())
   }
