@@ -34,6 +34,11 @@ import au.com.cba.omnia.maestro.core.task._
   * queries.
   */
 abstract class MaestroCascade[A <: ThriftStruct](args: Args) extends CascadeJob(args) with MacroSupport[A] {
+  /** Don't run any cascading jobs if the job list is empty. */
+  override def run =
+    if (jobs.isEmpty) true
+    else super.run
+
   override def validate { /* workaround for scalding bug, yep, yet another one, no nothing works */ }
 }
 
