@@ -46,16 +46,16 @@ control files
 """
 
  def ctlIsControl =
-    Input.isControl(new File("local.CTL"), Input.defaultControlPattern) must beTrue
+    Input.isControl(new File("local.CTL"), ControlPattern.default) must beTrue
 
   def ctrIsControl =
-    Input.isControl(new File("local.CTR"), Input.defaultControlPattern) must beTrue
+    Input.isControl(new File("local.CTR"), ControlPattern.default) must beTrue
 
   def sIsControl =
-    Input.isControl(new File("S_LOCAL"), Input.defaultControlPattern) must beTrue
+    Input.isControl(new File("S_LOCAL"), ControlPattern.default) must beTrue
 
   def ctrMiddleIsNotControl =
-    Input.isControl(new File("ABC_DEF_CTRP_GHIJK_ABC209"), Input.defaultControlPattern) must beFalse
+    Input.isControl(new File("ABC_DEF_CTRP_GHIJK_ABC209"), ControlPattern.default) must beFalse
 
   def rejectLateDate = isolatedTest((dirs: IsolatedDirs) => {
     val f1 = new File(dirs.testDir, "local20140506.txt")
@@ -64,7 +64,7 @@ control files
     f1.createNewFile
     f2.createNewFile
 
-    val fileList = Input.findFiles(dirs.testDir, "local", "{table}{yyyyddMM}.txt", Input.defaultControlPattern)
+    val fileList = Input.findFiles(dirs.testDir, "local", "{table}{yyyyddMM}.txt", ControlPattern.default)
     fileList mustEqual Ok(List(data1))
   })
 
@@ -75,13 +75,13 @@ control files
     f1.createNewFile
     f2.createNewFile
 
-    val fileList = Input.findFiles(dirs.testDir, "local", "{table}*{yyyyddMM}.txt", Input.defaultControlPattern)
+    val fileList = Input.findFiles(dirs.testDir, "local", "{table}*{yyyyddMM}.txt", ControlPattern.default)
     fileList mustEqual Ok(List(data2))
   })
 
   def rejectMissingSourceDir = isolatedTest((dirs: IsolatedDirs) => {
     dirs.testDir.delete
-    val fileList = Input.findFiles(dirs.testDir, "local", "yyyyMMdd", Input.defaultControlPattern)
+    val fileList = Input.findFiles(dirs.testDir, "local", "yyyyMMdd", ControlPattern.default)
     fileList must beLike { case Error(_) => ok }
   })
 
@@ -94,7 +94,7 @@ control files
     f1.createNewFile
     f2.createNewFile
 
-    val fileList = Input.findFiles(dirs.testDir, "local", "{table}{yyyyMMdd}*", Input.defaultControlPattern)
+    val fileList = Input.findFiles(dirs.testDir, "local", "{table}{yyyyMMdd}*", ControlPattern.default)
     fileList must beLike {
       case Ok(list) => list must contain(exactly(expected: _*))
     }

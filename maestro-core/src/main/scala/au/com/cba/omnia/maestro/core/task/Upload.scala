@@ -112,7 +112,7 @@ trait Upload {
   def upload(
     source: String, domain: String, tableName: String, filePattern: String,
     sourceRoot: String, archiveRoot: String, hdfsRoot: String,
-    conf: Configuration, controlPattern: Regex = Input.defaultControlPattern
+    conf: Configuration, controlPattern: Regex = ControlPattern.default
   ): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 
@@ -169,7 +169,7 @@ trait Upload {
   def customUpload(
     tableName: String, filePattern: String, locSourceDir: String,
     archiveDir: String, hdfsArchiveDir: String, hdfsLandingDir: String,
-    conf: Configuration, controlPattern: Regex = Input.defaultControlPattern
+    conf: Configuration, controlPattern: Regex = ControlPattern.default
   ): Result[Unit] = {
     val logger = Logger.getLogger("Upload")
 

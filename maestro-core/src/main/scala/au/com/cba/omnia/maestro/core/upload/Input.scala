@@ -63,10 +63,7 @@ object Input {
   /** Convert a disjunction into a Result */
   def fromDisjunction[A](x: String \/ A) = x.fold(Result.fail(_), Result.ok(_))
 
-  /** Patterns for control files */
-  val defaultControlPattern = """^S_|[_\.][Cc][Tt][RrLl]$""".r
-
   /** check if file matches any of the control file patterns */
   def isControl(file: File, controlPattern: Regex) =
-    controlPattern.findFirstIn(file.getName).isDefined
+    controlPattern.unapplySeq(file.getName).isDefined
 }
