@@ -85,11 +85,13 @@ object build extends Build {
         ++ depend.omnia("humbug-core",   "0.3.0-20140918054014-3066286")
         ++ depend.omnia("omnitool-time", omnitoolVersion)
         ++ depend.omnia("omnitool-file", omnitoolVersion)
-        ++ depend.omnia("parlour", "1.3.0-20140929065143-70a21c6")
+        ++ depend.omnia("parlour", "1.3.0-20141007050323-d0d32a5")
         ++ Seq(
-          "org.apache.hadoop" %  "hadoop-tools"      % depend.versions.hadoop % "provided",
-          "commons-validator" %  "commons-validator" % "1.4.0",
-          "au.com.cba.omnia" %% "thermometer-hive" % thermometerVersion % "test"
+          "commons-validator" % "commons-validator" % "1.4.0",
+          "org.apache.hadoop" % "hadoop-tools"      % depend.versions.hadoop % "provided",
+          "au.com.cba.omnia" %% "thermometer-hive"  % thermometerVersion     % "test",
+          "org.scalikejdbc"  %% "scalikejdbc"       % "2.1.2"                % "test",
+          "org.hsqldb"        % "hsqldb"            % "1.8.0.10"             % "test"
         )
     )
   )
