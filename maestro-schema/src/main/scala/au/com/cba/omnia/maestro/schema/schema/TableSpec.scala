@@ -18,26 +18,30 @@ import au.com.cba.omnia.maestro.schema.syntax._
 import au.com.cba.omnia.maestro.schema.pretty._
 
 
-/** Companion object for Schemas. */
-object Schema {
+/** Table Specification.
+ *
+ *  @param database    database name
+ *  @param table       table name
+ *  @param ignore      defines what rows to ignore in the input, eg for header fields
+ *  @param columnSpecs specifications for each column
+ */
+case class TableSpec(
+  database:    String,
+  table:       String,
+  ignore:      List[Ignore],
+  columnSpecs: List[ColumnSpec]) {
 
-  /** Show the classification counts for row of the table.
-   *  The counts for each field go on their own line. */
-  def showCountsRow(
-    classifications: Array[Classifier],
-    counts:          Array[Array[Int]])
-    : String =
-    counts
-      .map { counts => showCountsField(classifications, counts) + ";\n" }
-      .mkString
+  /** Pretty print a TableSpec as a String. */
+  def pretty: String =
+    columnSpecs .map (c => c.pretty)
+      .mkString("\n")
 
-
-  /** Show the classification counts for a single field,
-   *  or '-' if there aren't any. */
-  def showCountsField(
-    classifications: Array[Classifier],
-    counts:          Array[Int])
-    : String =
-    Histogram(Classifier.all .zip (counts) .toMap).pretty
+  /** Convert the TableSpec to JSON. */
+  def toJson: JsonDoc =
+    JsonMap(List(
+      ("database",  JsonString(database)),
+      ("table",     JsonString(table)),
+      ("columns",   JsonList(columnSpecs.map { _.toJson }, true))),
+      true)
 }
 
