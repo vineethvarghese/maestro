@@ -255,13 +255,13 @@ object SchemaParser extends Parsers {
 
   // Parse a year-month-day syntax specifier.
   def pYYYYcMMcDD:  Parser[Syntax]
-    = psCtor("YYYYcMMcDD") ~! pTok(KBra) ~! pChar ~! pTok(KKet) ^^
-        { case _ ~ _ ~ c ~ _ => syntax.YYYYcMMcDD(c) }
+    = psCtor("YYYYcMMcDD") ~! pTok(KBra) ~! pString ~! pTok(KKet) ^^
+        { case _ ~ _ ~ s ~ _ => syntax.YYYYcMMcDD(s) }
 
   // Parse a day-month-year syntax specifier.
   def pDDcMMcYYYY:  Parser[Syntax]
-    = psCtor("DDcMMcYYYY") ~! pTok(KBra) ~! pChar ~! pTok(KKet) ^^
-        { case _ ~ _ ~ c ~ _ => syntax.DDcMMcYYYY(c) }
+    = psCtor("DDcMMcYYYY") ~! pTok(KBra) ~! pString ~! pTok(KKet) ^^
+        { case _ ~ _ ~ s ~ _ => syntax.DDcMMcYYYY(s) }
 
 
   // --------------------------------------------------------------------------
@@ -323,10 +323,6 @@ object SchemaParser extends Parsers {
   // Parse a literal string in double quotes, like "foo".
   def pString : Parser[String]
     = extract { case KString(string) => string }
-
-  // Parse a literal character in quotes, like 'c'.
-  def pChar   : Parser[Char]
-    = extract { case KChar(c) => c }
 
   // Parse a natural number (positive integer) like 42.
   def pNat    : Parser[Int]

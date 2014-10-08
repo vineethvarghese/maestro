@@ -252,7 +252,7 @@ object NegReal extends Syntax {
 /** Matches this exact string. */
 case class Exact(str: String) extends Syntax {
   
-  val name  = s"""Exact(\"$str\")"""
+  val name  = s"""Exact('$str')"""
   override def sortOrder = 99
 
   def likeness(s: String) = 
@@ -264,7 +264,7 @@ case class Exact(str: String) extends Syntax {
     else if (Upper.matches(str))            Set(Upper)
     else if (Lower.matches(str))            Set(Lower)
     else if (PosReal.matches(str))          Set(PosReal)
-    else if (YYYYcMMcDD('-').matches(str))  Set(YYYYcMMcDD('-'))
+    else if (YYYYcMMcDD("-").matches(str))  Set(YYYYcMMcDD("-"))
     else Set(Any)
 
   val partitions: Set[Syntax] = Set()

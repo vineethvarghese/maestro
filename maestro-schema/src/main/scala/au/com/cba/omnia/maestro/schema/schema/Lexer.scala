@@ -114,7 +114,7 @@ object Lexer extends RegexParsers {
     case k: TKeyword       => kwMap(k)
     case KCtor(ctor)       => ctor
     case KName(name)       => name
-    case KString(str)      => "\"" + str + "\""
+    case KString(str)      => "'" + str + "'"
     case KChar(chr)        => s"'$chr'"
     case KNat(nat)         => nat.toString
     case KComment(comment) => s"-- $comment\n"
@@ -202,8 +202,8 @@ object Lexer extends RegexParsers {
   // Parse a literal value.
   def pLiterals: Parser[PosToken[TLiteral]] = positioned(
     ("\"[^\"]*\"".r        ^^ { s => PosToken(KString(trimEnds(s))) }) |
-    ('\'' ~> ".".r <~ '\'' ^^ { s => PosToken(KChar  (s.head))      }) |
     ("'[^']*'".r           ^^ { s => PosToken(KString(trimEnds(s))) }) |
+    ('\'' ~> ".".r <~ '\'' ^^ { s => PosToken(KChar  (s.head))      }) |
     ("[0-9]+".r            ^^ { s => PosToken(KNat   (s.toInt))     })
   )
 
