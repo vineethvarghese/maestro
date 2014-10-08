@@ -37,14 +37,19 @@ class Check(args: Args)
     TypedPipe.from(MultipleTextLineFiles(filesInput.map{_.toString} :_*))
 
   // Output HDFS path for rows that do not match the schema.
-  val pipeOutput  = TypedTsv[String](args("out-hdfs-errors"))
+  val pipeOutErrors  = TypedTsv[String](args("out-hdfs-errors"))
+
+  // Output HDFS path for error diagnosis
+  val pipeOutDiag    = TypedTsv[String](args("out-hdfs-diag"))
+
 
   // Load column names and formats from the schema definition.
   val namesFormats: List[Check.ColumnDef] = 
     Load.loadFormats(fileSchema)
 
   // Check the input files.
-  pipeInput
+  val pipeErrors =
+    pipeInput
 
      // Check each row against the schema, producing a sequence of fields
      // that don't match.
@@ -55,12 +60,15 @@ class Check(args: Args)
     .filter   { r: Seq[(Check.ColumnDef, String)] =>
       r.size > 0 }
 
-     // Pretty print the errors for each row.
-    .map      { r: Seq[(Check.ColumnDef, String)] =>
-      Pretty.prettyErrors(r) }
+  // Write error rows to HDFS
+  pipeErrors
+    .map   { r => Pretty.prettyRow(r) }
+    .write (pipeOutErrors)
 
-    // Write out the bad rows to HDFS.
-    .write   (pipeOutput)
+  // Write error diagnosis for error rows to HDFS
+  pipeErrors
+    .map   { r => Pretty.prettyDiag(r) }
+    .write (pipeOutDiag)
 }
 
 
@@ -104,8 +112,15 @@ object Pretty {
     }
 
 
+  /** Pretty print a row as TSV. */
+  def prettyRow (row: Seq[(Check.ColumnDef, String)]): String =
+    row
+      .map(_._2)
+      .mkString("\n")
+
+
   /** Pretty print a sequence of check errors. */
-  def prettyErrors(errors: Seq[(Check.ColumnDef, String)]): String = 
+  def prettyDiag(errors: Seq[(Check.ColumnDef, String)]): String = 
     errors
       .map { case (columnDef, s) =>
         columnDef._1 ++ 
