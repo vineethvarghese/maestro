@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 package au.com.cba.omnia.maestro.schema
-package parser
+package taste
 
 import scala.io.Source
 
@@ -30,7 +30,7 @@ import scala.util.parsing.json.{JSON}
 
 
 /** Parser for taste files. */
-object Taste {
+object Parser {
   /** Parse a taste file from the user friendly non-JSON format. */
   def apply(input: String): Either[SchemaParser.NoSuccess, Seq[Histogram]] = 
     SchemaParser.parseString(SchemaParser.pTaste, input)
@@ -127,7 +127,6 @@ object Taste {
       }
     Histogram(clas.toMap)
   }
-
 
 
   /** ZipWith-style helper. */

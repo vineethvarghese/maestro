@@ -20,6 +20,7 @@ import com.quantifind.sumac.FieldArgs
 
 import au.com.cba.omnia.maestro._
 import au.com.cba.omnia.maestro.schema._
+import au.com.cba.omnia.maestro.schema.taste._
 import scala.io.Source
 
 
@@ -44,7 +45,7 @@ object Squash extends ArgMain[SquashArgs] {
         
     // Parse the taste file, giving a histogram for each column.
     val taste: Seq[Histogram] =
-      parser.Taste(strTaste) match {
+      Parser(strTaste) match {
         case Left(err)  
          => throw new Exception("taste parse error: " ++ err.toString())
         case Right(s) => s
