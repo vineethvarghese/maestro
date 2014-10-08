@@ -31,13 +31,13 @@ object Day extends Tope {
     syntaxes .map { _.likeness(s) }
 
   val syntaxes: Array[Syntax] = Array(
-    YYYYcMMcDD('-'),
-    YYYYcMMcDD('.'),
-    YYYYcMMcDD('/'),
+    YYYYcMMcDD("-"),
+    YYYYcMMcDD("."),
+    YYYYcMMcDD("/"),
 
-    DDcMMcYYYY('-'),
-    DDcMMcYYYY('.'),
-    DDcMMcYYYY('/'))
+    DDcMMcYYYY("-"),
+    DDcMMcYYYY("."),
+    DDcMMcYYYY("/"))
 
 
   // Valid day determinator. These use static unboxed arrays to store

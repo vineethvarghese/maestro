@@ -117,13 +117,13 @@ object Syntaxes {
     CbaAccountCode,
     CurrencyCode,
 
-    YYYYcMMcDD('.'),
-    YYYYcMMcDD('-'),
-    YYYYcMMcDD('/'),
+    YYYYcMMcDD("."),
+    YYYYcMMcDD("-"),
+    YYYYcMMcDD("/"),
 
-    DDcMMcYYYY('.'),
-    DDcMMcYYYY('-'),
-    DDcMMcYYYY('/')
+    DDcMMcYYYY("."),
+    DDcMMcYYYY("-"),
+    DDcMMcYYYY("/")
   )
 
   /** The names of all the syntaxes. */

@@ -92,12 +92,12 @@ object Load {
     // from the taste file.
     val histsRaw: List[List[(String, Int)]] =
       (for {
-        rows  <- jsonTaste.get("row")
+        rows  <- jsonTaste.get("rows")
         clas  <- sequence(rows.map { row => 
           for { cl <- row.get("classifiers") } 
           yield cl.asInstanceOf[Map[String,_]] })
        } yield clas)
-      .getOrElse { throw new Exception("Cannot parse classifiers.") }
+      .getOrElse { throw new Exception("Cannot parse classifiers. ") }
 
       // Truncate incoming classifier counts to integers.
       .map ( m => m.toList.map { case (s, d) => 

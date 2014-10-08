@@ -19,7 +19,7 @@ import  au.com.cba.omnia.maestro.schema._
 
 /** A day in YYYYcMMcDD format with some separating character.
     Hard coded to only accept days in years 1800 through 2200. */
-case class YYYYcMMcDD(sep : Char) extends Syntax {
+case class YYYYcMMcDD(sep: String) extends Syntax {
 
   val name  = s"YYYYcMMcDD(\'${sep}\')"
 
@@ -33,8 +33,8 @@ case class YYYYcMMcDD(sep : Char) extends Syntax {
       if (sYear .forall(_.isDigit)  &&
           sMonth.forall(_.isDigit)  &&
           sDay  .forall(_.isDigit)  &&
-          s(4) == sep               &&
-          s(7) == sep)
+          s(4).toString == sep      &&
+          s(7).toString == sep)
 
         if (tope.Day.validishYearMonthDay(
               sYear.toInt, sMonth.toInt, sDay.toInt)) 
@@ -50,7 +50,7 @@ case class YYYYcMMcDD(sep : Char) extends Syntax {
 
 /** A day in DDcMMcYYYY format with some separating character.
     Hard coded to only accept days in years 1800 through 2200. */
-case class DDcMMcYYYY(sep: Char) extends Syntax {
+case class DDcMMcYYYY(sep: String) extends Syntax {
   
   val name  = s"DDcMMcYYYY(\'${sep}\')"
 
@@ -64,8 +64,8 @@ case class DDcMMcYYYY(sep: Char) extends Syntax {
       if (sYear .forall(_.isDigit)  &&
           sMonth.forall(_.isDigit)  &&
           sDay  .forall(_.isDigit)  &&
-          s(2) == sep               &&
-          s(5) == sep)
+          s(2).toString == sep      &&
+          s(5).toString == sep)
 
         if (tope.Day.validishYearMonthDay(
               sYear.toInt, sMonth.toInt, sDay.toInt))
