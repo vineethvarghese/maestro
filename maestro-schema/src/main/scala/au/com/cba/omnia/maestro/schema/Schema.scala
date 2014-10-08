@@ -28,7 +28,7 @@ import au.com.cba.omnia.maestro.schema.pretty._
 case class TableSpec(
   database:    String,
   table:       String,
-  ignore:      List[Schema.Ignore],
+  ignore:      List[Ignore],
   columnSpecs: List[ColumnSpec]) {
 
   /** Pretty print a TableSpec as a String. */
@@ -177,36 +177,6 @@ case class Histogram(counts: Map[Classifier, Int]) {
 
 /** Companion object for Schemas. */
 object Schema {
-
-  /** Base trait for column entries that are ignored. */
-  sealed trait Ignore
-
-  /** Ignore entries in a field that are equal to some value.
-   *
-   *  Encoded as
-   *  {{{
-   *    name = "VALUE"
-   *  }}}
-   *  in the text format.
-   *
-   *
-   *  @param field field to check
-   *  @param value value to ignore in this field
-   */
-  case class IgnoreEq(field: String, value: String) extends Ignore
-
-  /** Ignore entries in a field that are equal to null.
-   *
-   *  Encoded as
-   *  {{{
-   *    name is null
-   *  }}}
-   *  in the text format.
-   *
-   * @param field field to ignore when it is null
-   */
-  case class IgnoreNull(field: String) extends Ignore
-
 
   /** Show the classification counts for row of the table.
    *  The counts for each field go on their own line. */

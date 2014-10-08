@@ -24,7 +24,7 @@ import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.syntax._
 import au.com.cba.omnia.maestro.schema.hive._
 import au.com.cba.omnia.maestro.schema.hive.HiveType._
-import au.com.cba.omnia.maestro.schema.Schema._
+import au.com.cba.omnia.maestro.schema.SchemaParser._
 
 import scala.util.parsing.json.{JSON}
 
@@ -32,8 +32,8 @@ import scala.util.parsing.json.{JSON}
 /** Parser for taste files. */
 object Taste {
   /** Parse a taste file from the user friendly non-JSON format. */
-  def apply(input: String): Either[Schema.NoSuccess, Seq[Histogram]] = 
-    Schema.parseString(Schema.pTaste, input)
+  def apply(input: String): Either[SchemaParser.NoSuccess, Seq[Histogram]] = 
+    SchemaParser.parseString(SchemaParser.pTaste, input)
 
 
   /** Type template for the JSON taste file. */
@@ -120,7 +120,7 @@ object Taste {
   def parseHistogram(counts: List[(String, Int)]): Histogram = {
     val clas  = 
       counts.map { case (s, d) => 
-        parser.Schema.parseString(parser.Schema.pClassifier, s) match {
+        SchemaParser.parseString(SchemaParser.pClassifier, s) match {
           case Left(err) => throw new Exception("Cannot parse classifier: " + s)
           case Right(c)  => (c, d)
         }
