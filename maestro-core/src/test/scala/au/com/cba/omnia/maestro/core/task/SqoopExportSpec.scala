@@ -104,8 +104,8 @@ object CustomerExport {
   def tableData(connectionString: String, username: String, password: String): List[String] = {
     ConnectionPool.singleton(connectionString, username, password)
     implicit val session = AutoSession
-    sql"select * from customer_export".map(rs => rs.int("id") + "|"  + rs.string("name") + "|"
-      + rs.string("accr") + "|" + rs.string("cat") + "|" + rs.string("sub_cat") + "|" + rs.int("balance")).list.apply()
+    sql"select * from customer_export".map(rs => List(rs.int("id"), rs.string("name"), rs.string("accr"),
+      rs.string("cat"), rs.string("sub_cat"), rs.int("balance")) mkString "|").list.apply()
   }
 }
 
