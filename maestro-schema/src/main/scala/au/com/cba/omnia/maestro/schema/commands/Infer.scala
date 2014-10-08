@@ -61,7 +61,7 @@ object Infer extends ArgMain[InferArgs]
 
     // Load the names and histograms.
     // Also squash the hisograms so we have just the most specific classifiers.
-    val taste = Parser.loadNamesTaste(args.names, args.taste)
+    val taste = Load.loadNamesTaste(args.names, args.taste)
     val names = taste .map { _._1 }
     val hists = taste .map { _._2 } .map { h => schema.Squash.squash(h) }
         
