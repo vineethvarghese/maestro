@@ -8,9 +8,10 @@ sample data, and to check incoming data against those schemas.
 The process for building a table schema consists of three steps:
 
 1. Acquire a names file containing table column names and Hive storage types.
-2. Scan through sample data to produce a syntax histogram for each column.
+2. Scan through sample data to produce a classifier histogram for each column.
 3. Using the names file and histogram, infer a skeleton table schema.
 4. Manually inspect the resulting schema, and fill in missing types.
+5. Check data against the schema.
 
 
 Step 1. Name Acquisition
@@ -45,36 +46,34 @@ describing what sort of data appears in each column. This process produces a
 new file, eg `accounts.taste`. Use the following job to do this:
 
 ```
-java -cp ${MAESTRO_JAR} au.com.cba.omnia.maestro.schema.commands.Taste \
+java -cp ${SCHEMAS_JAR} com.twitter.scalding.Tool \
+    au.com.cba.omnia.maestro.schema.commands.Taste \
     --hdfs \
-    --database     <database_name>   --table    <table_name> \
-    --input        <hdfs_input_path>
-    --output-taste <hdfs_taste_file>
+    --in-local-names ${LOCAL_NAMES} \
+    --in-hdfs-data   ${HDFS_DATA}   \
+    --out-hdfs-taste ${HDFS_TASTE}  \
 ```
 
-* `database_name`   name of the database this table is in. This information
-  is added to the output taste file for identification purposes, but not use
-  directly by the taste process.
-* `table_name`      name of the table. As with database_name, this is added
-  to the output taste file but not used directly.
-* `hdfs_input_path` hdfs path to either a single block of input data, or a
+* `LOCAL_NAMES` local path to the file holding column names and hive storage types,
+  eg the `accounts.names` file in the previous example.
+* `HDFS_DATA`  hdfs path to either a single block of input data, or a
   directory that contains data blocks. 
-* `hdfs_taste_file` hdfs path where the output taste file should be written. 
+* `HDFS_TASTE` hdfs path where the output taste file should be written. 
 
-An example histogram is as follows:
+The resulting taste file is a JSON encoded list containing extracted metadata
+for each column. For example:
 
 ```
-Any:100000, White:9, AlphaNum:99991;
-Any:100000, White:1023, Day.DDcMMcYYYY('/'):98977;
-Any:100000, Day.DDcMMcYYYY('/'):100000;
-Any:100000, AlphaNum:100000, Alpha:100000, Upper:100000, Exact("Y"):80123,
-            Exact("N"):19877;
-Any:100000, AlphaNum:100000, Real:100000, Int:100000, Nat:100000; 
+{ "name"       : "eff_date", 
+  "storage"    : "string", 
+  "classifiers": { "Any": 185091, "Day.DDcMMcYYYY('.')": 185091 }, 
+  "sample"     : { "maxSize": 100, "spilled": 0, 
+                    "histogram": { "08.09.2014": 184790, "05.09.2014": 120, "04.09.2014": 18, 
+                                   "02.09.2014": 10,     "29.08.2014": 4,   "03.09.2014": 4 } } 
+}
 ```
 
-In the histogram we get one line for each column input table. Each line then
-contains a comma separated list of syntax names, along with how many values in
-the column matched each syntax. 
+The `name` and `storage` fields contain the information from the input names file.
 
 For syntax names that include a period, such as `Day.DDcMMcYYYY('/')`, the
 part before the period refers to a tope, which is a named entity in the world.
@@ -97,39 +96,49 @@ The inference process takes both the names and taste file and produces a table
 schema. Use the following command:
 
 ```
-java -cp ${MAESTRO_JAR} au.com.cba.omnia.maestro.schema.commands.Infer \
-    --database ${DATABASE_NAME} --table ${TABLE_NAME} \
-    --names    ${NAMES_FILE}    --taste ${TASTE_FILE}  > ${SCHEMA_FILE}
+java -cp ${SCHEMAS_JAR} au.com.cba.omnia.maestro.schema.commands.Infer \
+    --database ${DATABASE_NAME} \
+    --table    ${TABLE_NAME} \
+    --names    ${LOCAL_NAMES} \
+    --taste    ${LOCAL_TASTE} > ${LOCAL_SCHEMA}
 ```
 
  * `DATABASE_NAME` name of the database.
  * `TABLE_NAME`    name of the table.
- * `NAMES_FILE`    names file produced in step 1 above. 
- * `TASTE_FILE`    taste file produced in step 2 above.
- * `SCHEMA_FILE`   output schema file.
+ * `LOCAL_NAMES`   local path to names file produced in step 1 above. 
+ * `LOCAL_TASTE`   local path to taste file produced in step 2 above.
+ * `LOCAL_SCHEMA`  local path for output schema file.
 
 Given the `accounts.names` and `account.taste` files above, we get the
 following schema:
 
 ```
-account_name              | string | White + AlphaNum
-                          | White:9, AlphaNum:99991;
-
-open_date                 | string | -
-                          | White:1023, Day.DDcMMcYYYY('/'):98977;
-
-close_date                | string | Day.DDcMMcYYYY('/')
-                          | Day.DDcMMcYYYY('/'):100000;
-
-active                    | string | Exact("N") + Exact("Y")
-                          | Exact("N"):19877, Exact("Y"):80123;
-
-process_id                | string | Nat
-                          | Nat:100000;
+{ "name"     : "eff_date", 
+  "storage"  : "string", 
+  "format"   : "Day.DDcMMcYYYY('.')", 
+  "histogram": { "Day.DDcMMcYYYY('.')": 185091 } 
+}
 ```
 
-The schema file contains one line for each column in the input table. Each
-line contains a pipe separated list of fields: the column name and hive
-storage types from the `.names` file, the inferred type, and a squashed
-histogram from the `.taste` file.
+The schema file contains one element for each column in the input table. 
+
+
+Step 4. Fill in missing types
+-----------------------------
+
+TODO: say how to fill in missing types, or add new ones.
+
+
+Step 5. Checking
+----------------
+
+```
+hadoop jar ${SCHEMAS_JAR} com.twitter.scalding.Tool \
+    au.com.cba.omnia.maestro.schema.jobs.Check \
+    --hdfs \
+    --in-schema       ${LOCAL_SCHEMA} \
+    --in-hdfs-data    ${HDFS_DATA} \
+    --out-hdfs-errors ${HDFS_ERRORS} \
+    --out-hdfs-diag   ${HDFS_DIAG}
+```
 
