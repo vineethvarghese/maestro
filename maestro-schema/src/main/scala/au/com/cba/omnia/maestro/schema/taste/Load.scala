@@ -33,7 +33,7 @@ object Load {
 
   /** Type template for the JSON taste file. */
   type JsonTaste
-    = Map[String,                 // "row"
+    = Map[String,                 // "rows"
           List[Map[String, _]]]   // Meta-data about each column.
 
 

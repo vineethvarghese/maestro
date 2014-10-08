@@ -31,13 +31,65 @@ import scala.util.parsing.json.{JSON}
 object Load {
 
   /** Type template for the JSON taste file. */
-  type JsonTaste
-    = Map[String,                 // "row"
+  type JsonSchema
+    = Map[String,                 // "rows"
           List[Map[String, _]]]   // Meta-data about each column.
 
 
   /** Load column names and formats from the JSON schema file at the given path. */
-  def loadFormats(fileName: String): List[(String, Format)] = {
-    List()
+  def loadFormats(fileName: String): List[(String, Option[Format])] = {
+
+    // Read the taste file.
+    val strSchema: String =
+      Source.fromFile(fileName)
+        .getLines .mkString ("\n")
+
+    // Do initial JSON parsing of schema file.
+    val jsonSchema: JsonSchema = 
+      JSON.parseFull(strSchema)
+          .getOrElse { throw new Exception("Cannot parse schema file as JSON.") }
+          .asInstanceOf[JsonSchema]
+
+    // Get names from the taste file.
+    val names: List[String] =
+      (for {
+        cols  <- jsonSchema.get("columns")
+        name  <- sequence(cols.map { col =>
+            for { nm <- col.get("name") } 
+            yield nm.asInstanceOf[String] })
+      } yield name)
+      .getOrElse (throw new Exception("Cannot parse names from JSON schema."))
+
+    // Get format strings the taste file.
+    val rawFormats: List[String] =
+      (for {
+        cols  <- jsonSchema.get("columns")
+        name  <- sequence(cols.map { col =>
+            for { nm <- col.get("format") } 
+            yield nm.asInstanceOf[String] })
+      } yield name)
+      .getOrElse (throw new Exception("Cannot parse formats from JSON schema."))
+
+    def parseFormat(s: String): Option[Format]
+      = parseString(pOptFormat, s) match {
+          case Left(_)  => throw new Exception("Cannot parse format string.")
+          case Right(f) => f
+        }
+
+    val formats: List[Option[Format]] =
+      rawFormats
+        .map { s => parseFormat(s) }
+
+    names .zip (formats)
   }
+
+
+  /** ZipWith-style helper. */
+  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] =
+    a.flatMap { x => b.map { y => f(x, y) } }
+
+
+  /** Missing Haskell-esque sequence function. */
+  def sequence[A](a: List[Option[A]]): Option[List[A]] =
+    a.foldRight[Option[List[A]]](Some(Nil))((x,y) => map2(x,y)(_ :: _)) 
 }

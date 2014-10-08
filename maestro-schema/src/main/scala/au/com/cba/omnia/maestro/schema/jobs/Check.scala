@@ -23,32 +23,25 @@ import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.hive.Input
 
 
-/** Job to check a table against an existing schema. */
+/** Job to check a table against an existing schema. 
+ *  Rows that do not match the schema get written to the given errors file. */
 class Check(args: Args) 
   extends Job(args) {
 
-  // Local FS file containing schema to check against.
+  // Local file containing schema to check against.
   val fileSchema  = args("in-schema")
 
-  // Source HDFS path for input files.
+  // Source HDFS path for input data.
   val filesInput  = Input.list(args("in-hdfs-data"))
   val pipeInput: TypedPipe[String] =
     TypedPipe.from(MultipleTextLineFiles(filesInput.map{_.toString} :_*))
 
-  // Output HDFS path for bad rows.
-  val pipeOutput  = TypedTsv[String](args("out-hdfs-bad"))
+  // Output HDFS path for rows that do not match the schema.
+  val pipeOutput  = TypedTsv[String](args("out-hdfs-errors"))
 
-  // Read the schema definition.
-  val strSchema = 
-    Source.fromFile(fileSchema)
-      .getLines .mkString("\n")
-
-  // Parse the schema definition.
-  val schema = 
-    SchemaParser(strSchema) match { 
-      case Left(err) => throw new Exception("schema parse error: " + err.toString())
-      case Right(s)  => s
-    }
+  // Load column names and formats from the schema definition.
+  val namesFormats: List[Check.ColumnDef] = 
+    Load.loadFormats(fileSchema)
 
   // Check the input files.
   pipeInput
@@ -56,14 +49,14 @@ class Check(args: Args)
      // Check each row against the schema, producing a sequence of fields
      // that don't match.
     .map      { s: String =>
-      Check.validRow(schema, '|', s).toSeq }
+      Check.validRow(namesFormats, '|', s).toSeq }
 
      // Only report on rows that have at least one error.
-    .filter   { r: Seq[(ColumnSpec, String)] =>
+    .filter   { r: Seq[(Check.ColumnDef, String)] =>
       r.size > 0 }
 
      // Pretty print the errors for each row.
-    .map      { r: Seq[(ColumnSpec, String)] =>
+    .map      { r: Seq[(Check.ColumnDef, String)] =>
       Pretty.prettyErrors(r) }
 
     // Write out the bad rows to HDFS.
@@ -73,23 +66,31 @@ class Check(args: Args)
 
 object Check {
 
+  /** A column name along with its format. */
+  type ColumnDef 
+    = (String, Option[Format])
+
+
   /** Check if a row matches the associated table spec.
    *  Returns the column specs and field values that don't match. */
-  def validRow(spec: TableSpec, separator: Char, s: String)
-    : List[(ColumnSpec, String)] =
+  def validRow(columnDefs: List[ColumnDef], separator: Char, s: String)
+    : List[(ColumnDef, String)] =
     s .split(separator)
-      .zip     (spec.columnSpecs)
-      .flatMap { case (field, cspec) => checkField(cspec, field) }
+      .zip     (columnDefs)
+      .flatMap { case (field, columnDef) => checkField(columnDef, field) }
       .toList
 
 
   /** Check if a field value matches its associated column spec,
    *  returning None if yes, or the original spec and string if no. */
-  def checkField(spec: ColumnSpec, s: String)
-    : Option[(ColumnSpec, String)] =
-    if (spec.matches(s))
-          None
-    else  Some((spec, s))
+  def checkField(columnDef: ColumnDef, s: String)
+    : Option[(ColumnDef, String)] =
+    columnDef._2 match {
+      case None          => None
+      case Some(format)  => 
+        if (format.matches(s))
+              None
+        else  Some((columnDef, s)) }
 }
 
 
@@ -104,14 +105,14 @@ object Pretty {
 
 
   /** Pretty print a sequence of check errors. */
-  def prettyErrors(errors: Seq[(ColumnSpec, String)]): String = 
+  def prettyErrors(errors: Seq[(Check.ColumnDef, String)]): String = 
     errors
-      .map { case (spec, s) =>
-        spec.name ++ 
+      .map { case (columnDef, s) =>
+        columnDef._1 ++ 
         "("       ++ 
         "\"" ++ escapeJava(s) ++ "\"" ++ 
         " : "     ++ 
-        prettyOptionFormat(spec.format) ++ 
+        prettyOptionFormat(columnDef._2) ++ 
         ")" 
        }
       .mkString("; ")
