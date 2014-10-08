@@ -81,7 +81,7 @@ object Infer extends ArgMain[InferArgs]
       TableSpec( 
         args.database,
         args.table,
-        Seq(),
+        List(),
         colSpecs)
 
     println(JsonDoc.render(0, tableSpec.toJson))

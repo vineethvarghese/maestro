@@ -101,7 +101,7 @@ object Schema extends Parsers {
         TableSpec(
           tableId.database,
           tableId.table,
-          optIgnores.getOrElse(Seq.empty[Ignore]),
+          optIgnores.getOrElse(Seq.empty[Ignore]).toList,
           columnSpecs
         )}
 
