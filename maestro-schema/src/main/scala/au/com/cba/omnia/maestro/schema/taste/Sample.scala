@@ -22,7 +22,7 @@ import au.com.cba.omnia.maestro.schema.pretty._
 /** A SampleMap is used to build a historgram of the number of times we've seen
  * each string in a set of strings. The number of strings we're prepared to
  * track is limited to some fixed amount. */
-case class SampleMap(
+case class Sample(
     maxSize:   Int,           // Maximum size of the histogram.
     spilled:   Array[Int],    // Count of strings that wouldn't fit in this histogram.
     histogram: mutable.Map[String, Int]) // Histogram of times we've seen each string.
@@ -50,14 +50,14 @@ case class SampleMap(
 }
 
 
-object SampleMap {
+object Sample {
 
   /** Create a new, empty SampleMap */
-  def empty(maxSize: Int): SampleMap =
-    SampleMap(maxSize, Array(0), mutable.Map())
+  def empty(maxSize: Int): Sample =
+    Sample(maxSize, Array(0), mutable.Map())
 
   /** Accumulate a new string into a SampleMap */
-  def accumulate(smap: SampleMap, str: String): Unit = {
+  def accumulate(smap: Sample, str: String): Unit = {
 
     // If there is already an entry in the map for this string then
     // we can increment that.
@@ -75,10 +75,10 @@ object SampleMap {
 
 
   /** Combine the information in two SampleMaps, to produce a new one. */
-  def combine(sm1: SampleMap, sm2: SampleMap): SampleMap = {
+  def combine(sm1: Sample, sm2: Sample): Sample = {
 
     // Accumulate the result into this empty SampleMap.
-    val sm3: SampleMap
+    val sm3: Sample
       = empty(sm1.maxSize)
 
     // Combine the histograms.

@@ -18,9 +18,9 @@ import au.com.cba.omnia.maestro.schema.pretty._
 
 
 /** Classifier counts for a single field in a row. */
-case class FieldTaste(
+case class Field(
   clasCounts: Array[Int],
-  histField:  SampleMap) {
+  histField:  Sample) {
 
   /** Convert the FieldTaste to JSON. */
   def toJson(
@@ -44,37 +44,37 @@ case class FieldTaste(
 }
 
 
-object FieldTaste {
+object Field {
 
   /** Create a new, empty FieldTaste. */
-  def empty(maxHistSize: Int): FieldTaste = {
+  def empty(maxHistSize: Int): Field = {
     val clasCounts: Array[Int] = 
       Classifier.all.map { _ => 0 }
 
-    val histField: SampleMap = 
-      SampleMap.empty(maxHistSize)
+    val histField: Sample = 
+      Sample.empty(maxHistSize)
 
-    FieldTaste(clasCounts, histField)
+    Field(clasCounts, histField)
   } 
 
 
   /** Compute the possible classifications for a given field. */
-  def classify(maxHistSize: Int, str: String): FieldTaste = {
+  def classify(maxHistSize: Int, str: String): Field = {
     val clasCounts: Array[Int] = 
       Classifier.all
         .map {_.likeness(str)}
         .map {like => if (like >= 1.0) 1 else 0}
 
-    val histField: SampleMap = 
-      SampleMap.empty(maxHistSize)
+    val histField: Sample = 
+      Sample.empty(maxHistSize)
 
-    FieldTaste(clasCounts, histField)
+    Field(clasCounts, histField)
   }
 
 
   /** Given a FieldTaste, and a new field value, destructively update
    * the counters in the FieldTaste. */
-  def accumulate(ft: FieldTaste, str: String): Unit = {
+  def accumulate(ft: Field, str: String): Unit = {
    
     // Update the classifier counts.
     for (c <- 0 to Classifier.all.length - 1) {
@@ -84,20 +84,20 @@ object FieldTaste {
     }
 
     // Update the histogram.
-    SampleMap.accumulate(ft.histField, str)
+    Sample.accumulate(ft.histField, str)
   }
 
 
   /** Combine the information in two FieldTastes to produce a new one. */
-  def combine(ft1: FieldTaste, ft2: FieldTaste): FieldTaste = {
+  def combine(ft1: Field, ft2: Field): Field = {
 
     val clasCountsX =
       ft1.clasCounts .zip (ft2.clasCounts) .map { 
         case (x1, x2) => x1 + x2 }
 
     val histFieldX =
-      SampleMap.combine(ft1.histField, ft2.histField)
+      Sample.combine(ft1.histField, ft2.histField)
 
-    FieldTaste(clasCountsX, histFieldX)
+    Field(clasCountsX, histFieldX)
   }
 }

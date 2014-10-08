@@ -72,11 +72,11 @@ class Taste(args: Args)
   // Each mapper job updates its own mutable map with the classifier counts
   // gained from its chunk of data. The maps from each job are then combined
   // in a single reducer.
-  val taste: TableTaste = 
-    TableTaste.empty(100)
+  val taste: Table = 
+    Table.empty(100)
 
   // Read lines from the input files and accumulate them into a TableTaste.
-  val pTastes: TypedPipe[TableTaste] =
+  val pTastes: TypedPipe[Table] =
     pipeInput
 
       // Build a map of which types are matched by each line.
@@ -84,16 +84,16 @@ class Taste(args: Args)
       // mutable counts map. For each successive time, it destructively accumulates
       // the new counts into the existing map.
       .flatMap { line: String => 
-        TableTaste.accumulateRow(taste, line) }
+        Table.accumulateRow(taste, line) }
 
       // Sum up the counts from each node on a single reducer.
       .groupAll
-      .reduce (TableTaste.combine)
+      .reduce (Table.combine)
       .values
 
     // Show the classifications in a human readable format.
     pTastes
-      .map { tasteFinal: TableTaste => 
+      .map { tasteFinal: Table => 
         JsonDoc.render(0, tasteFinal.toJson(fieldNames, fieldStorage)) }
 
       // Write the counts out to file.

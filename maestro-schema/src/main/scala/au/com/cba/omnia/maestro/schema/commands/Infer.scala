@@ -24,7 +24,7 @@ import com.quantifind.sumac.FieldArgs
 import au.com.cba.omnia.maestro.schema
 import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.pretty._
-import au.com.cba.omnia.maestro.schema.parser._
+import au.com.cba.omnia.maestro.schema.taste._
 import scala.util.parsing.json.{JSON}
 
 
@@ -61,7 +61,7 @@ object Infer extends ArgMain[InferArgs]
 
     // Load the names and histograms.
     // Also squash the hisograms so we have just the most specific classifiers.
-    val taste = Taste.loadNamesTaste(args.names, args.taste)
+    val taste = Parser.loadNamesTaste(args.names, args.taste)
     val names = taste .map { _._1 }
     val hists = taste .map { _._2 } .map { h => schema.Squash.squash(h) }
         

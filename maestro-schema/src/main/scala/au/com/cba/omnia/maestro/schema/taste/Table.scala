@@ -22,9 +22,9 @@ import au.com.cba.omnia.maestro.schema.pretty._
 
 
 /** Accumulated taste information for an entire table. */
-case class TableTaste(
+case class Table(
   maxHistSize: Int,
-  rowTastes:   mutable.Map[Int, RowTaste]) {
+  rowTastes:   mutable.Map[Int, Row]) {
 
   /** Convert a TableTaste to JSON, attaching field names and storage types
    *  if we have them. The maps contain the field names and types for rows
@@ -52,17 +52,17 @@ case class TableTaste(
 
 
 /** Functions concerning TableTastes. */
-object TableTaste {
+object Table {
 
   /** Create a new, empty TableTaste. */
-  def empty(maxHistSize: Int): TableTaste =
-    TableTaste(maxHistSize, mutable.Map())
+  def empty(maxHistSize: Int): Table =
+    Table(maxHistSize, mutable.Map())
 
 
   /** Destructively accumulate a new row into the TableTaste.
    *  If this was the first row added then also return the taste wrapped in
    *  a Some, otherwise None. */
-  def accumulateRow(tt: TableTaste, str: String): Option[TableTaste] = {
+  def accumulateRow(tt: Table, str: String): Option[Table] = {
 
     // Remember whether the initial map was empty.
     // If it is then this is the first row that we're processing,
@@ -79,14 +79,14 @@ object TableTaste {
       // We don't yet have an array of classifier counts for rows with this
       // many fields, so make one now.
       case None      => {
-        val rowTaste  = RowTaste.classify(tt.maxHistSize, fields)
+        val rowTaste  = Row.classify(tt.maxHistSize, fields)
         tt.rowTastes += ((fields.length, rowTaste))
       }
 
       // We already have an array of classifier counts for rows with this
       // many fields, so acumulate the new counts into it.
       case Some(rowTaste) => {
-        RowTaste.accumulate(rowTaste, fields)
+        Row.accumulate(rowTaste, fields)
       }
     }
 
@@ -103,20 +103,20 @@ object TableTaste {
 
 
   /** Combine the information in two TableTastes to produce a new one. */
-  def combine(tt1: TableTaste, tt2: TableTaste): TableTaste = {
+  def combine(tt1: Table, tt2: Table): Table = {
 
-    val tt3: TableTaste = 
+    val tt3: Table = 
       empty(tt1.maxHistSize)
 
     for ((num, rt1) <- tt1.rowTastes) {
       if (tt3.rowTastes.isDefinedAt(num))
-            tt3.rowTastes += ((num, RowTaste.combine(tt3.rowTastes(num), rt1)))
+            tt3.rowTastes += ((num, Row.combine(tt3.rowTastes(num), rt1)))
       else  tt3.rowTastes += ((num, rt1))
     }
 
     for ((num, rt2) <- tt2.rowTastes) {
       if (tt3.rowTastes.isDefinedAt(num))
-            tt3.rowTastes += ((num, RowTaste.combine(tt3.rowTastes(num), rt2)))
+            tt3.rowTastes += ((num, Row.combine(tt3.rowTastes(num), rt2)))
       else  tt3.rowTastes += ((num, rt2))
     }
 
