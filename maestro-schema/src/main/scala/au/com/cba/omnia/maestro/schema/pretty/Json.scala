@@ -13,10 +13,10 @@ sealed trait JsonDoc
   def fromString: Option[String] =
     Some(this) .collect { case JsonString(s)  => s }
 
-  def fromList:   Option[Seq[JsonDoc]] =
+  def fromList:   Option[List[JsonDoc]] =
     Some(this) .collect { case JsonList(l, _) => l }
 
-  def fromMap:    Option[Seq[(String, JsonDoc)]] =
+  def fromMap:    Option[List[(String, JsonDoc)]] =
     Some(this) .collect { case JsonMap(m, _)  => m } 
 }
 
@@ -37,7 +37,7 @@ case class JsonNum(
 
 /** A list of Json things. */
 case class JsonList(
-  list:   Seq[JsonDoc],
+  list:   List[JsonDoc],
   spread: Boolean = false)
   extends JsonDoc
 
@@ -46,7 +46,7 @@ case class JsonList(
  *  These are stored in a Scala Seq rather than a Map so that the textual ordering
  *  in the source file is preserved (for pretty printing). */
 case class JsonMap(
-  list:   Seq[(String, JsonDoc)],
+  list:   List[(String, JsonDoc)],
   spread: Boolean = false)  
   extends JsonDoc
 

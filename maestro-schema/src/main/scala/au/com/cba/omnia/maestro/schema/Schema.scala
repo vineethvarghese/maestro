@@ -28,8 +28,8 @@ import au.com.cba.omnia.maestro.schema.pretty._
 case class TableSpec(
   database:    String,
   table:       String,
-  ignore:      Seq[Schema.Ignore],
-  columnSpecs: Seq[ColumnSpec]) {
+  ignore:      List[Schema.Ignore],
+  columnSpecs: List[ColumnSpec]) {
 
   /** Pretty print a TableSpec as a String. */
   def pretty: String =
@@ -87,14 +87,19 @@ case class ColumnSpec(
 
 
   /** Convert the ColumnSpec to JSON. */
-  def toJson: JsonDoc =
-    JsonMap(List(
-      ("name",      JsonString(name)),
-      ("storage",   JsonString(HiveType.pretty(hivetype))),
-      ("format",    JsonString(prettyOptionFormat(format))),
-      ("histogram", histogram.toJson),
-      ("comment",   JsonString(comment))),
-      true)
+  def toJson: JsonDoc = {
+
+    val fields = List(
+      Some(("name",      JsonString(name))),
+      Some(("storage",   JsonString(HiveType.pretty(hivetype)))),
+      Some(("format",    JsonString(prettyOptionFormat(format)))),
+      Some(("histogram", histogram.toJson)),
+      (if (comment.size > 0)
+        Some (("comment", JsonString(comment)))
+       else None)).flatten
+
+    JsonMap(fields, true)
+  }
 }
 
 
@@ -151,9 +156,9 @@ case class Histogram(counts: Map[Classifier, Int]) {
 
   /** Extract the histogram with the classifiers in the standard sorted
       order. Don't return classifiers with zero counts. */
-  def sorted: Seq[(Classifier, Int)] = 
+  def sorted: List[(Classifier, Int)] = 
     counts
-      .toSeq
+      .toList
 
       // Drop classifications that didn't match.
       .filter   { case (c, i)   => i > 0 }
@@ -165,9 +170,8 @@ case class Histogram(counts: Map[Classifier, Int]) {
 
   /** Convert the histogram to JSON. */
   def toJson: JsonDoc =
-    JsonMap(
-      sorted
-        .map  { case (c, i) => (c.name, JsonNum(i)) })
+    JsonMap(sorted
+      .map  { case (c, i) => (c.name, JsonNum(i)) })
 }
 
 
