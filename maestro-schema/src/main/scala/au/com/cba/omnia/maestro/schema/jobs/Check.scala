@@ -42,33 +42,25 @@ class Check(args: Args)
   // Output HDFS path for error diagnosis
   val pipeOutDiag    = TypedTsv[String](args("out-hdfs-diag"))
 
-
   // Load column names and formats from the schema definition.
-  val namesFormats: List[Check.ColumnDef] = 
+  val columnDefs: List[Check.ColumnDef] = 
     Load.loadFormats(fileSchema)
 
-  // Check the input files.
+
+  // Collect rows where a field does not match its associated column def.
   val pipeErrors =
     pipeInput
-
-     // Check each row against the schema, producing a sequence of fields
-     // that don't match.
-    .map      { s: String =>
-      Check.validRow(namesFormats, '|', s).toSeq }
-
-     // Only report on rows that have at least one error.
-    .filter   { r: Seq[(Check.ColumnDef, String)] =>
-      r.size > 0 }
+    .filter { s => !Check.rowMatchesColumnDefs(s, '|', columnDefs) }
 
   // Write error rows to HDFS
   pipeErrors
-    .map   { r => Pretty.prettyRow(r) }
-    .write (pipeOutErrors)
+    .write  (pipeOutErrors)
 
   // Write error diagnosis for error rows to HDFS
   pipeErrors
-    .map   { r => Pretty.prettyDiag(r) }
-    .write (pipeOutDiag)
+    .map    { r => Check.slurpErrorFields(r, '|', columnDefs) }
+    .map    { r => Pretty.prettyDiag(r) }
+    .write  (pipeOutDiag)
 }
 
 
@@ -81,12 +73,29 @@ object Check {
 
   /** Check if a row matches the associated table spec.
    *  Returns the column specs and field values that don't match. */
-  def validRow(columnDefs: List[ColumnDef], separator: Char, s: String)
+  def slurpErrorFields(s: String, sep: Char, columnDefs: List[ColumnDef])
     : List[(ColumnDef, String)] =
-    s .split(separator)
-      .zip     (columnDefs)
-      .flatMap { case (field, columnDef) => checkField(columnDef, field) }
+    s .split(sep)
+      .zip  (columnDefs)
+      .flatMap { case fc@(field, columnDef) => checkField(columnDef, field) }
       .toList
+
+
+  /** Check if a row matches its associated list of ColumnDefs. */
+  def rowMatchesColumnDefs(s: String, sep: Char, columnDefs: List[ColumnDef])
+    : Boolean =
+    s .split  (sep)
+      .zip    (columnDefs)
+      .forall { case (field, columnDef) => fieldMatchesColumnDef(columnDef, field) }
+
+
+  /** Check if a field value matches its associated ColumnDef. */
+  def fieldMatchesColumnDef(columnDef: ColumnDef, s: String)
+    : Boolean =
+    columnDef._2 match {
+      case None         => true
+      case Some(format) => format.matches(s) 
+    }
 
 
   /** Check if a field value matches its associated column spec,
@@ -110,13 +119,6 @@ object Pretty {
         case None    => "-"
         case Some(f) => f.pretty 
     }
-
-
-  /** Pretty print a row as TSV. */
-  def prettyRow (row: Seq[(Check.ColumnDef, String)]): String =
-    row
-      .map(_._2)
-      .mkString("\n")
 
 
   /** Pretty print a sequence of check errors. */
