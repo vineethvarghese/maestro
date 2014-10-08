@@ -57,7 +57,6 @@ class InferArgs extends FieldArgs {
 /** Infer a schema, based on the names file and histogram. */
 object Infer extends ArgMain[InferArgs]
 {
-  /** Taster toplevel */
   def main(args: InferArgs): Unit = {
 
     // Load the names and histograms.
@@ -66,7 +65,7 @@ object Infer extends ArgMain[InferArgs]
     val names = taste .map { _._1 }
     val hists = taste .map { _._2 } .map { h => schema.Squash.squash(h) }
         
-    // Specs for all the columns.
+    // Infer specs for all the columns.
     val colSpecs = 
       names .zip (hists)
         .map { case (name, hist) => 
@@ -77,7 +76,7 @@ object Infer extends ArgMain[InferArgs]
               hist,
               "") }
 
-    // Spec for the table.
+    // Build the overall spec for the table.
     val tableSpec: TableSpec =
       TableSpec( 
         args.database,
@@ -85,6 +84,7 @@ object Infer extends ArgMain[InferArgs]
         List(),
         colSpecs)
 
+    // Print the JSONified table spec to console.
     println(JsonDoc.render(0, tableSpec.toJson))
   }  
 }

@@ -28,15 +28,15 @@ class Check(args: Args)
   extends Job(args) {
 
   // Local FS file containing schema to check against.
-  val fileSchema  = args("schema")
+  val fileSchema  = args("in-schema")
 
   // Source HDFS path for input files.
-  val filesInput  = Input.list(args("input"))
+  val filesInput  = Input.list(args("in-hdfs-data"))
   val pipeInput: TypedPipe[String] =
     TypedPipe.from(MultipleTextLineFiles(filesInput.map{_.toString} :_*))
 
   // Output HDFS path for bad rows.
-  val pipeOutput  = TypedTsv[String](args("output"))
+  val pipeOutput  = TypedTsv[String](args("out-hdfs-bad"))
 
   // Read the schema definition.
   val strSchema = 
@@ -45,7 +45,7 @@ class Check(args: Args)
 
   // Parse the schema definition.
   val schema = 
-    parser.Schema(strSchema) match { 
+    SchemaParser(strSchema) match { 
       case Left(err) => throw new Exception("schema parse error: " + err.toString())
       case Right(s)  => s
     }

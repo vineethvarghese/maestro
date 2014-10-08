@@ -13,7 +13,6 @@
 //   limitations under the License.
 
 package au.com.cba.omnia.maestro.schema
-package parser
 
 import scala.collection.immutable._
 import scala.util.parsing.combinator.Parsers
@@ -23,8 +22,36 @@ import au.com.cba.omnia.maestro.schema._
 import au.com.cba.omnia.maestro.schema.syntax._
 import au.com.cba.omnia.maestro.schema.hive._
 import au.com.cba.omnia.maestro.schema.hive.HiveType._
-import au.com.cba.omnia.maestro.schema.Schema._
 import Lexer._
+
+/** Base trait for column entries that are ignored. */
+sealed trait Ignore
+
+/** Ignore entries in a field that are equal to some value.
+ *
+ *  Encoded as
+ *  {{{
+ *    name = "VALUE"
+ *  }}}
+ *  in the text format.
+ *
+ *
+ *  @param field field to check
+ *  @param value value to ignore in this field
+ */
+case class IgnoreEq(field: String, value: String) extends Ignore
+
+/** Ignore entries in a field that are equal to null.
+ *
+ *  Encoded as
+ *  {{{
+ *    name is null
+ *  }}}
+ *  in the text format.
+ *
+ * @param field field to ignore when it is null
+ */
+case class IgnoreNull(field: String) extends Ignore
 
 
 /**
@@ -42,7 +69,7 @@ import Lexer._
  * useful information regarding the location of the error, which can be reported
  * to the user.
  */
-object Schema extends Parsers {
+object SchemaParser extends Parsers {
 
   /** Element type (we parse Lexer tokens). */
   type Elem = PositionalToken[Token]
