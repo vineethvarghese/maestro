@@ -18,26 +18,27 @@ import au.com.cba.omnia.maestro.schema.syntax._
 import au.com.cba.omnia.maestro.schema.pretty._
 
 
-/** Companion object for Schemas. */
-object Schema {
+/** Data format / semantic type of a column.
+ *  @param list All data values must match one of these classifiers.
+ */
+case class Format(list: List[Classifier]) {
 
-  /** Show the classification counts for row of the table.
-   *  The counts for each field go on their own line. */
-  def showCountsRow(
-    classifications: Array[Classifier],
-    counts:          Array[Array[Int]])
-    : String =
-    counts
-      .map { counts => showCountsField(classifications, counts) + ";\n" }
-      .mkString
+  /** Append two formats. */
+  def ++(that: Format): Format = 
+    Format(this.list ++ that.list)
 
+  /** Check if this string matches any of the classifiers in the Format. */
+  def matches(s: String): Boolean = 
+    list.exists(_.matches(s))
 
-  /** Show the classification counts for a single field,
-   *  or '-' if there aren't any. */
-  def showCountsField(
-    classifications: Array[Classifier],
-    counts:          Array[Int])
-    : String =
-    Histogram(Classifier.all .zip (counts) .toMap).pretty
+  /** Pretty print a Format as a string. */
+  def pretty: String =
+    list 
+      .map {_.name}
+      .mkString (" + ")
+
+  /** Convert the format to a JSON. */
+  def toJson: JsonDoc =
+    JsonString(pretty)
 }
 
