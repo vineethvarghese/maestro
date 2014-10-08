@@ -35,7 +35,7 @@ class SqoopImportSpec extends ThermometerSpec with BeforeExample { def is = s2""
   Import/Upload data from DB to HDFS $endToEndImportTest
 
 """
-  val database = "jdbc:hsqldb:mem:sqoopdb"
+  val connectionString = "jdbc:hsqldb:mem:sqoopdb"
   val username = "sa"
   val password = ""
   val userHome = System.getProperty("user.home")
@@ -43,15 +43,15 @@ class SqoopImportSpec extends ThermometerSpec with BeforeExample { def is = s2""
   def endToEndImportTest = {
     val cascade = withArgs(
       Map(
-        "hdfs-root"       -> s"$dir/user/hdfs",
-        "source"          -> "sales",
-        "domain"          -> "books",
-        "importTableName" -> "customer_import",
-        "timePath"        -> (List("2014", "10", "10") mkString File.separator),
-        "mapRedHome"      -> s"$userHome/.ivy2/cache",
-        "database"        -> database,
-        "username"        -> username,
-        "password"        -> password
+        "hdfs-root"        -> s"$dir/user/hdfs",
+        "source"           -> "sales",
+        "domain"           -> "books",
+        "importTableName"  -> "customer_import",
+        "timePath"         -> (List("2014", "10", "10") mkString File.separator),
+        "mapRedHome"       -> s"$userHome/.ivy2/cache",
+        "connectionString" -> connectionString,
+        "username"         -> username,
+        "password"         -> password
       )
     )(new SqoopImportCascade(_))
 
@@ -61,13 +61,13 @@ class SqoopImportSpec extends ThermometerSpec with BeforeExample { def is = s2""
     val archiveDir = "archive" </> tail
     cascade.withFacts(
       root </> dstDir </> "_SUCCESS"   ==> exists,
-      root </> dstDir </> "part-m-00000" ==> lines(Customer.data),
+      root </> dstDir </> "part-m-00000" ==> lines(CustomerImport.data),
       root </> archiveDir </> "_SUCCESS"   ==> exists,
-      root </> archiveDir </> "part-m-00000" ==> lines(Customer.data)
+      root </> archiveDir </> "part-m-00000" ==> lines(CustomerImport.data)
     )
   }
 
-  override def before: Any = Customer.dbSetup(database, username, password)
+  override def before: Any = CustomerImport.tableSetup(connectionString, username, password)
 }
 
 class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
@@ -77,7 +77,7 @@ class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
   val importTableName  = args("importTableName")
   val mappers          = 1
   val database         = domain
-  val connectionString = args("database")
+  val connectionString = args("connectionString")
   val username         = args("username")
   val password         = args("password")
   val timePath         = args("timePath")
@@ -93,14 +93,14 @@ class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
   override val jobs = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, importOptions)(args)._1
 }
 
-object Customer {
+object CustomerImport {
 
   Class.forName("org.hsqldb.jdbcDriver")
 
   val data = List("1|Fred|001|D|M|259", "2|Betty|005|D|M|205", "3|Bart|002|F|M|225")
 
-  def dbSetup(database: String, username: String, password: String): Unit = {
-    ConnectionPool.singleton(database, username, password)
+  def tableSetup(connectionString: String, username: String, password: String): Unit = {
+    ConnectionPool.singleton(connectionString, username, password)
     implicit val session = AutoSession
 
     sql"""
