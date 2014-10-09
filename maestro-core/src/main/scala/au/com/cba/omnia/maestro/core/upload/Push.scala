@@ -17,6 +17,8 @@ package upload
 
 import java.io.File
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
+
 import org.apache.hadoop.fs.Path
 
 import com.google.common.io.Files
@@ -48,7 +50,7 @@ object Push {
     */
   def push(src: Data, hdfsLandingDir: String, archiveDir: String, hdfsArchiveDir: String): Hdfs[Copied] = {
     val fileName = src.file.getName
-    val archName = fileName + ".gz"
+    val archName = fileName + ".bz2"
     val hdfsDestDir      = Hdfs.path(List(hdfsLandingDir, src.fileSubDir) mkString File.separator)
     val hdfsDestFile     = new Path(hdfsDestDir, fileName)
     val hdfsPushFlagFile = new Path(hdfsDestDir, "_INGESTION_COMPLETE")
@@ -101,5 +103,7 @@ object Push {
 
   /** Convert a Hdfs operation that depends on a temporary file into a normal Hdfs operation */
   def hdfsWithTempFile[A](raw: File, fileName: String, action: File => Hdfs[A]): Hdfs[A] =
-    Hdfs(c => Temp.withTempCompressed(raw, fileName, compressed => action(compressed).run(c)))
+    Hdfs(c => Temp.withTempModified(
+      raw, fileName, new BZip2CompressorOutputStream(_), action(_).run(c)
+    ))
 }
