@@ -32,7 +32,7 @@ object build extends Build {
 
   val thermometerVersion = "0.4.0-20140925013601-d800eeb"
   val ebenezerVersion    = "0.10.0-20141002083428-d673392"
-  val omnitoolVersion    = "1.2.0-20140929064622-26891b3"
+  val omnitoolVersion    = "1.3.0-20141009013528-4a9aa95"
 
   lazy val standardSettings: Seq[Sett] =
     Defaults.defaultSettings ++
@@ -92,7 +92,7 @@ object build extends Build {
           "au.com.cba.omnia"  %% "thermometer-hive"  % thermometerVersion     % "test",
           "org.scalikejdbc"   %% "scalikejdbc"       % "2.1.2"                % "test",
           "org.hsqldb"         % "hsqldb"            % "1.8.0.10"             % "test",
-          "org.apache.commons" % "commons-compress"  % "1.8.1"                % "test"
+          "org.apache.commons" % "commons-compress"  % "1.8.1"
         )
     )
   )
