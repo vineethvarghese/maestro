@@ -15,11 +15,15 @@
 package au.com.cba.omnia.maestro.core
 package validate
 
-import org.apache.commons.validator.GenericValidator
+import scalaz._, Scalaz._
+
 import org.apache.commons.validator.routines._
+import org.apache.commons.validator.GenericValidator
+
+import org.joda.time.DateTime
+import org.joda.time.format.{DateTimeFormatter, DateTimeFormat}
 
 import au.com.cba.omnia.maestro.core.data._
-import scalaz._, Scalaz._
 
 case class Validator[A](run: A => ValidationNel[String, A])
 
@@ -41,8 +45,17 @@ object Check {
   def nonempty: Validator[String] =
     Validator(s => if (!s.isEmpty) s.success else "Value can not be empty.".failNel)
 
-  def isDate(pattern: String): Validator[String]=
-    Validator(s => if (GenericValidator.isDate(s, pattern, false)) s.success else s"Date not in the format $pattern".failNel)
+  def isDate(pattern: String): Validator[String]= {
+    Validator(s =>
+      try {
+        val formatter = DateTimeFormat.forPattern(pattern)
+        val date: DateTime = formatter.parseDateTime(s)
+        s.success
+      } catch {
+           case e:Exception => s"Date $s is not in the format $pattern".failNel
+      }
+    )
+  }
 
   def isEmail: Validator[String]=
     Validator(s => if (GenericValidator.isEmail(s)) s.success else s"Data $s not valid email".failNel)
