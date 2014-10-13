@@ -28,6 +28,7 @@ import com.cba.omnia.edge.hdfs.HdfsString._
 import au.com.cba.omnia.maestro.macros.MacroSupport
 
 import au.com.cba.omnia.maestro.core.task._
+import au.com.cba.omnia.maestro.core.args.Config
 
 /**
   * Parent class for a more complex maestro job that needs to use cascades. For example, to run hive
@@ -45,7 +46,13 @@ abstract class MaestroCascade[A <: ThriftStruct](args: Args) extends CascadeJob(
 /** Parent class for a simple maestro job that does not need to use cascades or run hive queries.*/
 abstract class Maestro[A <: ThriftStruct](args: Args) extends Job(args) with MacroSupport[A]
 
-object Maestro extends Load with View with Query with Upload with Sqoop {
+object Maestro
+    extends Load
+    with View
+    with Query
+    with Upload
+    with Sqoop
+    with Config {
   /** Use the current time yyyy-MM-dd as the load time for the data */
   def now(format: String = "yyyy-MM-dd") = {
     val f = new java.text.SimpleDateFormat(format)

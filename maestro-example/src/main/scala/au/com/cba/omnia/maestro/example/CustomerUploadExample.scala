@@ -18,8 +18,6 @@ import com.twitter.scalding.Args
 
 import scalaz._, Scalaz._
 
-import org.apache.hadoop.conf.Configuration
-
 import au.com.cba.omnia.maestro.api.Maestro
 import au.com.cba.omnia.maestro.example.thrift.Customer
 
@@ -32,7 +30,7 @@ class CustomerUploadExample(args: Args) extends Maestro[Customer](args) {
   val filePattern = "{table}_{yyyyMMdd_HHmm}*"
   val localRoot   = args("local-root")
   val archiveRoot = args("archive-root")
-  val conf        = new Configuration
+  val conf        = Maestro.configuration(args)
 
   val byDateResult = Maestro.upload(source, domain, "by_date", filePattern, localRoot, archiveRoot, hdfsRoot, conf)
   val byIdResult   = Maestro.upload(source, domain, "by_id",   filePattern, localRoot, archiveRoot, hdfsRoot, conf)

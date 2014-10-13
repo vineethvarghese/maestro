@@ -20,8 +20,6 @@ import java.util.UUID
 
 import com.twitter.scalding._, TDsl._
 
-import org.apache.hadoop.conf.Configuration
-
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars._
 
 import com.cba.omnia.edge.hdfs.{Error, Ok}
@@ -47,8 +45,9 @@ class CustomerCascade(args: Args) extends MaestroCascade[Customer](args) {
     HiveTable(domain, "by_date", Partition.byDate(Fields.EffectiveDate) )
   val catTable  =
     HiveTable(domain, "by_cat", Partition.byField(Fields.Cat))
+  val conf = configuration(args)
 
-  upload(source, domain, tablename, "{table}_{yyyyMMdd}.txt", localRoot, archiveRoot, hdfsRoot, new Configuration) match {
+  upload(source, domain, tablename, "{table}_{yyyyMMdd}.txt", localRoot, archiveRoot, hdfsRoot, conf) match {
     case Ok(_)    => {}
     case Error(e) => throw new Exception(s"Failed to upload file to HDFS: $e")
   }
@@ -107,7 +106,7 @@ class TransformCustomerCascade(args: Args) extends Maestro[Customer](args) {
   val timeSource    = Maestro.timeFromPath(""".*(\d{4})-(\d{2})-(\d{2}).*""".r)
 
   val in = load[Customer]("|", inputs, errors, timeSource, cleaners, validators, filter, "null")
-  
+
   view(Partition.byDate(Fields.EffectiveDate), customerView)(in)
 
   in.map(transformer.run) |>
