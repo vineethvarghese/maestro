@@ -26,7 +26,7 @@ object ModArgsSpec extends Specification with ThrownExpectations { def is = s2""
 
 ModArgs laws
 ============
-modifying underlying hadoop config is safe $hadoopConfSafe
+  modifying underlying hadoop config is safe $hadoopConfSafe
 """
 
   def hadoopConfSafe = {
