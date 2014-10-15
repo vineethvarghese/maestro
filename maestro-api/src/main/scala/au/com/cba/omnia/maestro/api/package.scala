@@ -14,13 +14,19 @@
 
 package au.com.cba.omnia.maestro
 
+import com.twitter.scrooge.ThriftStruct
+
 package object api {
   type Partition[A, B] = au.com.cba.omnia.maestro.core.partition.Partition[A, B]
   type Clean           = au.com.cba.omnia.maestro.core.clean.Clean
   type Validator[A]    = au.com.cba.omnia.maestro.core.validate.Validator[A]
   type RowFilter       = au.com.cba.omnia.maestro.core.filter.RowFilter
   type Decode[A]       = au.com.cba.omnia.maestro.core.codec.Decode[A]
+  type HiveTable[A <: ThriftStruct, B] = au.com.cba.omnia.maestro.core.hive.HiveTable[A, B]
   type Tag[A]          = au.com.cba.omnia.maestro.core.codec.Tag[A]
+  type Field[A, B]     = au.com.cba.omnia.maestro.core.data.Field[A, B]
+  type Splitter        = au.com.cba.omnia.maestro.core.split.Splitter
+  type Transform[A, B] = au.com.cba.omnia.maestro.core.transform.Transform[A, B]
   type UniqueJob       = au.com.cba.omnia.maestro.core.scalding.UniqueJob
 
   val Partition     = au.com.cba.omnia.maestro.core.partition.Partition
@@ -31,6 +37,7 @@ package object api {
   val RowFilter     = au.com.cba.omnia.maestro.core.filter.RowFilter
   val Guard         = au.com.cba.omnia.maestro.core.hdfs.Guard
   val HiveTable     = au.com.cba.omnia.maestro.core.hive.HiveTable
+  val Splitter      = au.com.cba.omnia.maestro.core.split.Splitter
   val Macros        = au.com.cba.omnia.maestro.macros.Macros
   val ModArgs       = au.com.cba.omnia.maestro.core.args.ModArgs
 }
