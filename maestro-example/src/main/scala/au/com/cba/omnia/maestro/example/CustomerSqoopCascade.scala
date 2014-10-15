@@ -49,7 +49,7 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
    * In order for sqoop to work with Teradata, you will need to include the teradata drivers and cloudera connector 
    * in the maestro-example/lib folder when building the assembly. 
    */
-  val initialImportOptions = createSqoopImportOptions(importTableName, connectionString, username, password, '|', Some("1=1"), TeradataParlourImportDsl())
+  val initialImportOptions = createSqoopImportOptions(importTableName, connectionString, username, password, '|', "null", Some("1=1"), TeradataParlourImportDsl())
   val finalImportOptions = initialImportOptions.numberOfMappers(mappers).inputMethod(SplitByAmp).splitBy("id").verbose()
 
   val (importJobs, importPath) = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, finalImportOptions)(args)
@@ -60,7 +60,7 @@ class CustomerSqoopCascade(args: Args) extends MaestroCascade[Customer](args) {
 
   val exportOptions = TeradataParlourExportDsl().verbose()
 
-  val exportJob = sqoopExport(importPath, exportTableName, connectionString, username, password, '|', exportOptions)(args)
+  val exportJob = sqoopExport(importPath, exportTableName, connectionString, username, password, '|', "null", exportOptions)(args)
 
   override val jobs = importJobs :+ loadView :+ exportJob
 }

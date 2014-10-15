@@ -63,6 +63,7 @@ trait Sqoop {
    * @param username: database username
    * @param password: database password
    * @param outputFieldsTerminatedBy: output field terminating character
+   * @param nullString: The string to be written for a null value in columns
    * @param whereCondition: where condition if any
    * @param options: parlour option to populate
    * @return : Populated parlour option
@@ -73,11 +74,16 @@ trait Sqoop {
     username: String,
     password: String,
     outputFieldsTerminatedBy: Char,
+    nullString: String,
     whereCondition: Option[String] = None,
     options: T = ParlourImportDsl()
   ): T = {
     val withConnection = options.connectionString(connectionString).username(username).password(password)
-    val withEntity = withConnection.tableName(tableName).fieldsTerminatedBy(outputFieldsTerminatedBy)
+    val withEntity = withConnection
+      .tableName(tableName)
+      .fieldsTerminatedBy(outputFieldsTerminatedBy)
+      .nullString(nullString)
+      .nullNonString(nullString)
     whereCondition.map(withEntity.where).getOrElse(withEntity)
   }
 
@@ -149,6 +155,8 @@ trait Sqoop {
    * @param connectionString: Jdbc url for connecting to the database
    * @param username: Username for connecting to the database
    * @param password: Password for connecting to the database
+   * @param inputFieldsTerminatedBy: Field separator in input data
+   * @param inputNullString: The string to be interpreted as null for string and non string columns
    * @param options: Extra export options
    * @return Job for this export
    */
@@ -159,10 +167,14 @@ trait Sqoop {
     username: String,
     password: String,
     inputFieldsTerminatedBy: Char,
+    inputNullString: String,
     options: ParlourExportOptions[T] = ParlourExportDsl()
   )(args: Args)(implicit flowDef: FlowDef, mode: Mode): Job = {
     val withConnection = options.connectionString(connectionString).username(username).password(password)
-    val withEntity = withConnection.exportDir(exportDir).tableName(tableName).inputFieldsTerminatedBy(inputFieldsTerminatedBy)
+    val withEntity = withConnection.exportDir(exportDir)
+      .tableName(tableName)
+      .inputFieldsTerminatedBy(inputFieldsTerminatedBy)
+      .inputNull(inputNullString)
     customSqoopExport(withEntity)(args)
   }
 }

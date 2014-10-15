@@ -85,7 +85,7 @@ object build extends Build {
         ++ depend.omnia("humbug-core",   "0.3.0-20140918054014-3066286")
         ++ depend.omnia("omnitool-time", omnitoolVersion)
         ++ depend.omnia("omnitool-file", omnitoolVersion)
-        ++ depend.omnia("parlour", "1.3.0-20141007050323-d0d32a5")
+        ++ depend.omnia("parlour", "1.4.0-20141015041006-55e204c")
         ++ Seq(
           "commons-validator"  % "commons-validator" % "1.4.0",
           "org.apache.hadoop"  % "hadoop-tools"      % depend.versions.hadoop % "provided",

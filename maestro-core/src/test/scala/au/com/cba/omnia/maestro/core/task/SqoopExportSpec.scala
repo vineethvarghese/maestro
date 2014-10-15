@@ -78,7 +78,7 @@ class SqoopExportCascade(args: Args) extends CascadeJob(args) with Sqoop {
    */
   val exportOptions = ParlourExportDsl().hadoopMapRedHome(mapRedHome)
 
-  override val jobs = Seq(sqoopExport(exportDir, exportTableName, connectionString, username, password, '|', exportOptions)(args))
+  override val jobs = Seq(sqoopExport(exportDir, exportTableName, connectionString, username, password, '|', "", exportOptions)(args))
 }
 
 object CustomerExport {

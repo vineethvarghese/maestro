@@ -104,7 +104,7 @@ class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
    * test case.
    */
   val importOptions: ParlourImportDsl = createSqoopImportOptions(importTableName, connectionString, username,
-    password, '|', Some("1=1")).splitBy("id").hadoopMapRedHome(mapRedHome)
+    password, '|', "", Some("1=1")).splitBy("id").hadoopMapRedHome(mapRedHome)
 
   override val jobs = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, importOptions)(args)._1
 }
