@@ -74,8 +74,8 @@ for each column. For example:
   "classifiers": { "Any": 185091, "Day.DDcMMcYYYY('.')": 185091 }, 
   "sample": 
     { "maxSize": 100, "spilled": 0, 
-      "histogram": { "08.09.2014": 184790, "05.09.2014": 120, "04.09.2014": 18, 
-                     "02.09.2014": 10,     "29.08.2014": 4,   "03.09.2014": 4 } } 
+      "histogram":{ "08.09.2014": 184790, "05.09.2014": 120, "04.09.2014": 18, 
+                    "02.09.2014": 10,     "29.08.2014": 4,   "03.09.2014": 4 } } 
 }
 ```
 
@@ -157,11 +157,11 @@ And one where the inference process did not succeed:
   "histogram": { "Any": 185091, "White": 183372, "Day.DDcMMcYYYY('.')": 473 } }
 ```
 
-In the above case, the count on the Any classifier reveals that there were 185091 
-values in total. However, 183372 were whitespace and only 473 were days. As the 
-sum of the white space values and day values does not equal the total number of
-values in the column, we cannot infer a type for this column. There is no type other
-than Any that matches all values.
+In the above case, the count on the Any classifier reveals that there were 
+185091  values in total. However, 183372 were whitespace and only 473 were days.
+As the sum of the white space values and day values does not equal the total
+number of values in the column, we cannot infer a type for this column. There
+is no type other than Any that matches all values.
 
 
 Step 4. Fill in Missing Types
@@ -170,27 +170,14 @@ Step 4. Fill in Missing Types
 If the inferencer heuristics were not able to infer a value type for a column
 then the format field will be set to the place holder value "-". This will
 happen if the values in a column match multiple classifiers, but no classifier
-matches them all. This is usually caused by:
-
-1. The column contains values that match an existing classifier, but the values
-   should not have the associated type. For example, if a column contains the
-   first names of people we may see a single 'AUD' (Audrey) value, but that
-   same string can also be classified as a currency code (Australian Dollars).
-
-2. The classifiers do not match the full range of values of the associated type.
-   For example, if a classifier for financial system codes matched 
-   'HLS' (home loan system) and 'SAV' (savings accounts), but the column also
-   an unmatched code 'FOR' (foreign exchange).
-
-3. The data is dirty or corrupted. For example, if most values in a value have
-   the form YYYY.MM.DD, but there one that is '1900.01.'
+matches them all. 
 
 In these cases the user needs to either manually update the schema with the
 desired type, improve the classifier in the maestro implementation, or fix the 
 input table in the case of corrupted data.
 
 More details of the inference process are given in the [Inferencer Heuristics]
-section.
+section below.
 
 
 Checking
@@ -219,8 +206,94 @@ hadoop jar ${SCHEMAS_JAR} com.twitter.scalding.Tool \
   the error row did not match the schema.
 
 
-Inferencer heuristics
+Inferencer Heuristics
 ---------------------
 
- TODO: 
+The classifiers for each syntax are arranged in a subtyping hierarchy, like so:
+
+![Classifiers]
+(https://github.com/CommBank/maestro/blob/schematorial/doc/schemas/hierarchy.png)
+
+At the top, the Any classifier matches all strings. Each classifier matches all
+the strings that are matched by its descendents. Conversely, all strings
+matched by a classifier are also matched by its ancestors. Note that the
+hierarchy is a graph rather than a tree, as strings which match the Nat
+classifier (natural numbers) also match AlphaNum and PosReal -- so a child can
+have more than one parent.
+
+In the diagram, the 'i' subscript indicates that the classifier is an isolate,
+meaning that the strings matched by that classifier are not matched by any
+other classifier. For example, the empty string is matched by the Empty
+classifier only. 
+
+Edges annotated by a bullet indicate that the associated child classifiers
+completely partition the parent classifier. For example, all strings that match
+the Real classifier also match either PosReal or NegReal, but not both at the
+same time. In this case we say that the PosReal and NegReal classifiers are
+*separate*.
+
+The inference process takes the histogram of how many values in a column match
+each classifier, and produces a type. The process has three phases.
+
+
+1. Remove redundant parent counts from the histogram.
+
+For some parent node with count N, if it has a set of child nodes that are
+mutually separate, and the the sum of the counts for these child nodes is N,
+then remove the count for the parent.
+
+For example, if we have Digits:100, Exact("0"):40, Exact("1"):60, then remove
+Digits:100. As parent classifiers are guaranteed to match all values that their
+children do, then the count of the parent is implied by the count of the
+children.
+
+If the child nodes are not separate then this process does not work. For
+example, if we had the histogram Any:100, AlphaNum:40, Real:60 we cannot remove
+Any:100 because there are strings that match both the AlphaNum and Real
+classifiers -- eg "555". Likewise, there are strings that match the Any
+classifier, but neither AlphaNum or Real -- eg "N/AVAIL".
+
+
+2. Remove uninteresting child counts from the histogram.
+
+For some parent node with count N, if there are child nodes that are partitions
+of the parent, and all the partitions have counts, and the sum of those counts
+is N, then we can remove *all* child nodes reachable from the parent. 
+
+For example, if we have Real:100, PosReal:70 and NegReal:30, we only keep
+Real:100. The fact that a certain percentage of values are Positive or Negative
+is useful information in itself, but we do not need it to produce a sum type
+for the associated values. All we need is the name of the set that contains all
+the values in the column, and in this case Real will suffice.
+
+
+3. Extract a sum type from the resulting histogram.
+
+If the final histogram contains a single entry, then we can use the associated
+classifier as the type of the column. For example, if we have Real:100 then we
+use the type Real.
+
+If the histogram contains multiple entries that are all siblings, then we
+collect the associated classifiers into a sum type. For example, if we have
+Real:100, White:200, Null:5 then we use the type Real + White + Null.
+
+If neither of the above cases match then a type cannot be inferred for the
+column. This happens when some values in a column match multiple classifiers,
+but there is no inferable type (besides Any) that matches them all. 
+Common causes for failed inference are:
+
+1. The column contains values that match an existing classifier, but the values
+   should not have the associated type. For example, if a column contains the
+   first names of people we may see a single 'AUD' (Audrey) value, but that
+   same string can also be classified as a currency code (Australian Dollars).
+   The currency code classifier will not match all the first names of people,
+   so type inference will fail.
+
+2. The classifiers do not match the full range of values of the associated type.
+   For example, if a classifier for financial system codes matched 'HLS' (home
+   loan system) and 'SAV' (savings accounts), but the column also contains
+   an unmatched code 'FOR' (foreign exchange).
+
+3. The data is dirty or corrupted. For example, if most values in a value have
+   the form YYYY.MM.DD, but there one that is '1900.01.'
 
