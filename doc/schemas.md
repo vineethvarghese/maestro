@@ -93,7 +93,7 @@ represented as day, month and year numbers separated by periods, like
 "1965.05.02".
 
 Classifiers whose names do not include a period are raw syntaxes that do not
-nessesarally refer to a tope. For example, `White` matches to white space
+nessesarally refer to a tope. For example, `White` matches white space
 characters, `AlphaNum` matches alphanumeric strings, `Upper` matches upper
 case characters, and so on. Although the data that matches the `Upper` syntax
 may have some more specific meaning, we are not always able to recognize it. 
@@ -138,7 +138,30 @@ the format field gives the inferred type for the column. The inference process
 uses heuristics to choose a suitable format. In the above example it was easy
 because all the values in the column were day strings.
 
-TODO: add example with multiple classifiers.
+Here is a larger example that contains three separate classifiers:
+
+```
+{ "name"        : "lra_logodds_app",
+  "storage"     : "string",
+  "format"      : "White + Real + Null",
+  "classifiers" : { "Null":3172796, "White":354790, "Real":3929927 }
+}
+```
+
+And one where the inference process did not succeed:
+
+```
+{ "name"     : "appraisal_date_1", 
+  "storage"  : "string", 
+  "format"   : "-", 
+  "histogram": { "Any": 185091, "White": 183372, "Day.DDcMMcYYYY('.')": 473 } }
+```
+
+In the above case, the count on the Any classifier reveals that there were 185091 
+values in total. However, 183372 were whitespace and only 473 were days. As the 
+sum of the white space values and day values does not equal the total number of
+values in the column, we cannot infer a type for this column. There is no type other
+than Any that matches all values.
 
 
 Step 4. Fill in Missing Types
