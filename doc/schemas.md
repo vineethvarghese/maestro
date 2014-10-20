@@ -1,6 +1,5 @@
 
-The Maestro Schema System (Buzzgrind)
-=====================================
+# The Maestro Schema System (Buzzgrind)
 
 The Commonwealth Bank of Australia, like many other large institutions, owns
 hundreds of terabytes worth of financial data whose schema and semantics
@@ -63,8 +62,7 @@ schema are written to an erroneous rows file, along with diagnostic information.
     International Conference on Software Engineering, 2008
 
 
-Step 1. Name Acquisition
-------------------------
+## Step 1. Name Acquisition
 
 Suppose we have a table named 'accounts' that contains the opening and closing
 dates for a set of savings accounts. The first step is to build a names file
@@ -90,8 +88,7 @@ hive -e "describe accounts" > accounts.names
 Trailing words on the line are ignored, such as field comments.
 
 
-Step 2. Tasting
----------------
+## Step 2. Tasting
 
 The "tasting" process reads sample table data and produces a histogram
 describing what sort of data appears in each column. This process produces a
@@ -149,8 +146,7 @@ The `Any` classifier matches all strings, so in the above example the
 classifier set { "Any":185091, "Day.DDcMMcYYYY('.')":185091 } 
 
 
-Step 3. Inference
------------------
+## Step 3. Inference
 
 The inference process takes both the names and taste file and produces a
 skeleton schema. Use the following command:
@@ -211,8 +207,7 @@ number of values in the column, we cannot infer a type for this column. There
 is no type other than Any that matches all values.
 
 
-Step 4. Fill in Missing Types
------------------------------
+## Step 4. Fill in Missing Types
 
 If the inferencer heuristics were not able to infer a value type for a column
 then the format field will be set to the place holder value "-". This will
@@ -227,8 +222,7 @@ More details of the inference process are given in the [Inferencer Heuristics]
 section below.
 
 
-Checking
---------
+## Checking
 
 The final step is to check the data against the constructed table schema. Use
 the following command:
@@ -253,8 +247,7 @@ hadoop jar ${SCHEMAS_JAR} com.twitter.scalding.Tool \
   the error row did not match the schema.
 
 
-Inferencer Heuristics
----------------------
+## Inferencer Heuristics
 
 The classifiers for each syntax are arranged in a subtyping hierarchy, like so:
 
@@ -283,7 +276,7 @@ The inference process takes the histogram of how many values in a column match
 each classifier, and produces a type. The process has three phases.
 
 
-1. Remove redundant parent counts from the histogram.
+### Remove redundant parent counts from the histogram.
 
 For some parent node with count N, if it has a set of child nodes that are
 mutually separate, and the the sum of the counts for these child nodes is N,
@@ -301,7 +294,7 @@ classifiers -- eg "555". Likewise, there are strings that match the Any
 classifier, but neither AlphaNum or Real -- eg "N/AVAIL".
 
 
-2. Remove uninteresting child counts from the histogram.
+### Remove uninteresting child counts from the histogram.
 
 For some parent node with count N, if there are child nodes that are partitions
 of the parent, and all the partitions have counts, and the sum of those counts
@@ -314,7 +307,7 @@ for the associated values. All we need is the name of the set that contains all
 the values in the column, and in this case Real will suffice.
 
 
-3. Extract a sum type from the resulting histogram.
+### Extract a sum type from the resulting histogram.
 
 If the final histogram contains a single entry, then we can use the associated
 classifier as the type of the column. For example, if we have Real:100 then we
