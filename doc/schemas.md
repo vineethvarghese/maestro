@@ -276,7 +276,7 @@ The inference process takes the histogram of how many values in a column match
 each classifier, and produces a type. The process has three phases.
 
 
-### Remove redundant parent counts from the histogram.
+#### Remove redundant parent counts from the histogram.
 
 For some parent node with count N, if it has a set of child nodes that are
 mutually separate, and the the sum of the counts for these child nodes is N,
@@ -294,7 +294,7 @@ classifiers -- eg "555". Likewise, there are strings that match the Any
 classifier, but neither AlphaNum or Real -- eg "N/AVAIL".
 
 
-### Remove uninteresting child counts from the histogram.
+#### Remove uninteresting child counts from the histogram.
 
 For some parent node with count N, if there are child nodes that are partitions
 of the parent, and all the partitions have counts, and the sum of those counts
@@ -307,7 +307,7 @@ for the associated values. All we need is the name of the set that contains all
 the values in the column, and in this case Real will suffice.
 
 
-### Extract a sum type from the resulting histogram.
+#### Extract a sum type from the resulting histogram.
 
 If the final histogram contains a single entry, then we can use the associated
 classifier as the type of the column. For example, if we have Real:100 then we
@@ -320,7 +320,9 @@ Real:100, White:200, Null:5 then we use the type Real + White + Null.
 If neither of the above cases match then a type cannot be inferred for the
 column. This happens when some values in a column match multiple classifiers,
 but there is no inferable type (besides Any) that matches them all. 
-Common causes for failed inference are:
+
+
+#### Common causes for failed inference are:
 
 1. The column contains values that match an existing classifier, but the values
    should not have the associated type. For example, if a column contains the
