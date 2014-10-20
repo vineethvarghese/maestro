@@ -50,6 +50,18 @@ Building a table schema is a four step process:
 Table data can then be checked against the schema. Rows that do not match the
 schema are written to an erroneous rows file, along with diagnostic information.
 
+[1] PADS: a domain specific language for processing ad-hoc data
+    Kathleen Fisher, Robert Gruber
+    Programming Langauge Design and Implementation, 2005
+
+[2] The next 700 data description languages
+    Kathleen Fisher, Yitzhak Mandelbaum, David Walker
+    Journal of the ACM, Volume 57, Number 2, 2010.
+
+[3] Topes: Reusable abstractions for validating data
+    Christopher Scaffidi, Brad Myers, Mary Shaw
+    International Conference on Software Engineering, 2008
+
 
 Step 1. Name Acquisition
 ------------------------
