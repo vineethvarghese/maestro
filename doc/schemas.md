@@ -1,16 +1,51 @@
 
-Schemas
-=======
+The Maestro Schema System (Buzzgrind)
+=====================================
 
-The maestro schema system provides utilities to infer table schemas from
-sample data, and to check incoming data against those schemas.
+The Commonwealth Bank of Australia, like many other large institutions, owns
+hundreds of terabytes worth of financial data whose schema and semantics
+(meaning) are encoded implicitly in the implementation of its various software
+systems. The format of the data produced by systems which manage payments,
+customer information, fraud, credit risk and so on is described informally in
+human readable documents or spreadsheets, rather than in a machine readable
+form. 
 
-The process for building a table schema consists of four steps:
+For a data warehousing group in such an institution, the task of importing new
+tables with hundreds poorly described columns, all encoded as ASCII strings, is
+a weekly occurrence. Critically, the lack of a formal schema for imported data
+means that data quality is both difficult to measure and tends to degrade over
+time. Rows become corrupted due to race conditions in concurrent processes,
+lost due to forgotten loads, and source systems change in a way that was not
+anticipated by follow-on processes, causing bad output.
 
-1. Acquire a names file containing table column names and Hive storage types.
+Building on related work by Fisher [1, 2] and Scaffidi [3] the maestro
+schema system provides tooling to assign types to table columns by scanning
+through the data and matching each value against a set of known classifiers.
+The classifiers are predicates that detect encodings of data values commonly
+found in financial institutions, for example: account numbers, currency codes,
+dates, internal system identifiers and so on. The novel aspect to this work is
+the algorithm which takes the histogram of how many values in a column match
+each classifier, and infers a type that accurately describes the column. 
+
+Building a table schema is a four step process:
+
+1. Acquire a .names file containing column names and storage types. The storage
+   type for a column is the binary format used to encode the values. Typical
+   storage types are 'string', 'int', and 'double'. If the table is already
+   accessable from a front-end database like Hive, then this names file can 
+   be obtained directly from the database.
+
 2. Scan through sample data to produce a classifier histogram for each column.
-3. Using the names file and histogram, infer a skeleton table schema.
-4. Manually inspect the resulting schema, and fill in missing types.
+   This produces a .taste file for the table. A classifier is a function that
+   matches some useful subset of the values that can be encoded by the storage
+   type. For example we have classifiers that match dates, currency codes and
+   positive integers.  The ultimate job of the inference system is recover
+   these more informative types.
+
+3. Using the .names and .taste files, infer a skeleton table .schema file.
+   The schema contains type for the columns which can be inferred.
+
+4. Manually inspect the resulting schema, and fill in un-inferrable types.
 
 Table data can then be checked against the schema. Rows that do not match the
 schema are written to an erroneous rows file, along with diagnostic information.
