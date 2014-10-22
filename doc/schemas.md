@@ -254,7 +254,7 @@ hadoop jar ${SCHEMAS_JAR} com.twitter.scalding.Tool \
 The classifiers for each syntax are arranged in a subtyping hierarchy, like so:
 
 ![Classifiers]
-(https://github.com/CommBank/maestro/blob/schematorial/doc/schemas/hierarchy.png)
+(https://github.com/CommBank/maestro/blob/master/doc/schemas/hierarchy.png)
 
 At the top, the Any classifier matches all strings. Each classifier matches all
 the strings that are matched by its descendents. Conversely, all strings
