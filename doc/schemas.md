@@ -37,12 +37,13 @@ Building a table schema is a four step process:
 2. Scan through sample data to produce a classifier histogram for each column.
    This produces a .taste file for the table. A classifier is a function that
    matches some useful subset of the values that can be encoded by the storage
-   type. For example we have classifiers that match dates, currency codes and
+   type. For example, we have classifiers that match dates, currency codes and
    positive integers.  The ultimate job of the inference system is recover
    these more informative types.
 
 3. Using the .names and .taste files, infer a skeleton table .schema file.
-   The schema contains type for the columns which can be inferred.
+   The schema contains types for the columns which can have their types
+   automatically inferred, and a place holder for un-inferrable types.
 
 4. Manually inspect the resulting schema, and fill in un-inferrable types.
 
@@ -95,8 +96,8 @@ describing what sort of data appears in each column. This process produces a
 new file, eg `accounts.taste`. Use the following job to do this:
 
 ```
-java -cp ${SCHEMAS_JAR} com.twitter.scalding.Tool \
-    au.com.cba.omnia.maestro.schema.commands.Taste \
+hadoop jar ${SCHEMAS_JAR} com.twitter.scalding.Tool \
+    au.com.cba.omnia.maestro.schema.jobs.Taste \
     --hdfs \
     --in-local-names ${LOCAL_NAMES} \
     --in-hdfs-data   ${HDFS_DATA}   \
@@ -110,8 +111,8 @@ java -cp ${SCHEMAS_JAR} com.twitter.scalding.Tool \
 * `HDFS_TASTE` hdfs path where the output taste file should be written. 
 
 The resulting taste file is a JSON encoded list containing extracted metadata
-for each column. Here is a simple example where all values in the column were
-dates:
+for each column. Here is a simple example where most values in the column were
+dates, except for some missing data represented as whitespace:
 
 ```
 { "name":        "eff_date", 
@@ -128,7 +129,7 @@ The `name` and `storage` fields are the information from the input names file.
 
 The classifiers field contains a set of tuples which record how many values in
 the column match each of the known classifiers. The maestro schemas framework
-includes a fixed set of classifiers, though it's easy to add new ones.
+includes a fixed set of classifiers, though it is easy to add new ones.
 
 For classifiers whose names include a period, such as `Day.DDcMMcYYYYY('.')`, 
 the part before the period (`Day`) refers to a tope, which is a named entity 
@@ -173,15 +174,15 @@ following schema:
 ```
 { "name"       : "eff_date", 
   "storage"    : "string", 
-  "format"     : "Day.DDcMMcYYYY('.')", 
-  "classifiers": { "Day.DDcMMcYYYY('.')": 185091 } 
+  "format"     : "Day.DDcMMcYYYY('.') + White", 
+  "classifiers": { "Day.DDcMMcYYYY('.')": 185081, " ":10  } 
 }
 ```
 
 The schema file contains one element for each column in the input table, where
 the format field gives the inferred type for the column. The inference process
 uses heuristics to choose a suitable format. In the above example it was easy
-because all the values in the column were day strings.
+because all the values in the column were Day strings or whitespace.
 
 Here is a larger example that contains three separate classifiers:
 
@@ -193,7 +194,7 @@ Here is a larger example that contains three separate classifiers:
 }
 ```
 
-And one where the inference process did not succeed:
+Here is one where the inference process did not succeed:
 
 ```
 { "name"     : "appraisal_date_1", 
