@@ -110,16 +110,17 @@ java -cp ${SCHEMAS_JAR} com.twitter.scalding.Tool \
 * `HDFS_TASTE` hdfs path where the output taste file should be written. 
 
 The resulting taste file is a JSON encoded list containing extracted metadata
-for each column. For example:
+for each column. Here is a simple example where all values in the column were
+dates:
 
 ```
 { "name":        "eff_date", 
   "storage":     "string", 
-  "classifiers": { "Any": 185091, "Day.DDcMMcYYYY('.')": 185091 }, 
+  "classifiers": { "Any": 185091, "Day.DDcMMcYYYY('.')": 185081, "White":10 }, 
   "sample": 
     { "maxSize": 100, "spilled": 0, 
       "histogram":{ "08.09.2014": 184790, "05.09.2014": 120, "04.09.2014": 18, 
-                    "02.09.2014": 10,     "29.08.2014": 4,   "03.09.2014": 4 } } 
+                    " ": 10,              "29.08.2014": 4,   "03.09.2014": 4 } } 
 }
 ```
 
@@ -143,7 +144,8 @@ case characters, and so on. Although the data that matches the `Upper` syntax
 may have some more specific meaning, we are not always able to recognize it. 
 
 The `Any` classifier matches all strings, so in the above example the
-classifier set { "Any":185091, "Day.DDcMMcYYYY('.')":185091 } 
+classifier set { "Any":185091, "Day.DDcMMcYYYY('.')":185081, "White":10 } 
+shows that we had classifiers for all values in the column.
 
 
 ## Step 3. Inference

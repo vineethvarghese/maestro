@@ -30,16 +30,16 @@ import scala.util.parsing.json.{JSON}
 
 object Load {
 
-  /** Type template for the JSON taste file. */
+  /** Type template for the JSON schema file. */
   type JsonSchema
-    = Map[String,                 // "rows"
+    = Map[String,                 // "columns"
           List[Map[String, _]]]   // Meta-data about each column.
 
 
   /** Load column names and formats from the JSON schema file at the given path. */
   def loadFormats(fileName: String): List[(String, Option[Format])] = {
 
-    // Read the taste file.
+    // Read the taste file, forcing the last line to be \n terminated.
     val strSchema: String =
       Source.fromFile(fileName)
         .getLines .mkString ("\n")
@@ -80,6 +80,8 @@ object Load {
       rawFormats
         .map { s => parseFormat(s) }
 
+    // The names and format values are both extracted from the columns field
+    // of the JSON schema file, so have the same length.
     names .zip (formats)
   }
 

@@ -33,7 +33,7 @@ object Load {
 
   /** Type template for the JSON taste file. */
   type JsonTaste
-    = Map[String,                 // "rows"
+    = Map[String,                 // "columns"
           List[Map[String, _]]]   // Meta-data about each column.
 
 
@@ -44,7 +44,7 @@ object Load {
       fileTaste: String)
     : (List[(String, Histogram)]) = {
 
-    // Read the taste file.
+    // Read the taste file, forcing the last line to be terminated by \n.
     val strTaste: String =
       Source.fromFile(fileTaste)
         .getLines .mkString ("\n")
@@ -58,7 +58,7 @@ object Load {
     // Get names from the taste file, if there are any.
     val namesTaste: Option[List[String]] =
       (for {
-        rows  <- jsonTaste.get("rows")
+        rows  <- jsonTaste.get("columns")
         name  <- sequence(rows.map { row =>
             for { nm <- row.get("name") } 
             yield nm.asInstanceOf[String] })
@@ -92,7 +92,7 @@ object Load {
     // from the taste file.
     val histsRaw: List[List[(String, Int)]] =
       (for {
-        rows  <- jsonTaste.get("rows")
+        rows  <- jsonTaste.get("columns")
         clas  <- sequence(rows.map { row => 
           for { cl <- row.get("classifiers") } 
           yield cl.asInstanceOf[Map[String,_]] })
@@ -107,6 +107,8 @@ object Load {
     val hists: List[Histogram] =
       histsRaw.map { counts => parseHistogram(counts) }
 
+    // The names and hists values are both extracted from the columns field
+    // of the JSON schema file, so have the same length.
     names .zip (hists)
   }
 

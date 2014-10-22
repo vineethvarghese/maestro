@@ -72,7 +72,10 @@ object Check {
 
 
   /** Check if a row matches the associated table spec.
-   *  Returns the column specs and field values that don't match. */
+   *  Returns the column specs and field values that don't match.
+   *
+   *  If the number of fields does not match the number of columns then we 
+   *  get the result for the shorter of the two. */
   def slurpErrorFields(s: String, sep: Char, columnDefs: List[ColumnDef])
     : List[(ColumnDef, String)] =
     s .split(sep)
@@ -81,7 +84,10 @@ object Check {
       .toList
 
 
-  /** Check if a row matches its associated list of ColumnDefs. */
+  /** Check if a row matches its associated list of ColumnDefs. 
+   *
+   *  If the number of fields does not match the number of columns then we
+   *  get the result for the shorter of the two. */
   def rowMatchesColumnDefs(s: String, sep: Char, columnDefs: List[ColumnDef])
     : Boolean =
     s .split  (sep)
