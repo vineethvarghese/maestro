@@ -28,6 +28,8 @@ package object api {
   type Splitter        = au.com.cba.omnia.maestro.core.split.Splitter
   type Transform[A, B] = au.com.cba.omnia.maestro.core.transform.Transform[A, B]
   type UniqueJob       = au.com.cba.omnia.maestro.core.scalding.UniqueJob
+  type NamedJob        = au.com.cba.omnia.maestro.core.scalding.NamedJob
+  type Counters        = au.com.cba.omnia.maestro.core.scalding.Counters
 
   val Partition     = au.com.cba.omnia.maestro.core.partition.Partition
   val HivePartition = au.com.cba.omnia.maestro.core.partition.HivePartition
@@ -40,4 +42,5 @@ package object api {
   val Splitter      = au.com.cba.omnia.maestro.core.split.Splitter
   val Macros        = au.com.cba.omnia.maestro.macros.Macros
   val ModArgs       = au.com.cba.omnia.maestro.core.args.ModArgs
+  val Counters      = au.com.cba.omnia.maestro.core.scalding.Counters
 }

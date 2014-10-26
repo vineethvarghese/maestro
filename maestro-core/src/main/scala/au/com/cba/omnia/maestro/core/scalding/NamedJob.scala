@@ -12,8 +12,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-version in ThisBuild := "1.8.0"
+package au.com.cba.omnia.maestro.core.scalding
 
-uniqueVersionSettings
+import com.twitter.scalding.{Args, Job}
 
-licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+/** Convienient creation of nicely named scalding jobs.*/
+abstract class NamedJob(override val name: String, args: Args) extends Job(args)
