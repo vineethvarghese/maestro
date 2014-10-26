@@ -40,7 +40,14 @@ abstract class MaestroCascade[A <: ThriftStruct](args: Args) extends CascadeJob(
     if (jobs.isEmpty) true
     else super.run
 
-  override def validate { /* workaround for scalding bug, yep, yet another one, no nothing works */ }
+  override def validate {
+    /* scalding validate class chokes on cascades: don't call super.validate */
+
+    val jobNames = jobs.map(_.name)
+    if (jobNames.toSet.size != jobNames.length) {
+      throw new Exception(s"Cascade jobs do not have unique names. The names are: ${jobNames.mkString(", ")}")
+    }
+  }
 }
 
 /** Parent class for a simple maestro job that does not need to use cascades or run hive queries.*/
