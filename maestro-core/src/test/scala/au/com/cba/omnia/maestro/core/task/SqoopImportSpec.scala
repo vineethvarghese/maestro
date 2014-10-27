@@ -103,7 +103,7 @@ class SqoopImportCascade(args: Args) extends CascadeJob(args) with Sqoop {
    * hadoopMapRedHome is set for Sqoop to find the hadoop jars. This hack would be necessary ONLY in a
    * test case.
    */
-  val importOptions: ParlourImportDsl = createSqoopImportOptions(importTableName, connectionString, username,
+  val importOptions: ParlourImportDsl = createSqoopImportOptions(connectionString, username,
     password, '|', "", Some("1=1")).splitBy("id").hadoopMapRedHome(mapRedHome)
 
   override val jobs = sqoopImport(hdfsRoot, source, domain, importTableName, timePath, importOptions)(args)._1

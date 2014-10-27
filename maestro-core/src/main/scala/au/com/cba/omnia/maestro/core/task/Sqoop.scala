@@ -58,7 +58,6 @@ trait Sqoop {
   /**
    * Convenience method to populate a parlour import option instance
    *
-   * @param tableName: table name
    * @param connectionString: database connection string
    * @param username: database username
    * @param password: database password
@@ -69,7 +68,6 @@ trait Sqoop {
    * @return : Populated parlour option
    */
   def createSqoopImportOptions[T <: ParlourImportOptions[T]](
-    tableName: String,
     connectionString: String,
     username: String,
     password: String,
@@ -80,7 +78,6 @@ trait Sqoop {
   ): T = {
     val withConnection = options.connectionString(connectionString).username(username).password(password)
     val withEntity = withConnection
-      .tableName(tableName)
       .fieldsTerminatedBy(outputFieldsTerminatedBy)
       .nullString(nullString)
       .nullNonString(nullString)
@@ -111,6 +108,8 @@ trait Sqoop {
    *
    * Data will be copied to a path that is generated. For a given `domain`,`tableName` and `timePath`, a path
    * `\$hdfsRoot/source/\$source/\$domain/\$tableName/\$timePath` is generated.
+   *
+   * Use [[Sqoop.createSqoopImportOptions]] to populate the last parameter [[ParlourImportOptions]].
    *
    * @param hdfsRoot: Root directory of HDFS
    * @param source: Source system
