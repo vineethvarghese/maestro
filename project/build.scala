@@ -104,7 +104,10 @@ object build extends Build {
   , settings =
        standardSettings
     ++ uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros")
+    ++ uniformThriftSettings
     ++ Seq[Sett](
+         scroogeThriftSourceFolder in Test <<=
+           (sourceDirectory) { _ / "test" / "thrift" },
          libraryDependencies <++= scalaVersion.apply(sv => Seq(
            "org.scala-lang"   % "scala-compiler" % sv
          , "org.scala-lang"   % "scala-reflect"  % sv

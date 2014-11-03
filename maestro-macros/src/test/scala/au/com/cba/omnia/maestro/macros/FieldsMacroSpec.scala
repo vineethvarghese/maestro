@@ -14,6 +14,7 @@
 
 package au.com.cba.omnia.maestro.macros
 
+import au.com.cba.omnia.maestro.macros.thrift.Account
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._
 import au.com.cba.omnia.maestro.test.thrift.humbug.{Types => HTypes}
@@ -30,6 +31,7 @@ The fields macro creates fields
   with the name of the thrift field for scrooge $nameScrooge
   that can extract a value for humbug           $extractHumbug
   that can extract a value for scrooge          $extractScrooge
+  that satisfies an equality test               $satisfiesEquality
 """
 
   val humbugFields  = Macros.mkFields[HTypes]
@@ -57,5 +59,13 @@ The fields macro creates fields
     scroogeFields.StringField.get(t) === t.stringField
     scroogeFields.LongField.get(t)   === t.longField
     scroogeFields.DoubleField.get(t) === t.doubleField
+  }
+
+  def satisfiesEquality = {
+    val fields = Macros.getFields[Account]
+    val fieldList = fields.AllFields
+    val balanceField = fields.Balance
+    fieldList must have size 5
+    fieldList.contains(balanceField) === true
   }
 }
